@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="/static/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/static/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/static/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/static/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/static/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/static/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/static/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/static/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/static/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="/static/css/tbc.css">
+
+    <script src="/static/js/tmi.min.js"></script>
+    <script type='module' src="/static/js/tbc.js" defer></script>
+    <title>Twitch Badge Collector</title>
+</head>
+
+<body>
+
+    <div class="container_row" id='header'>
+        <button id='sidebar_btn'>=</button>
+        <img id='logo' src="/static/logo/cc_icon128.png" alt="">
+
+        <div>
+            <span id='twitch_display_name'></span>
+            <button id='auth'></button>
+        </div>
+        <button id='part_channel'>채팅방 나가기</button>
+
+        <div id='connection'>
+            <input id='channel_id' type="text" placeholder="채널 아이디 입력">
+            <button disabled id='connect_chat'>채팅 연결</button>
+        </div>
+
+    </div>
+    <div id='main'>
+        <div class='container_row' id='channel_setting'>
+            <div class='hidden' id='followed_list'>
+                <span>온라인</span>
+                <div>
+                    <div class='channel_list online'></div>
+                    <button>더 보기</button>
+                    <button>간단히 보기</button>
+                </div>
+            </div>
+
+            <div id='chat_room'>
+                <div id='chat_list'></div>
+                <div id='chat_input'>
+                    <input id='chat_text_input' type="text" placeholder="Send Message">
+                    <button id='chat_text_send'>전송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

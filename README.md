@@ -1,0 +1,1 @@
+Twitch Badge Collector (Web version)
