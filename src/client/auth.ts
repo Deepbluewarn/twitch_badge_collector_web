@@ -1,31 +1,36 @@
-const REDIRECT_URI = 'https://wtbc.bluewarn.dev/';
+const REDIRECT_URI = 'https://wtbc.bluewarn.dev';
 const CLIENT_ID = 'qrh8nkx7bzpij23zdudqsh05wzi9k0';
 const AUTH_SCOPE = 'chat:edit+chat:read+user:read:follows+user:read:subscriptions';
 
 class Auth {
     static get_token(){
-        let token = document.location.hash.split('&')[0].replace('#access_token=', '');
-        let cookie_token = (document.cookie.split('; ').find(row => row.startsWith('tbc_oauth_token')))?.split('=')[1];
-    
-        if (token && token !== '') {
-            document.cookie = 'tbc_oauth_token=' + token;
-            history.replaceState(null, '', location.pathname);
-            return token;
-        }
-        if (cookie_token && cookie_token !== '') {
-            return cookie_token;
-        }
-    
-        return '';
+        return fetch(`${REDIRECT_URI}/token`, {
+            method: 'POST'
+        }).then(res=>{
+            history.replaceState({}, '', location.pathname);
+            return res.json();
+        });
     }
 
-    static login(){
-        location.replace(`https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${AUTH_SCOPE}&force_verify=false`);
+    /**
+     * 
+     * @param cstate client state. For OAuth Authorization Code Flow CSRF prevention.
+     */
+    static login(cstate: string){
+        location.replace(`${REDIRECT_URI}/login?cstate=${cstate}`);
     }
     
     static logout(){
-        document.cookie = 'tbc_oauth_token=' + '';
-        location.replace(location.pathname);
+        location.replace(`${REDIRECT_URI}/logout`);
+    }
+
+    static token_refresh(){
+        return fetch(`${REDIRECT_URI}/token/refresh`, {
+            method: 'POST'
+        }).then(res=>{
+            if(!res.ok) return Promise.reject();
+            return res.json();
+        });
     }
 }
 
