@@ -43,7 +43,7 @@ router.get('/login', (req, res) => {
             req.session.cstate = client_state;
             res.redirect(url);
         }else{
-            res.redirect('/token');
+            res.redirect('/');
         }
     }
 });
@@ -52,11 +52,9 @@ router.post('/token', (req, res) => {
 	console.log('POST /token : ', req.session);
 
 	const access_token = req.session.access_token;
-    const refresh_token = req.session.refresh_token;
-
 	if(!access_token) {
 		res.json({ status: false });
-		return;
+        return;
 	}
 
 	token_api.validate_token(access_token).then(v=>{
@@ -67,12 +65,9 @@ router.post('/token', (req, res) => {
 			expire_time : v.data.expires_in
 		});
 	}).catch(err=>{
-		if(err.response.status === 401 && refresh_token){
-            res.redirect('/token/refresh');
-		}else{
-            res.json({ status: false });
-        }
-	})
+        req.session.destroy();
+        res.json({ status: false });
+	});
 });
 
 router.get('/logout', (req, res) => {
@@ -92,13 +87,25 @@ router.get('/logout', (req, res) => {
 // refresh token..
 router.post('/token/refresh', (req, res)=>{
     const refresh_token = req.session.refresh_token;
+    const current_time = new Date().getTime();
+    const lastTokenRefreshTime = req.session.lastTokenRefreshTime;
 
     console.log('POST /token/refresh : ', refresh_token);
 
+    if(!refresh_token){
+        res.json({ status: false });
+        return;
+    }
+    if(!lastTokenRefreshTime && current_time - lastTokenRefreshTime < 44 * 1000){
+        console.log('refresh token 너무 짧은 시간 내에 요청하였습니다.');
+        res.json({ status: false });
+        return;
+    }
     token_api.refresh_token(refresh_token).then(token=>{
         req.session.access_token = token.data.access_token; // 새로 발급받은 access token.
         req.session.refresh_token = token.data.refresh_token; // 새로 발급받은 refresh token.
         req.session.expire_time = token.data.expires_in;
+        req.session.lastTokenRefreshTime = new Date().getTime();
 
         res.json({
             status: true,
