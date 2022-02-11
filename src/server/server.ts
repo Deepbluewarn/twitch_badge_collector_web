@@ -1,18 +1,26 @@
 import express from 'express';
 import path from 'path';
 import session from 'express-session';
+import {redisClient} from './redis_client.js';
+
 const router = require('./router');
 const app = express();
 
+let RedisStore = require('connect-redis')(session);
+
 app.use(session({
 	name: 'sessionId',
+	store: new RedisStore({
+		client: redisClient,
+		ttl : 3 * 60 * 60
+	}),
 	secret: 'nanayang',
 	resave: false,
-	saveUninitialized: true,
+	saveUninitialized: false,
 	cookie: {
 		secure: true,
 		httpOnly: true,
-		domain: 'bluewarn.dev'
+		domain: 'wtbc.bluewarn.dev'
 	}
 }));
 
