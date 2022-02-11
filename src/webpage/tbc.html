@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html class="dark_theme">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    
     <link rel="apple-touch-icon" sizes="57x57" href="/static/favicon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/static/favicon/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/static/favicon/apple-icon-72x72.png">
@@ -23,51 +23,144 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/static/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-
+    <link rel="preload" as="style" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="preload" as="style">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/tbc.css">
-
-    <script src="/static/js/tmi.min.js"></script>
+    <link rel="stylesheet" href="/static/css/swal_dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.10/dist/sweetalert2.min.js" defer></script>
+    <script src="/static/js/tmi.min.js" defer></script>
     <script type='module' src="/static/js/tbc.js" defer></script>
     <title>Twitch Badge Collector</title>
 </head>
 
 <body>
-
-    <div class="container_row" id='header'>
-        <button id='sidebar_btn'>=</button>
-        <img id='logo' src="/static/logo/cc_icon128.png" alt="">
-
-        <div>
-            <span id='twitch_display_name'></span>
-            <button id='auth'></button>
+    <div class="container_row card-1" id='header'>
+        <div id='sidebar_btn'>
+            <span class="material-icons-round noselect">density_medium</span>
         </div>
-        <button id='part_channel'>채팅방 나가기</button>
-
         <div id='connection'>
             <input id='channel_id' type="text" placeholder="채널 아이디 입력">
-            <button disabled id='connect_chat'>채팅 연결</button>
+            <button class='btn' id='connect_channel'>연결</button>
         </div>
-
+        <div class='container' id='auth_info'>
+            <span class="material-icons-round noselect">person</span>
+        </div>
     </div>
-    <div id='main'>
-        <div class='container_row' id='channel_setting'>
-            <div class='hidden' id='followed_list'>
-                <span>온라인</span>
-                <div>
-                    <div class='channel_list online'></div>
-                    <button>더 보기</button>
-                    <button>간단히 보기</button>
+    <div class='container_row' id='channel_setting'>
+        <div class='container_col noselect card-1 hidden' id='sidebar'>
+
+            <div class='container_col' id='sidebar_channel_list'>
+                <div id='title'>
+                    <img id='logo' src="/static/logo/cc_icon128.png" alt="">
+                    <h4 class='bold'>Twitch Badge Collector</h4>
+                </div>
+                <div class='container card-1 container_col scroller hidden' id='channel_list_container'>
+                    <span class='channel_list_title bold'>최근 연결</span>
+                    <div>
+                        <div class='channel_list recent container_col'></div>
+                    </div>
+                    <span class='channel_list_title bold'>온라인 (팔로우)</span>
+                    <div>
+                        <div class='channel_list online'></div>
+                        <div class='hidden' id='flw_str_control'>
+                            <button class='btn' id='get_more_flw_str'>더 보기</button>
+                            <button class='btn' id='refresh_flw_str'>새로고침</button>
+                        </div>
+    
+                    </div>
                 </div>
             </div>
 
-            <div id='chat_room'>
-                <div id='chat_list'></div>
-                <div id='chat_input'>
-                    <input id='chat_text_input' type="text" placeholder="Send Message">
-                    <button id='chat_text_send'>전송</button>
+            <div class='container card-1' id='twitch_login_btn_big'>
+                <span>트위치로 로그인</span>
+            </div>
+        </div>
+
+        <div class='container_col noselect card-1 hidden' id='user_setting'>
+            <div class='container_col' id='sidebar_channel_list'>
+                <div class='user_setting_list hidden' id='user_info'>
+                    <img id='user_profile_img' src="https://static-cdn.jtvnw.net/user-default-pictures-uv/41780b5a-def8-11e9-94d9-784f43822e80-profile_image-300x300.png" alt="userProfile">
+                    <span id='user_disp_name'>아이디</span>
                 </div>
+                <div class='user_setting_list' id='setting_btn'>
+                    <span class="material-icons-round noselect" id='setting_btn_icon'>settings</span>
+                    <span id="setting_btn_text">설정</span>
+                </div>
+                <div class='user_setting_list' id='dark_mode_btn'>
+                    <span class="material-icons-round noselect" id='dark_mode_btn_icon'></span>
+                    <span id="dark_mode_btn_text"></span>
+                </div>
+
+                <div class='user_setting_list' id='reverse_chat_btn'>
+
+                    <span class="material-icons-round noselect" id="reverse_chat_btn_icon">arrow_upward</span>
+                    <span id="reverse_chat_btn_text">채팅 위치 변경</span>
+                </div>
+
+                <div class='user_setting_list' id='twitch_login_btn_small'>
+                    <span class="material-icons-round noselect" id='login_btn_icon'>login</span>
+                    <span id='twitch_login_small_text'>트위치로 로그인</span>
+                </div>
+            </div>
+        </div>
+
+        <div class='container container_col noselect card-1 hidden' id='setting'>
+            <span class='text-1 bold' id='popup_title'>설정</span>
+
+            <div class='container container_col scroller' id="setting_list">
+                <div class='container container_col setting_container' id='tbc_upload'>
+                    <span class='text-2 bold'>필터 설정</span>
+                    <label class='btn' id='tbc_file_upload_label' for="tbc_file_upload">파일 업로드</label>
+    
+                    <span class='hidden' id='current_tbc_file'>
+                        <span class='text-3' id='tbc_file_name'>2022-04-04-backup.tbc</span>
+                        <span class='text-3'> 파일이 적용되었습니다.</span>
+                    </span>
+                    <span class='text-3'><a href="https://tbc.bluewarn.dev" target="_blank">Twitch Badge Collector</a> 확장 프로그램에서 생성한 .tbc 파일을 업로드 할 수 있습니다.</span>
+                    <input class='hidden' type="file" name="TBC 파일 업로드" id="tbc_file_upload" accept=".tbc">
+                </div>
+
+                <div class="container container_col setting_container", id="font_size_setting">
+                    <span class='text-2 bold'>글자 크기</span>
+
+                    <div class='container_col flex-space-around' id="font_size_examples">
+
+                        <div class="container_col flex-space-around gap-8" id="font_small">
+                            <span class="font_example font_size_0">Aa</span>
+                            <span class="font_example_desc font_size_1">작게</span>
+                        </div>
+                        <div class="container_col flex-space-around gap-8" id="font_default">
+                            <span class="font_example font_size_1">Aa</span>
+                            <span class="font_example_desc font_size_1">기본값</span>
+                        </div>
+                        <div class="container_col flex-space-around gap-8" id="font_big">
+                            <span class="font_example font_size_2">Aa</span>
+                            <span class="font_example_desc font_size_1">크게</span>
+                        </div>
+                        <div class="container_col flex-space-around gap-8" id="font_bigger">
+                            <span class="font_example font_size_3">Aa</span>
+                            <span class="font_example_desc font_size_1">더 크게</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class='container_col font_size_1' id='chat_room'>
+            <div id="chat_list_container">
+                <div class='container_col scroller chat_list origin'></div>
+                <div id="handler"><hr></div>
+                <div class='container_col scroller chat_list clone'></div>
+            </div>
+            
+            <div id='chat_input'>
+                <input id='chat_text_input' type="text" placeholder="Send Message">
+                <button class='btn' id='chat_text_send'>채팅</button>
             </div>
         </div>
     </div>
 </body>
+
 </html>
