@@ -94,14 +94,10 @@ import { ChatColor } from './chatColor.js';
 	tbc_file_name.textContent = localStorage.getItem('tbc_file_name');
 	if(filter_str) current_tbc_file.classList.remove('hidden');
 
-	// localStorage.setItem('rnd', randomIntFromInterval(0, 4).toString());
-
 	const tmi = (window as any).tmi;
 
 	let tmi_client_obj: Options = {
 		options: {
-			// debug : true,
-			// messagesLogLevel: 'info',
 			clientId: CLIENT_ID,
 			skipUpdatingEmotesets: true,
 			skipMembership: true
@@ -110,8 +106,6 @@ import { ChatColor } from './chatColor.js';
 		identity: { username: '', password: '' }
 	};
 	let client: Client = new tmi.Client(tmi_client_obj);
-
-	// const userColorList: Map<string, string> = new Map();
 
 	function connectChatServer(username: string, password: string) {
 		tmi_client_obj.identity.username = username;
@@ -147,7 +141,6 @@ import { ChatColor } from './chatColor.js';
 
 	function updateFollowedStream(user_id: string, after?: string) {
 		return tapi.get_followed_streams(user_id, after).then(fs => {
-			if(dev) console.log('fs.pagination : ', fs.pagination);
 			flwStrCtl.classList.remove('hidden');
 
 			if (isEmpty(fs.pagination)) {
@@ -236,7 +229,6 @@ import { ChatColor } from './chatColor.js';
 	}
 
 	function add_userNotice(channel: string, message: string, userstate: CommonUserstate) {
-		// 유저의 메시지가 있으면 Chat 도 생성하고, 아니면 UserNotice 만 생성.
 		let subs = new UserNotice(userstate['message-type'], userstate['system-msg']);
 		const sub_container = subs.render_sub_container();
 
@@ -244,8 +236,6 @@ import { ChatColor } from './chatColor.js';
 			const chat = new Chat(message, userstate, false, tapi.channel_badges, tapi.global_badges, tapi.emote_sets);
 			sub_container.appendChild(chat.render_chat());
 		}
-
-		if(dev) console.log('add_userNotice channel : ', channel);
 		add_msg_list(channel, sub_container);
 	}
 
@@ -279,19 +269,11 @@ import { ChatColor } from './chatColor.js';
 		
 		localStorage.setItem(KEY, JSON.stringify(rc));
 	}
+
 	function getRecentChannel(){
 		const KEY = 'RECENT_CONN_LIST';
 		return JSON.parse(localStorage.getItem(KEY));
 	}
-	// function updateRecentChannel(){
-	// 	const c = recent_list.getElementsByClassName('channel_container');
-	// 	const rc = getRecentChannel();
-
-	// 	Array
-	// 	for(let c of rc){
-	// 		add_channel
-	// 	}
-	// }
 
 	function clearAllChat(line?: boolean) {
 		Array.from(chat_list_origin.childNodes).forEach(c => {
@@ -305,6 +287,7 @@ import { ChatColor } from './chatColor.js';
 			}
 		});
 	}
+
 	function clearCopiedChat(){
 		Array.from(chat_list_clone.childNodes).forEach(c => {
 			c.remove();
@@ -341,7 +324,6 @@ import { ChatColor } from './chatColor.js';
 		LAST_JOIN_TIME = new Date().getTime();
 		const ircmsg = new IRC_Message(`#${channel} 채팅방에 연결되었습니다.`);
 
-		// filter.channel_badges = badges;
 		tapi.channel_badges = badges;
 		tapi.cheermotes = cheermotes;
 
@@ -378,15 +360,6 @@ import { ChatColor } from './chatColor.js';
 			if(dev) console.log(tapi.access_token);
 			await connectChatServer(tapi.username, tapi.access_token).then(conn=> {
 				connected = true;
-			}).catch(err=> {
-				// const ircmsg = new IRC_Message(`채팅 서버 연결 중 오류가 발생했습니다. ${err}`);
-				// add_msg_list(null, ircmsg.render_message(), true);
-
-				// Toast.fire({
-				// 	icon : 'error',
-				// 	titleText : '인증 오류',
-				// 	text : '로그인이 필요합니다.'
-				// });
 			});
 		}else {
 			connected = true;
@@ -444,14 +417,6 @@ import { ChatColor } from './chatColor.js';
      */
 	 function change_container_ratio(ratio: number) {
         if (ratio != 0) ratio = ratio ? ratio : 30;
-        // container_ratio = ratio;
-
-        // let original_container = <HTMLElement>document.getElementsByClassName('scrollable-area origin')[0];
-        // let clone_container = <HTMLElement>document.getElementsByClassName('scrollable-area clone')[0];
-
-        // if (!original_container || !clone_container) return;
-
-        // let istopDisplay = original_container.parentElement?.getElementsByClassName('scrollable-area')[0].classList.contains('clone');
 
         let orig_size = ratio === 0 ? 1 : (ratio === 10 ? 0 : 1);
         let clone_size = ratio === 0 ? 0 : (ratio === 10 ? 1 : 0);
@@ -464,11 +429,6 @@ import { ChatColor } from './chatColor.js';
 		if(chat_order_reversed){
 			[orig_size, clone_size] = [clone_size, orig_size];
 		}
-
-        // if(istopDisplay){
-        //     [orig_size, clone_size] = [clone_size, orig_size];
-        // }
-
 
         chat_list_origin.style.flex = String(orig_size);
         chat_list_clone.style.flex = String(clone_size);
@@ -566,9 +526,6 @@ import { ChatColor } from './chatColor.js';
 	function getRandomString() {
 		return Math.random().toString(36).substring(2);
 	}
-	function randomIntFromInterval(min, max) {
-		return Math.floor(Math.random() * (max - min + 1) + min);
-	}
 	function isEmpty(obj) {
 		return Object.keys(obj).length === 0;
 	}
@@ -664,7 +621,6 @@ import { ChatColor } from './chatColor.js';
 		if(UserColorMap.map.delete(username)){
 			if(dev) console.log(`PART : ${username} 님의 색상 정보가 삭제되었습니다.`);
 		}
-		
 	});
 	client.on("roomstate", (channel, state) => {
 		// console.log(`roomstate : channel : ${channel}, state : `, state);
@@ -730,11 +686,6 @@ import { ChatColor } from './chatColor.js';
 	});
 	// 비트 후원
 	client.on("cheer", (channel, userstate, message) => {
-		if(dev) console.log('cheer channel : ', channel);
-		if(dev) console.log('cheer userstate : ', userstate);
-		if(dev) console.log('cheer message : ', message);
-
-		if (userstate['message-type'] === 'action') if(dev) console.log('Cheer message included /me');
 		let chat = new Chat(message, userstate, false, tapi.channel_badges, tapi.global_badges, tapi.emote_sets, tapi.cheermotes);
 		add_msg_list(channel, chat.render_chat());
 	});
@@ -870,13 +821,9 @@ import { ChatColor } from './chatColor.js';
 		const chatListContainer = document.getElementById('chat_list_container');
 		const chat = chatListContainer.getElementsByClassName('chat');
 
-		// const isLightTheme = document.body.classList.toggle('light_theme');
-
-		// let theme = isLightTheme ? 'light_theme' : 'dark_theme';
-		// localStorage.setItem('currentTheme', theme);
-
 		toggleTheme();
-		for(let c of Array.from(chat)){
+
+		for(let c of chat){
 			const author = <HTMLSpanElement>c.getElementsByClassName('author')[0];
 			if(!author) continue;
 
