@@ -1,18 +1,19 @@
-import type { Client, Options, CommonUserstate } from 'tmi.js';
-import type Swal from 'sweetalert2/dist/sweetalert2.js';
-import * as swal_setting from './swal_setting.js';
+import { Client, Options, CommonUserstate } from 'tmi.js';
+import Swal from 'sweetalert2';
+import * as swal_setting from './swal_setting';
+import i18next from 'i18next';
 
-import { Auth, CLIENT_ID } from './auth.js';
-import { Twitch_Api } from './twitch_api.js'
+import { Auth, CLIENT_ID } from './auth';
+import { Twitch_Api } from './twitch_api'
 
-import { Chat } from './messages/chat.js';
-import { IRC_Message } from './messages/irc_message.js';
-import { UserNotice } from './messages/usernotice.js';
+import { Chat } from './messages/chat';
+import { IRC_Message } from './messages/irc_message';
+import { UserNotice } from './messages/usernotice';
 
-import { UserColorMap } from './UserColorMap.js';
+import { UserColorMap } from './UserColorMap';
 
-import { Filter } from './filter.js';
-import { ChatColor } from './chatColor.js';
+import { Filter } from './filter';
+import { ChatColor } from './chatColor';
 
 
 (() => {
@@ -47,6 +48,8 @@ import { ChatColor } from './chatColor.js';
 
 	const font_size_examples = document.getElementById('font_size_examples');
 
+	// const tbc_file_label = document.getElementById('tbc_file_upload_label');
+	// const tbc_file_upload_btn = document.getElementById('tbc_file_upload_btn');
 	const tbc_file_input = document.getElementById('tbc_file_upload');
 	const tbc_file_name = document.getElementById('tbc_file_name');
 	const current_tbc_file = document.getElementById('current_tbc_file');
@@ -94,7 +97,7 @@ import { ChatColor } from './chatColor.js';
 	tbc_file_name.textContent = localStorage.getItem('tbc_file_name');
 	if(filter_str) current_tbc_file.classList.remove('hidden');
 
-	const tmi = (window as any).tmi;
+	// const tmi = (window as any).tmi;
 
 	let tmi_client_obj: Options = {
 		options: {
@@ -105,7 +108,7 @@ import { ChatColor } from './chatColor.js';
 		connection: { reconnect: true, secure: true },
 		identity: { username: '', password: '' }
 	};
-	let client: Client = new tmi.Client(tmi_client_obj);
+	let client: Client = new Client(tmi_client_obj);
 
 	function connectChatServer(username: string, password: string) {
 		tmi_client_obj.identity.username = username;
@@ -262,7 +265,7 @@ import { ChatColor } from './chatColor.js';
 		rc.push({channel : user_login.toLocaleLowerCase(), disp_name : disp_name});
 		recent_list.prepend(getChannelElement(disp_name, user_login));
 
-		if(rc.length >= 4){
+		if(rc.length > 4){
 			rc.shift();
 			c[c.length - 1].remove();
 		}
@@ -348,8 +351,8 @@ import { ChatColor } from './chatColor.js';
 		let connected = false;
 		if (!_channel || _channel === '') return;
 
-		if (delay_time <= 4000) {
-			const ircmsg = new IRC_Message(`${~~((4000 - delay_time) / 1000)} 초 뒤 다시 시도하세요.`);
+		if (delay_time <= 3000) {
+			const ircmsg = new IRC_Message(`${~~((3000 - delay_time) / 1000) + 1} 초 뒤 다시 시도하세요.`);
 			add_msg_list(null, ircmsg.render_message(), true);
 			return;
 		}
@@ -885,7 +888,7 @@ import { ChatColor } from './chatColor.js';
 	sidebar_btn.addEventListener('click', e => {
 		toggleSideBar();
 	});
-
+	
 	tbc_file_input.addEventListener('change', loadTbcFile, false);
 
 	font_size_examples.addEventListener('click', e=> {

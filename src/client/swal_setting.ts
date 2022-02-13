@@ -1,6 +1,6 @@
-import type Swal from 'sweetalert2/dist/sweetalert2.js';
+import Swal, { SweetAlertOptions } from 'sweetalert2';
 
-export const setting_def = {
+export const setting_def: SweetAlertOptions = {
     toast: true,
     position: 'top-end',
     width: 444 + 4,

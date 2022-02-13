@@ -29,9 +29,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/tbc.css">
     <link rel="stylesheet" href="/static/css/swal_dark.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.10/dist/sweetalert2.min.js" defer></script>
-    <script src="/static/js/tmi.min.js" defer></script>
-    <script type='module' src="/static/js/tbc.js" defer></script>
+    <script src="/static/js/webpack.js" defer></script>
     <title>Twitch Badge Collector</title>
 </head>
 
@@ -40,11 +38,11 @@
         <div id='sidebar_btn'>
             <span class="material-icons-round noselect">density_medium</span>
         </div>
-        <div id='connection'>
+        <div class='container_row' id='connection'>
             <input id='channel_id' type="text" placeholder="채널 아이디 입력">
             <button class='btn' id='connect_channel'>연결</button>
         </div>
-        <div class='container' id='auth_info'>
+        <div class='container container_row' id='auth_info'>
             <span class="material-icons-round noselect">person</span>
         </div>
     </div>
@@ -52,7 +50,7 @@
         <div class='container_col noselect card-1 hidden' id='sidebar'>
 
             <div class='container_col' id='sidebar_channel_list'>
-                <div id='title'>
+                <div class='container_row' id='title'>
                     <img id='logo' src="/static/logo/cc_icon128.png" alt="">
                     <h4 class='bold'>Twitch Badge Collector</h4>
                 </div>
@@ -73,33 +71,33 @@
                 </div>
             </div>
 
-            <div class='container card-1' id='twitch_login_btn_big'>
+            <div class='container container_col card-1' id='twitch_login_btn_big'>
                 <span>트위치로 로그인</span>
             </div>
         </div>
 
         <div class='container_col noselect card-1 hidden' id='user_setting'>
             <div class='container_col' id='sidebar_channel_list'>
-                <div class='user_setting_list hidden' id='user_info'>
+                <div class='container_row user_setting_list hidden' id='user_info'>
                     <img id='user_profile_img' src="https://static-cdn.jtvnw.net/user-default-pictures-uv/41780b5a-def8-11e9-94d9-784f43822e80-profile_image-300x300.png" alt="userProfile">
                     <span id='user_disp_name'>아이디</span>
                 </div>
-                <div class='user_setting_list' id='setting_btn'>
+                <div class='container_row user_setting_list' id='setting_btn'>
                     <span class="material-icons-round noselect" id='setting_btn_icon'>settings</span>
                     <span id="setting_btn_text">설정</span>
                 </div>
-                <div class='user_setting_list' id='dark_mode_btn'>
+                <div class='container_row user_setting_list' id='dark_mode_btn'>
                     <span class="material-icons-round noselect" id='dark_mode_btn_icon'></span>
                     <span id="dark_mode_btn_text"></span>
                 </div>
 
-                <div class='user_setting_list' id='reverse_chat_btn'>
+                <div class='container_row user_setting_list' id='reverse_chat_btn'>
 
                     <span class="material-icons-round noselect" id="reverse_chat_btn_icon">arrow_upward</span>
                     <span id="reverse_chat_btn_text">채팅 위치 변경</span>
                 </div>
 
-                <div class='user_setting_list' id='twitch_login_btn_small'>
+                <div class='container_row user_setting_list' id='twitch_login_btn_small'>
                     <span class="material-icons-round noselect" id='login_btn_icon'>login</span>
                     <span id='twitch_login_small_text'>트위치로 로그인</span>
                 </div>
@@ -112,7 +110,8 @@
             <div class='container container_col scroller' id="setting_list">
                 <div class='container container_col setting_container' id='tbc_upload'>
                     <span class='text-2 bold'>필터 설정</span>
-                    <label class='btn' id='tbc_file_upload_label' for="tbc_file_upload">파일 업로드</label>
+                    
+                    <label id='tbc_file_upload_label' for="tbc_file_upload">파일 업로드</label>
     
                     <span class='hidden' id='current_tbc_file'>
                         <span class='text-3' id='tbc_file_name'>2022-04-04-backup.tbc</span>

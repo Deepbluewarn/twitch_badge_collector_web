@@ -1,5 +1,5 @@
-import type Swal from 'sweetalert2/dist/sweetalert2.js';
-import * as swal_setting from './swal_setting.js';
+import Swal from 'sweetalert2';
+import * as swal_setting from './swal_setting';
 
 const REDIRECT_URI = 'https://wtbc.bluewarn.dev';
 const CLIENT_ID = 'qrh8nkx7bzpij23zdudqsh05wzi9k0';

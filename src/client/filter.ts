@@ -1,4 +1,4 @@
-import { Twitch_Api } from "./twitch_api.js";
+import { Twitch_Api } from "./twitch_api";
 
 export enum filter_category {
     Badge_UUID = 'badge_uuid',

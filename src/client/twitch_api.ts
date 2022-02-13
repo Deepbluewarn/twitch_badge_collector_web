@@ -1,6 +1,6 @@
-import type Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Auth } from './auth.js';
-import * as swal_setting from './swal_setting.js';
+import Swal from 'sweetalert2';
+import { Auth } from './auth';
+import * as swal_setting from './swal_setting';
 
 // import type Swal from 'sweetalert2';
 // import type { Client, Options, CommonUserstate } from 'tmi.js';

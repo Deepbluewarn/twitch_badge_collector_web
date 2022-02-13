@@ -1,6 +1,6 @@
 import { Badges, Userstate } from "tmi.js";
-import { badge_info } from "../twitch_api.js";
-import { ChatColor, color_list } from '../chatColor.js';
+import { badge_info } from "../twitch_api";
+import { ChatColor, color_list } from '../chatColor';
 
 const exp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
 
