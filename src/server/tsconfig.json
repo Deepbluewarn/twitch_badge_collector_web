@@ -1,9 +1,14 @@
 {
     "compilerOptions": {
-        "target": "es2016",
+        "target": "es2017",
         "module": "commonjs",
+        "moduleResolution": "node",
         "esModuleInterop": true,
         "outDir": "../../dist",
-        "rootDir": "./"
+        "rootDir": "./",
+        "typeRoots": [
+            "../@types",
+            "../../node_modules/@types",
+        ]
     }
 }
