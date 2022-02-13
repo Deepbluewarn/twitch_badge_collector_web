@@ -2,14 +2,19 @@ import express from 'express';
 import path from 'path';
 import * as token_api from './token_api';
 import * as constant from './const';
+import logger from './utils/logger';
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    logger.info(`${logMsgHeader}`);
     res.sendFile(path.join(__dirname, "../src", "webpage", "tbc.html"));
 });
 
 router.get('/login', (req, res) => {
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    logger.info(`${logMsgHeader}`);
     const client_state = req.query.cstate;
     const server_state = req.query.state;
     const auth_code = req.query.code;
@@ -25,7 +30,7 @@ router.get('/login', (req, res) => {
         const s_cstate = req.session.cstate;
         delete req.session.cstate;
         if(!(server_state === s_cstate)){
-            console.log(`state 불일치. req.session.cstate : ${req.session.cstate}, server_state : ${server_state}`);
+            logger.warn(`${logMsgHeader} state mismatch. client_state : ${s_cstate}, server_state : ${server_state}`);
             res.redirect('/');
         }else{
             token_api.request_token(auth_code).then(token => {
@@ -34,7 +39,7 @@ router.get('/login', (req, res) => {
                 req.session.expire_time = token.data.expires_in;
                 res.redirect('/');
             }).catch(err =>{
-                console.log('request_token 실패. : ', err);
+                logger.warn(`${logMsgHeader} request_token failed.`, err);
                 res.redirect('/');
             });
         }
@@ -42,17 +47,21 @@ router.get('/login', (req, res) => {
         if(!req.session.access_token){
             req.session.cstate = client_state;
             res.redirect(url);
+            logger.info(`${logMsgHeader} redirect to twitch login page url : ${url}`);
         }else{
             res.redirect('/');
+            logger.info(`${logMsgHeader} no state, but have access_token.`);
         }
     }
 });
 
 router.post('/token', (req, res) => {
-	console.log('POST /token : ', req.session);
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+	logger.info(`${logMsgHeader}`);
 
 	const access_token = req.session.access_token;
 	if(!access_token) {
+        logger.warn(`${logMsgHeader} access_token not exist.`);
 		res.json({ status: false });
         return;
 	}
@@ -64,20 +73,23 @@ router.post('/token', (req, res) => {
 			access_token: access_token,
 			expire_time : v.data.expires_in
 		});
+        logger.info(`${logMsgHeader} validate_token success.`);
 	}).catch(err=>{
         req.session.destroy();
         res.json({ status: false });
+        logger.error(`${req.method} ${req.originalUrl} validate_token failed. `, err);
 	});
 });
 
 router.get('/logout', (req, res) => {
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
 	const session = req.session;
 	
 	if(session.access_token){
 		token_api.revoke_token(session.access_token).then(res=>{
-			console.log('revoke token result : ', res.status);
+            logger.info(`${logMsgHeader} token revoked. status : ${res.status}`);
 		}).catch(err=>{
-			console.log('revoke_token failed : ', err.response.data);
+            logger.error(`${logMsgHeader} revoke_token failed : ${err.response.data}`);
 		});
 		req.session.destroy();
 	}
@@ -86,18 +98,20 @@ router.get('/logout', (req, res) => {
 
 // refresh token..
 router.post('/token/refresh', (req, res)=>{
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    logger.info(`${logMsgHeader}`);
+
     const refresh_token = req.session.refresh_token;
     const current_time = new Date().getTime();
     const lastTokenRefreshTime = req.session.lastTokenRefreshTime;
 
-    console.log('POST /token/refresh : ', refresh_token);
-
     if(!refresh_token){
+        logger.warn(`${logMsgHeader} refresh_token not exist.`);
         res.json({ status: false });
         return;
     }
     if(!lastTokenRefreshTime && current_time - lastTokenRefreshTime < 44 * 1000){
-        console.log('refresh token 너무 짧은 시간 내에 요청하였습니다.');
+        logger.warn(`${logMsgHeader} refresh token request interval is too short.`);
         res.json({ status: false });
         return;
     }
@@ -112,8 +126,9 @@ router.post('/token/refresh', (req, res)=>{
             access_token: token.data.access_token,
             expire_time : token.data.expires_in
         });
+        logger.info(`${logMsgHeader} token refreshed.`);
     }).catch(err=>{
-        console.log('refresh_token failed err : ', err.response.data);
+        logger.error(`${logMsgHeader} refresh_token not exist.`, err);
         res.json({ status: false });
     });
 });

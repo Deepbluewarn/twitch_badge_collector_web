@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import session from 'express-session';
 import {redisClient} from './redis_client.js';
+import logger from './utils/logger';
+import morgan_logger from './utils/morgan_logger';
 
 const router = require('./router');
 const app = express();
@@ -24,6 +26,8 @@ app.use(session({
 	}
 }));
 
+app.use(morgan_logger);
+
 // Caddy -> Express 로 들어오는 요청은 http 이기 때문에 secure 세션을 사용하기 위해서는
 // 프록시로 부터 들어오는 요청 헤더의 값을 신뢰할 수 있도록 설정해야 한다.
 // X-Forwarded-Proto header 로 protocol 확인.
@@ -31,11 +35,15 @@ app.set('trust proxy', 1); // Proxy 를 사용하는 경우 필요한 설정.
 app.disable('x-powered-by');
 app.use('/', router);
 app.use('/static', express.static(path.join(__dirname, '../src', 'public')));
+app.use((req,res,next) => {
+    res.status(404).send("PAGE NOT FOUND");
+    logger.error(`400 || ${res.statusMessage} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+});
+
+app.use((err,req,res,next) => {
+    logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+});
 
 app.listen('4488', () => {
-	console.log(`
-  		################################################
-  		🛡️  Server listening on port: 4488  🛡️
-  		################################################
-	`);
+	logger.info('Server listening on port: 4488');
 });

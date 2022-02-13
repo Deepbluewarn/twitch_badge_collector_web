@@ -1,4 +1,6 @@
+import logger from './utils/logger';
 const redis = require('ioredis');
+
 
 export const redisClient = redis.createClient({
     host:'localhost', 
@@ -7,9 +9,9 @@ export const redisClient = redis.createClient({
 });
 
 redisClient.on('connect',() => {
-    console.log('connected to redis successfully!');
+    logger.info('connected to redis successfully!');
 })
 
 redisClient.on('error',(error) => {
-    console.log('Redis connection error :', error);
+    logger.error('Redis connection error ', error);
 });
