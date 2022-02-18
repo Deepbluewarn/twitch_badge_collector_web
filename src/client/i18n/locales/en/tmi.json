@@ -1,0 +1,18 @@
+{
+    "connecting" : "Connecting Twitch Chat Server..",
+    "connected" : "Connected to Chat Server.",
+    "authFailed" : "Authentication failed. Please refresh and try again.",
+    "emoteEnabled" : "{{channel}} channel has emote-only mode enabled.",
+    "emoteDisabled" : "emote-only mode is disabled for channel {{channel}}.",
+    "followerEnabled" : "Channel {{channel}} has follower only chat active for {{length}} minutes.",
+    "followerDisabled" : "Follower only chat is disabled on channel {{channel}}.",
+    "claerchat" : "All chats on {{channel}} have been deleted.",
+    "timeout" : "You are banned for {{duration}} seconds.",
+    "subscribersEnabled" : "#{{channel}} Subscriber-only chat enabled.",
+    "subscribersDisabled" : "#{{channel}} Subscriber-only chat disabled",
+    "hosting" : "Hosting #{{target}}.",
+    "raid" : "[raid] {{username}} is raiding with a party of {{viewers}}",
+    "chatConnecting" : "Connecting #{{channel}} chatroom..",
+    "chatConnectFailed" : "Failed to connect {{channel}} chatroom.",
+    "chatConnected" : "connected #{{channel}} chatroom."
+}

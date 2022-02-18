@@ -1,0 +1,18 @@
+{
+    "connecting" : "채팅 서버에 연결 중입니다..",
+    "connected" : "채팅 서버에 연결 되었습니다.",
+    "authFailed" : "인증 실패. 새로고침 후 다시 시도하세요.",
+    "emoteEnabled" : "{{channel}} 채널에 이모티콘 전용 모드가 활성화되었습니다.",
+    "emoteDisabled" : "{{channel}} 채널에 이모티콘 전용 모드가 비활성화되었습니다.",
+    "followerEnabled" : "{{channel}} 채널에 팔로우 전용 채팅이 {{length}} 분간 활성화되었습니다.",
+    "followerDisabled" : "{{channel}} 채널에 팔로우 전용 채팅이 비활성화되었습니다.",
+    "claerchat" : "{{channel}} 채널의 채팅이 모두 삭제되었습니다.",
+    "timeout" : "{{duration}}초 동안 임시 퇴장됐습니다.",
+    "subscribersEnabled" : "#{{channel}} 구독자 전용 채팅이 활성화되었습니다.",
+    "subscribersDisabled" : "#{{channel}} 구독자 전용 채팅이 비활성화되었습니다.",
+    "hosting" : "#{{target}} 호스트 중.",
+    "raid" : "[raid] {{username}} is raiding with a party of {{viewers}}",
+    "chatConnecting" : "#{{channel}} 채팅방에 연결중입니다...",
+    "chatConnectFailed" : "{{channel}} 채팅방 연결에 실패했습니다.",
+    "chatConnected" : "#{{channel}} 채팅방에 연결되었습니다."
+}
