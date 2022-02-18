@@ -1,5 +1,7 @@
 import Swal from 'sweetalert2';
 import * as swal_setting from './swal_setting';
+import { Twitch_Api } from './twitch_api';
+import { Etc } from './utils/etc';
 
 const REDIRECT_URI = 'https://wtbc.bluewarn.dev';
 const CLIENT_ID = 'qrh8nkx7bzpij23zdudqsh05wzi9k0';
@@ -24,13 +26,26 @@ class Auth {
      * 
      * @param cstate client state. For OAuth Authorization Code Flow CSRF prevention.
      */
-    login(cstate: string){
-        location.replace(`${REDIRECT_URI}/login?cstate=${cstate}`);
+    login(cstate: string, page: string){
+        const params = new URLSearchParams();
+        params.append('cstate', cstate);
+        params.append('page', page);
+        location.replace(`${REDIRECT_URI}/login?${params}`);
     }
     
-    logout(){
-        location.replace(`${REDIRECT_URI}/logout`);
+    logout(page: string){
+        const params = new URLSearchParams();
+        params.append('page', page);
+        location.replace(`${REDIRECT_URI}/logout?${params}`);
     }
+
+    toggleLoginStatus(tapi: Twitch_Api, page: string){
+		if (tapi.access_token) {
+			this.logout(page);
+		} else {
+			this.login(Etc.getRandomString(), page);
+		}
+	}
 
     token_refresh(){
         return fetch(`${REDIRECT_URI}/token/refresh`, {
