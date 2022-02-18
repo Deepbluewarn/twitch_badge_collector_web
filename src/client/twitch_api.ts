@@ -1,5 +1,6 @@
 import Swal from 'sweetalert2';
 import { Auth } from './auth';
+import i18n from './i18n/index';
 import * as swal_setting from './swal_setting';
 
 // import type Swal from 'sweetalert2';
@@ -62,20 +63,36 @@ class Twitch_Api {
         const url = `https://api.twitch.tv/helix/users/follows?${params}`;
         return this.request(url, 'GET');
     }
-    get_channel_chat_badges(broadcaster_id: string) {
+    get_channel_chat_badges(broadcaster_id: string, map: boolean) {
         const url = `https://api.twitch.tv/helix/chat/badges?broadcaster_id=${broadcaster_id}`;
         return this.request(url, 'GET').then(badges => {
-            const m = this.badge_data_to_map(badges);
+            const m = map ? this.badge_data_to_map(badges) : badges;
             if(this.dev) console.log(m);
             return m;
         });
     }
-    get_global_chat_badges() {
+    get_global_chat_badges(map: boolean) {
         const url = 'https://api.twitch.tv/helix/chat/badges/global';
         return this.request(url, 'GET').then(badges=>{
-            const m = this.badge_data_to_map(badges);
+            const m = map ? this.badge_data_to_map(badges) : badges;
             if(this.dev) console.log(m);
             return m;
+        });
+    }
+    getChannelChatBadges(broadcaster_id: string){
+        let params = new URLSearchParams();
+        params.append('language', i18n.language);
+        const url = `https://badges.twitch.tv/v1/badges/channels/${broadcaster_id}/display?${params}`
+        return this.request(url, 'GET').then(badges=>{
+            return badges;
+        });
+    }
+    getGlobalChatBadges(){
+        let params = new URLSearchParams();
+        params.append('language', i18n.language);
+        const url = `https://badges.twitch.tv/v1/badges/global/display?${params}`
+        return this.request(url, 'GET').then(badges=>{
+            return badges;
         });
     }
     get_emote_sets(emote_sets_id: string[]) {
@@ -179,7 +196,7 @@ class Twitch_Api {
 
                             this.Toast.fire({
                                 icon: 'error',
-                                title: '로그인 정보 갱신',
+                                title: '로그인 정보가 갱신 되었습니다.',
                                 text: '다시 시도하세요.'
                             });
                         }else{
