@@ -95,7 +95,7 @@ button{
     font-weight: bold;
     font-size: 0.9rem;
     text-align: center;
-    min-width: 3.4rem;
+    /* min-width: 3.4rem; */
     align-items: center;
     white-space: nowrap;
     padding: 3px 12px 3px 12px;
@@ -177,10 +177,8 @@ input#channel_id::placeholder{
     margin: 16px 0 4px 0;
 }
 #auth_info{
-    align-items: center;
-    justify-content: space-between;
+    padding: 2px;
     cursor: pointer;
-    background-color: var(--bg-color-2);
 }
 #display_name_container{
     margin: 0px 16px 0 0;
@@ -270,7 +268,7 @@ div#sidebar{
     justify-content: center;
     align-items: center;
 }
-#sidebar_channel_list{
+.container_list{
     overflow: auto;
     gap: 14px;
     margin: 4px;
@@ -392,10 +390,17 @@ div.chat_line{
 }
 div.chat{
     margin: 4px 20px 4px 0px;
+    vertical-align: middle;
 }
 span.badges{
     display: inline-flex;
-    vertical-align: middle;
+    vertical-align: inherit;
+}
+span.author{
+    vertical-align: inherit;
+}
+span.chat_message{
+    vertical-align: inherit;
 }
 div.usernotice{
     padding: 4px 10px 4px 10px;
@@ -421,7 +426,7 @@ img.chat_badge{
     width: 1.75rem;
     height: 1.75rem;
 
-    vertical-align: middle;
+    vertical-align: inherit;
     margin: -0.8rem 0;
     align-items: center;
     cursor: pointer;
