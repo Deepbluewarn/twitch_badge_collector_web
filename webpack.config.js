@@ -8,21 +8,20 @@ module.exports = {
                 test: /\.tsx?$/,
                 use: "ts-loader",
                 exclude: /node_modules/,
-            },
-            // {
-            //     test: /\.css$/,
-            //     use: "css-loader"
-            // }
+            }
         ],
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
     },
+
     entry: {
-        main: "./src/client/tbc.ts",
+        main: './src/client/tbc.ts',
+        filter: './src/client/filterSetting.ts'
     },
+
     output: {
-        filename: "webpack.js",
-        path: path.resolve(__dirname, "./src/public/js"),
+        filename: "[name].js",
+        path: path.resolve(__dirname, 'src/public/js')
     },
 }
