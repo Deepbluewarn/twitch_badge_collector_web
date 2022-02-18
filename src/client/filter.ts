@@ -47,7 +47,7 @@ export class Filter{
         for(const[k, v] of badge_priority){
             if(v === 'FILTER_NOT_FOUND') continue;
             if(v === 'FILTER_INCLUDE'){
-                return '_' + k;
+                return k;
             }
             break;
         }
