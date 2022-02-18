@@ -1,8 +1,9 @@
 import { Badges, Userstate } from "tmi.js";
-import { badge_info } from "../twitch_api";
+import { badge_info, Twitch_Api } from "../twitch_api";
 import { ChatColor, color_list } from '../chatColor';
+import { Filter } from "../filter";
 
-const exp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+const linkRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
 
 
 class Chat{
@@ -21,14 +22,14 @@ class Chat{
     bits: string;
     _cheermotes: Map<string, any>;
     self: boolean;
-    // userColorList: Map<string, string>;
-    // chatColor;
+
+    filter: Filter;
 
     cb_info?: Map<string, badge_info>; // channel badge info.
     gb_info?: Map<string, badge_info>; // global badge info.
     emoteset: Map<string, any>;
 
-    constructor(text: string, userstate: Userstate, self: boolean, channel_badge_info: Map<string, badge_info>, global_badge_info: Map<string, badge_info>, emoteset: Map<string, any>, cheermotes?: Map<string, any>){
+    constructor(text: string, userstate: Userstate, self: boolean, tapi: Twitch_Api, filter: Filter){
         this.badges = userstate.badges;
         this.badges_raw = userstate["badges-raw"];
         this.login_name = userstate.username || userstate.login;
@@ -42,14 +43,16 @@ class Chat{
         this.id = userstate.id;
         this.emotes = userstate.emotes;
         this.bits = userstate.bits;
-        this._cheermotes = cheermotes;
+        this._cheermotes = tapi.cheermotes || new Map();
         this.self = self;
-        // this.userColorList = userColorList;
-        // this.chatColor = new ChatColor();
+        this.filter = filter;
+        this.cb_info = tapi.channel_badges;
+        this.gb_info = tapi.global_badges;
+        this.emoteset = tapi.emote_sets;
+    }
 
-        this.cb_info = channel_badge_info;
-        this.gb_info = global_badge_info;
-        this.emoteset = emoteset;
+    checkFilter(){
+        return this.filter.checkFilterWithValues(this.badges_raw, this.text, this.login_name, this.disp_name);
     }
 
     render_chat() {
@@ -146,95 +149,64 @@ class Chat{
             chat_span.classList.add('highlighted-message');
         }
 
-        let words = message.split(' ');
-        let seps = []; // 링크, 이모티콘을 기준으로 message 를 나누어야 할 인덱스 위치 배열.
-        let emote_last_index = 0;
+        const links = this.resolveLink(message);
+        const motes = this.resolveMotes(message);
 
-        const emote_map = this.emoteToMap();
-        const emote_id_map = new Map();
+        const objectInfo = [...links, ...motes];
 
-        // message 문자열을 공백으로 나눈 다음 이모티콘, 링크와 일반 텍스트를 구분하는 seps 배열을 만듬.
-        words.forEach((w, i)=>{
-            const isCheer = this.isCheermote(w) && this.bits;
-            let start = 0;
-            let end = 0;
-            let cur_idx = ''; // message 에서 word 에 해당하는 부분의 시작 인덱스 - 끝 인덱스.
+        objectInfo.sort((a, b) => a.idx[0] - b.idx[0]);
 
-            if(i === 0){
-                start = i;
-                end = w.length - 1;
-                emote_last_index = end;
-            }else{
-                start = emote_last_index + 2;
-                end = emote_last_index + w.length + 1;
-                emote_last_index = end;
-            }
-            cur_idx = `${start}-${end}`;
+        if(objectInfo.length === 0){
+            chat_span.appendChild(this.getTextTag(message));
+        }
 
-            const emote_obj = this.emoteset.get(w); // this.self = true;
-            const emote_id = emote_map.get(cur_idx); // this.self = false;
-
-            let eid;
-
-            if(emote_obj){
-                eid = emote_obj.id;
-            }else if(emote_id){
-                eid = emote_id;
-            }
-            const isEmote = this.emoteset.get(w) || emote_map.get(cur_idx);
-
-            if(isEmote){
-                emote_id_map.set(w, eid);
+        for(let i = 0; i < objectInfo.length; i++){
+            const info = objectInfo[i];
+            
+            if(i === 0 && info.idx[0] !== 0){
+                chat_span.appendChild(this.getTextTag(message.substring(0, info.idx[0]))); // 6, 0
             }
 
-            let link_idx = this.getLinkStartIdxArr(w);
+            if(info.type === 'emote'){
+                chat_span.appendChild(this.getEmoteTag(info.value));
+            }else if(info.type === 'cheermote'){
+                let span = document.createElement('span');
 
-            if(link_idx.length !== 0){
-                seps.push(start, ...link_idx, end + 1);
-            }
+                const prefix = info.value[0];
+                const bits = info.value[1];
 
-            if(isEmote || isCheer){
-                seps.push(start, end + 1);
-            }
-        });
-        seps.sort((a, b) => a - b);
-
-        const msg_frag = this.splitOn(message, ...seps);
-
-        for(let m of msg_frag){
-            if(m === '') continue;
-
-            const emote_id = emote_id_map.get(m);
-
-            if(emote_id_map.get(m)){
-                chat_span.appendChild(this.getEmoteTag(emote_id));
-            }else if(this.isLink(m)){
-                chat_span.appendChild(this.getLinkAnchor(m));
-            }else if(this.isCheermote(m) && this.bits){
-                let s = document.createElement('span');
-
-                const exp = /[0-9]+$/;
-                const bits = parseInt(m.match(exp)[0]);
-                const prefix = m.replace(exp, '');
                 const min_bits = this.getMinBits(bits);
                 const tier = this.getTierByMinBits(prefix, min_bits);
                 const links = isDarkTheme ? tier.images.dark.animated : tier.images.light.animated;
                 const tier_color = tier.color;
 
-                s.classList.add('bits_amount');
-                s.style.color = tier_color;
-                s.textContent = bits.toString();
+                span.classList.add('bits_amount');
+                span.style.color = tier_color;
+                span.textContent = bits.toString();
 
                 chat_span.appendChild(this.getCheermoteTag(links[1], links[2], links[3]));
-                chat_span.appendChild(s);
+                chat_span.appendChild(span);
+            }else if(info.type === 'link'){
+                const msg = message.substring(info.idx[0], info.idx[1] + 1);
+                chat_span.appendChild(this.getLinkAnchor(msg));
+            }
+
+            if(objectInfo.length - 1 === i){
+                if(info.idx[1] < message.length - 1){
+                    chat_span.appendChild(this.getTextTag(message.substring(info.idx[1] + 1, message.length))); // 6, 0
+                }
             }else{
-                let s = document.createElement('span');
-                s.textContent = m;
-                chat_span.appendChild(s);
+                const info_next = objectInfo[i + 1];
+                chat_span.appendChild(this.getTextTag(message.substring(info.idx[1] + 1, info_next.idx[0])));
             }
         }
-        
         return chat_span;
+    }
+
+    private getTextTag(text){
+        let span = document.createElement('span');
+        span.textContent = text;
+        return span;
     }
 
     private getEmoteTag(emote_id) {
@@ -298,38 +270,53 @@ class Chat{
         return min_bits;
     }
 
-    private splitOn = (slicable, ...indices) => [0, ...indices].map((n, i, m) => slicable.slice(n, m[i + 1]));
+    private resolveMotes(message){
+        const res = [];
+        const words = message.split(' ');
+        let lastWordEndIdx = 0;
 
-    private emoteToMap() {
-        const map = new Map();
+        const emote = this.emotes || {};
+        const emoteEmpty = Object.keys(emote).length === 0 && Object.getPrototypeOf(emote) === Object.prototype;
 
-        for (var i in this.emotes) {
-            var e = this.emotes[i];
-            for (var j in e) {
-                map.set(e[j], i);
-            }
+        if(!emoteEmpty){
+            Object.keys(emote).forEach(e => {
+                for(let idx of emote[e]){
+                    res.push({type : 'emote', value : e, idx : idx.split('-').map(e => parseInt(e))});
+                }
+            });
         }
-        return map;
+
+        for (let w = 0; w < words.length; w++) {
+            const word = words[w];
+            const idx = [lastWordEndIdx, lastWordEndIdx + word.length - 1];
+
+            const cheer = this.checkCheermote(word);
+            if(this.bits && cheer.length !== 0){
+                res.push({type : 'cheermote', value : cheer, idx : idx});
+            }else if(emoteEmpty && this.emoteset.has(word)){
+                const emote_id = this.emoteset.get(word).id;
+                res.push({type : 'emote', value : emote_id, idx : idx});
+            }
+            lastWordEndIdx = lastWordEndIdx + word.length + 1;
+        }
+        return res;
     }
 
-    private isLink(link_text) {
-        return exp.test(link_text);
-    }
-    private getLinkStartIdxArr(link_text) {
-        const matches = link_text.match(exp);
+    private resolveLink(link_text) {
+        const matches = link_text.matchAll(linkRegex);
         const arr = [];
         
-        if(!matches) return arr;
-        matches.forEach(m => {
-            const idx = link_text.indexOf(m);
-            arr.push(idx, idx + m.length);
-        });
+        for (const match of matches) {
+            arr.push({type : 'link', idx : [match.index, match.index + match[0].length - 1]});
+        }
         return arr;
     }
 
-    private isCheermote(cheer_text) {
-        const exp = /[A-Za-z0-9]+([0-9]+)$/;
-        return exp.test(cheer_text);
+    private checkCheermote(cheerText){
+        const bits_regex = /([1-9]+[0-9]*)$/;
+        const cheer = cheerText.split(bits_regex);
+
+        return this._cheermotes.has(cheer[0]) ? [cheer[0], cheer[1]] : [];
     }
 
     private render_time(){
