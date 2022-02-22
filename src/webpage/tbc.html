@@ -46,7 +46,7 @@
             <span class="material-icons-round noselect">person</span>
         </div>
     </div>
-    <div class='container_row' id='channel_setting'>
+    <div class='container_row' id='main'>
         <div class='container_col noselect card-1 hidden' id='sidebar'>
 
             <div class='container_col container_list'>
@@ -54,26 +54,31 @@
                     <img id='logo' src="/static/logo/cc_icon128.png" alt="">
                     <h4 class='bold'>Twitch Badge Collector</h4>
                 </div>
-                <div class='container card-1 container_col scroller hidden' id='channel_list_container'>
-                    <span class='channel_list_title bold' id="recentChannel">최근 연결</span>
-                    <div>
-                        <div class='channel_list recent container_col'></div>
-                    </div>
-                    <span class='channel_list_title bold' id="onlineChannel">온라인 (팔로우)</span>
-                    <div>
-                        <div class='channel_list online'></div>
-                        <div class='hidden' id='flw_str_control'>
-                            <button class='btn' id='get_more_flw_str'>더 보기</button>
-                            <button class='btn' id='refresh_flw_str'>새로고침</button>
+                <div class='container card-1 container_col scroller' id='channel_list_container'>
+                    <div id="recent_connections">
+                        <span class='channel_list_title bold' id="recentChannel">최근 연결</span>
+                        <div>
+                            <div class='channel_list recent container_col'></div>
                         </div>
-    
                     </div>
+                    <div class="hidden" id="followed_online-list">
+                        <span class='channel_list_title bold' id="onlineChannel">온라인 (팔로우)</span>
+                        <div>
+                            <div class='channel_list online'></div>
+                            <div id='flw_str_control'>
+                                <button class='btn' id='get_more_flw_str'>더 보기</button>
+                                <button class='btn' id='refresh_flw_str'>새로고침</button>
+                            </div>
+        
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
 
-            <div class='container container_col card-1' id='twitch_login_btn_big'>
+            <!-- <div class='container container_col card-1' id='twitch_login_btn_big'>
                 <span>트위치로 로그인</span>
-            </div>
+            </div> -->
         </div>
 
         <div class='container_col noselect card-1 hidden' id='user_setting'>
