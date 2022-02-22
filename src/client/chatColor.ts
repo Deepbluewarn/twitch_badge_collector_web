@@ -134,10 +134,13 @@ class ChatColor {
     private resolveColor(name, color){
         // if(color !== null) return color;
 
-        let resolvedColor = '';
+        let resolvedColor = UserColorMap.map.get(name);
 
-        if(UserColorMap.map.has(name)){
-            resolvedColor = UserColorMap.map.get(name);
+        if(resolvedColor){
+            if(color && resolvedColor !== color){
+                resolvedColor = color;
+                UserColorMap.map.set(name, resolvedColor);
+            }
         }else{
             if(!color){
                 const rndIdx = Math.floor(Math.random() * color_list.length);
