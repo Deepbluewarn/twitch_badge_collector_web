@@ -1,29 +1,21 @@
-import { Client, Options, CommonUserstate } from 'tmi.js';
+import { Client, UserNoticeState, Options } from 'tmi.js';
 import Swal from 'sweetalert2';
 import * as swal_setting from './swal_setting';
-// import i18next from 'i18next';
 import i18n from './i18n/index';
 import { Auth, CLIENT_ID } from './auth';
 import { Twitch_Api } from './twitch_api'
-
-import { Chat } from './messages/chat';
-import { IRC_Message } from './messages/irc_message';
-import { UserNotice } from './messages/usernotice';
 
 import { UserColorMap } from './UserColorMap';
 
 import { Filter } from './filter';
 import { ChatColor } from './chatColor';
 import { Etc } from './utils/etc';
+import { messageList } from './messageList';
 
 
 (() => {
 	const APP_TITLE = 'Twitch Badge Collector';
-	const CHAT_COUNT = 144;
-
-	const twitch_login_btn_big = document.getElementById('twitch_login_btn_big');
 	const twitch_login_btn_small = document.getElementById('twitch_login_btn_small');
-
 	const auth_info = document.getElementById('auth_info');
 	const user_setting = document.getElementById('user_setting');
 	const setting_btn = document.getElementById('setting_btn');
@@ -48,9 +40,6 @@ import { Etc } from './utils/etc';
 	const setting_container = document.getElementById('setting');
 
 	const font_size_examples = document.getElementById('font_size_examples');
-
-	// const tbc_file_label = document.getElementById('tbc_file_upload_label');
-	// const tbc_file_upload_btn = document.getElementById('tbc_file_upload_btn');
 	const tbc_file_input = document.getElementById('tbc_file_upload');
 	const tbc_file_name = document.getElementById('tbc_file_name');
 	const current_tbc_file = document.getElementById('current_tbc_file');
@@ -66,9 +55,6 @@ import { Etc } from './utils/etc';
 
 	let followed_streams_after: string = '';
 	let LAST_JOIN_TIME: number = 0;
-
-	let origChatIsAtBottom = true;
-	let cloneChatIsAtBottom = true;
 
 	localStorage.setItem('dev', 'false');
 	let dev = JSON.parse(localStorage.getItem('dev'));
@@ -96,13 +82,10 @@ import { Etc } from './utils/etc';
 
 	const filter_str = localStorage.getItem('tbc_file');
 	const filter: Filter = new Filter(JSON.parse(filter_str), tapi);
-
+	const msgList: messageList = new messageList(filter, tapi);
 
 	tbc_file_name.textContent = i18n.t('page:currentFile', {filename : localStorage.getItem('tbc_file_name')});
-	// tbc_file_name.textContent = localStorage.getItem('tbc_file_name');
 	if(filter_str) current_tbc_file.classList.remove('hidden');
-
-	// const tmi = (window as any).tmi;
 
 	let tmi_client_obj: Options = {
 		options: {
@@ -116,22 +99,19 @@ import { Etc } from './utils/etc';
 	let client: Client = new Client(tmi_client_obj);
 
 	function connectChatServer(username: string, password: string) {
-		tmi_client_obj.identity.username = username;
-		tmi_client_obj.identity.password = `oauth:${password}`;
+		const random = Math.floor(1000 + Math.random() * 9000);
+		tmi_client_obj.identity.username = password ? username : 'justinfan' + random;
+		tmi_client_obj.identity.password = password ? `oauth:${password}` : '';
+
+		// tmi_client_obj.identity.username = 'justinfan4444';
+		// tmi_client_obj.identity.password
+
 		return client.connect().then(() => {
 			return true;
 		}).catch(err => {
 			return false;
 		});
 	}
-
-	// function toggleLoginStatus(){
-	// 	if (tapi.access_token) {
-	// 		auth.logout('main');
-	// 	} else {
-	// 		auth.login(Etc.getRandomString(), 'main');
-	// 	}
-	// }
 
 	function init_user_info(user) {
 		const twitch_login_small_text = document.getElementById('twitch_login_small_text');
@@ -140,8 +120,6 @@ import { Etc } from './utils/etc';
 		const user_info = document.getElementById('user_info');
 		const user_profile_img = <HTMLImageElement>document.getElementById('user_profile_img');
 		const user_disp_name = document.getElementById('user_disp_name');
-
-		twitch_login_btn_big.classList.add('hidden');
 
 		login_btn_icon.textContent = 'logout';
 		twitch_login_small_text.textContent = i18n.t('page:logout');
@@ -153,7 +131,7 @@ import { Etc } from './utils/etc';
 
 	function updateFollowedStream(user_id: string, after?: string) {
 		return tapi.get_followed_streams(user_id, after).then(fs => {
-			flwStrCtl.classList.remove('hidden');
+			document.getElementById('followed_online-list').classList.remove('hidden');
 
 			if (Etc.isEmpty(fs.pagination)) {
 				followed_streams_after = null;
@@ -197,66 +175,8 @@ import { Etc } from './utils/etc';
 		parentHTML.appendChild(getChannelElement(username, user_login));
 	}
 
-	/**
-	 * 
-	 * @param channel 
-	 * @param html 
-	 * @param isSysMsg 채널과 관계 없는 시스템 메시지이면 true.
-	 * @returns 
-	 */
-	function add_msg_list(channel: string, html: HTMLElement, filter_type?: string, isSysMsg?: boolean) {
-		if (!isSysMsg && trim_hash(channel) !== trim_hash(tapi.current_channel)) {
-			return;
-		}
-		filter_type = filter_type ? filter_type : '';
-		const isFilterExist = filter_type !== '';
-		const baseClassName = 'tbc_highlight';
-
-		const chat_line = document.createElement('div');
-		let className = isFilterExist ? baseClassName + '_' + filter_type : baseClassName;
-		chat_line.classList.add(className);
-
-		chat_line.classList.add('chat_line');
-		chat_line.appendChild(html);
-		
-		if(isFilterExist){
-			let clone_chat = <HTMLDivElement>chat_line.cloneNode(true);
-			chat_list_clone.appendChild(clone_chat);
-			maintainChatCount(chat_list_clone);
-			if (cloneChatIsAtBottom) scrollDownChatList(chat_list_clone);
-		}
-		
-
-		chat_list_origin.appendChild(chat_line);
-		maintainChatCount(chat_list_origin);
-		if (origChatIsAtBottom) scrollDownChatList(chat_list_origin);
-	}
-
-	function maintainChatCount(chat_list) {
-		if (chat_list.childElementCount > CHAT_COUNT) {
-			chat_list.removeChild(chat_list.firstElementChild);
-		}
-	}
-	function scrollDownChatList(chat_list) {
-		chat_list.scrollTop = chat_list.scrollHeight;
-	}
-
-	function add_userNotice(channel: string, message: string, userstate: CommonUserstate) {
-		let subs = new UserNotice(userstate['message-type'], userstate['system-msg']);
-		let filter_type = '';
-		const sub_container = subs.render_sub_container();
-
-		if (message && message !== '') {
-			const chat = new Chat(message, userstate, false, tapi, filter);
-			filter_type = chat.checkFilter();
-			sub_container.appendChild(chat.render_chat());
-		}
-		add_msg_list(channel, sub_container, filter_type);
-	}
-
 	function addReqFailedMsg() {
-		const ircmsg = new IRC_Message(`요청 실패.`);
-		add_msg_list(null, ircmsg.render_message(), '', true);
+		msgList.addIRCMessage(null, '요청 실패', true);
 	}
 
 	function setRecentChannel(disp_name: string, user_login: string){
@@ -315,7 +235,6 @@ import { Etc } from './utils/etc';
 					c.classList.add('cancel_line');
 				}
 			} else {
-				// c.remove();
 				c.getElementsByClassName('chat_message')[0].textContent = `< Message Deleted. >`;
 			}
 
@@ -329,7 +248,6 @@ import { Etc } from './utils/etc';
 		document.getElementById('onlineChannel').textContent = i18n.t('page:onlineFollowed');
 		document.getElementById('get_more_flw_str').textContent = i18n.t('page:getMore');
 		document.getElementById('refresh_flw_str').textContent = i18n.t('page:refresh');
-		document.getElementById('twitch_login_btn_big').textContent = i18n.t('page:loginTwitch');
 		document.getElementById('setting_btn_text').textContent = i18n.t('page:setting');
 		document.getElementById('guideTbc_tail').textContent = i18n.t('page:guideTbc');
 
@@ -338,7 +256,6 @@ import { Etc } from './utils/etc';
 		document.getElementById('popup_title').textContent = i18n.t('page:setting');
 		document.getElementById('filterSetting').textContent = i18n.t('page:filterSetting');
 		document.getElementById('tbc_file_upload_label').textContent = i18n.t('page:fileUpload');
-		// document.getElementById('tbc_file_name').textContent = i18n.t('page:currentFile');
 		document.getElementById('fontSizeSetting').textContent = i18n.t('page:chatFontSize');
 
 		document.getElementById('fontSmallText').textContent = i18n.t('page:fontSmall');
@@ -347,14 +264,10 @@ import { Etc } from './utils/etc';
 		document.getElementById('fontBiggerText').textContent = i18n.t('page:fontBigger');
 
 		document.getElementById('chat_text_send').textContent = i18n.t('page:chat');
-		// document.getElementById('').textContent = i18n.t('');
 	}
 
 	function toggleSideBar() {
 		sidebar.classList.toggle('hidden');
-	}
-	function openSideBar() {
-		sidebar.classList.remove('hidden');
 	}
 	function closeSideBar() {
 		sidebar.classList.add('hidden');
@@ -365,7 +278,6 @@ import { Etc } from './utils/etc';
 		setRecentChannel(disp_name, channel);
 
 		LAST_JOIN_TIME = new Date().getTime();
-		const ircmsg = new IRC_Message(`#${channel} 채팅방에 연결되었습니다.`);
 
 		tapi.channel_badges = badges;
 		tapi.cheermotes = cheermotes;
@@ -379,7 +291,7 @@ import { Etc } from './utils/etc';
 		UserColorMap.map.clear();
 		clearAllChat(false);
 		clearCopiedChat();
-		add_msg_list(channel, ircmsg.render_message());
+		msgList.addIRCMessage(channel, i18n.t('tmi:chatConnected', {channel : channel}), true);
 	}
 
 	async function joinChatRoom (_channel: string) {
@@ -392,8 +304,7 @@ import { Etc } from './utils/etc';
 		if (!_channel || _channel === '') return;
 
 		if (delay_time <= 3000) {
-			const ircmsg = new IRC_Message(`${~~((3000 - delay_time) / 1000) + 1} 초 뒤 다시 시도하세요.`);
-			add_msg_list(null, ircmsg.render_message(), '', true);
+			msgList.addIRCMessage(null, i18n.t('page:reqDelay', {time : ~~((3000 - delay_time) / 1000) + 1}), true);
 			return;
 		}
 
@@ -401,29 +312,21 @@ import { Etc } from './utils/etc';
 
 		if (client.readyState() === 'CLOSED') {
 			connected = await connectChatServer(tapi.username, tapi.access_token);
+		}else{
+			connected = true;
 		}
 		if(!connected) return;
 		if (tapi.current_channel === _channel) return;
 
-		const ircmsg = new IRC_Message(`#${_channel} 채팅방에 연결중입니다...`);
-		add_msg_list(null, ircmsg.render_message(), '', true);
+		msgList.addIRCMessage(null, i18n.t('tmi:chatConnecting', {channel : _channel}), true);
 
 		let user = await tapi.get_users(_channel);
 		if(user.data.length === 0) {
-			// Toast.fire({
-			// 	icon : 'error',
-			// 	titleText : '트위치 오류',
-			// 	text : '채널을 찾을 수 없습니다'
-			// });
-			const ircmsg = new IRC_Message(`#${_channel} 채널을 찾을 수 없습니다.`);
-			add_msg_list(null, ircmsg.render_message(), '', true);
-			
+			msgList.addIRCMessage(null, i18n.t('tmi:channelNotFound', {channel : _channel}), true);
 			return;
 		}
 		let badges = await tapi.get_channel_chat_badges(user.data[0].id, true);
 		let cheer = await tapi.get_cheermotes(user.data[0].id);
-
-		console.log('cheer : ', cheer);
 
 		const disp_name = user.data[0].display_name;
 		const channel = user.data[0].login;
@@ -431,8 +334,7 @@ import { Etc } from './utils/etc';
 		await client.join(channel).then(j => {
 			callbackJOIN(channel, disp_name, badges, cheer);
 		}).catch(err => {
-			const ircmsg = new IRC_Message(`#${channel} 채팅방 연결에 실패했습니다.`);
-			add_msg_list(channel, ircmsg.render_message());
+			msgList.addIRCMessage(channel, i18n.t('tmi:chatConnectFailed', {channel : channel}), true);
 		});
 	}
 
@@ -555,22 +457,20 @@ import { Etc } from './utils/etc';
 		}
 	}
 
-	function trim_hash(str: string) {
-		let c1: string = '';
+	tapi.get_global_chat_badges(true).then(badges => {
+		tapi.global_badges = badges;
+	}).catch(err => {
+		if(dev) console.log('글로벌 배지 정보를 가져오는데 실패하였습니다.');
+		addReqFailedMsg();
+	});
 
-		if (str && str !== '') {
-			c1 = str[0] === '#' ? str.substring(1) : str;
-		}
-		return c1;
+	const rc = getRecentChannel();
+
+	for(let c of rc.reverse()){
+		add_channel(recent_list, c.disp_name, c.channel);
 	}
-	// function getRandomString() {
-	// 	return Math.random().toString(36).substring(2);
-	// }
-	// function isEmpty(obj) {
-	// 	return Object.keys(obj).length === 0;
-	// }
 
-	auth.get_token().then(token => {
+	auth.getToken().then(token => {
 		if (token.status) {
 			const expr_time = 60 * 1000;
 			tapi.access_token = token.access_token;
@@ -592,19 +492,6 @@ import { Etc } from './utils/etc';
 				if(dev) console.log('유저 정보를 가져오는데 실패하였습니다.' ,err);
 				addReqFailedMsg();
 			});
-
-			tapi.get_global_chat_badges(true).then(badges => {
-				tapi.global_badges = badges;
-			}).catch(err => {
-				if(dev) console.log('글로벌 배지 정보를 가져오는데 실패하였습니다.');
-				addReqFailedMsg();
-			});
-
-			const rc = getRecentChannel();
-
-			for(let c of rc.reverse()){
-				add_channel(recent_list, c.disp_name, c.channel);
-			}
 		}
 	});
 
@@ -612,46 +499,37 @@ import { Etc } from './utils/etc';
 
 	// connection
 	client.on("connecting", (address, port) => {
-		const ircmsg = new IRC_Message(`채팅 서버에 연결 중입니다..`);
-		add_msg_list(null, ircmsg.render_message(), '', true);
+		msgList.addIRCMessage(null, i18n.t('tmi:connecting'), true);
 		chat_text_send_btn.disabled = true;
 	});
 	client.on('connected', (address: string, port: number) => {
-		const ircmsg = new IRC_Message(`채팅 서버에 연결 되었습니다.`);
-		
-		if(dev) console.log('tapi.current_channel : ', tapi.current_channel);
-		if(dev) console.log('tapi.targetChannel : ', tapi.targetChannel);
-
 		if(tapi.current_channel && tapi.current_channel !== tapi.targetChannel){
 			joinChatRoom(tapi.targetChannel);
 		}
 		
-		add_msg_list(null, ircmsg.render_message(), '', true);
+		msgList.addIRCMessage(null, i18n.t('tmi:connected'), true);
 		chat_text_send_btn.disabled = false;
 	});
-	client.on('logon', () => {
-		// const ircmsg = new IRC_Message(`logon : 채팅 서버에 인증 정보를 보냈습니다.`);
-		// add_msg_list(null, ircmsg.render_message(), true);
-	});
 	client.on('reconnect', () => {
-		if(dev) console.log('채팅 서버에 다시 연결하는 중 입니다.');
-		// const ircmsg = new IRC_Message(`reconnect : 채팅 서버에 다시 연결 중입니다.`);
-		// add_msg_list(ircmsg.render_message());
-
 		chat_text_send_btn.disabled = true;
 	});
-	client.on("disconnected", (reason) => {
+	client.on("disconnected", async (reason) => {
 		if(reason === 'Login authentication failed'){
-			auth.token_refresh().then(token => {
-				if(token.status){
-					if(dev) console.log('disconnectd refresh token : ', token);
-					tapi.access_token = token.access_token;
-					joinChatRoom(tapi.current_channel);
-				}else{
-					const ircmsg = new IRC_Message(`인증 실패. 새로고침 후 다시 시도하세요.`);
-					add_msg_list(null, ircmsg.render_message(), '', true);
-				}
-			});
+			const token = await auth.getToken();
+			if(token.status){
+				tapi.access_token = token.access_token;
+				joinChatRoom(tapi.current_channel);
+			}else{
+				msgList.addIRCMessage(null, i18n.t('page:authFailed'), true);
+			}
+			// auth.getToken().then(token => {
+			// 	if(token.sttaus){
+			// 		tapi.access_token = token.access_token;
+			// 		joinChatRoom(tapi.current_channel);
+			// 	}else{
+			// 		msgList.addIRCMessage(null, i18n.t('page:authFailed'), true);
+			// 	}
+			// });
 		}
 		chat_text_send_btn.disabled = true;
 	});
@@ -668,34 +546,27 @@ import { Etc } from './utils/etc';
 	});
 	client.on("emoteonly", (channel, enabled) => {
 		if (enabled) {
-			const ircmsg = new IRC_Message(`${channel} 채널에 이모티콘 전용 모드가 활성화되었습니다.`);
-			add_msg_list(channel, ircmsg.render_message());
+			msgList.addIRCMessage(null, i18n.t('tmi:emoteEnabled', {channel : channel}), false);
 		} else {
-			const ircmsg = new IRC_Message(`${channel} 채널에 이모티콘 전용 모드가 비활성화되었습니다.`);
-			add_msg_list(channel, ircmsg.render_message());
+			msgList.addIRCMessage(null, i18n.t('tmi:emoteDisabled', {channel : channel}), false);
 		}
 	});
 	client.on("followersonly", (channel, enabled, length) => {
 		if (enabled) {
-			const ircmsg = new IRC_Message(`${channel} 채널에 팔로우 전용 채팅이 ${length} 분간 활성화되었습니다.`);
-			add_msg_list(channel, ircmsg.render_message());
+			msgList.addIRCMessage(null, i18n.t('tmi:followerEnabled', {channel : channel}), false);
 		} else {
-			const ircmsg = new IRC_Message(`${channel} 채널에 팔로우 전용 채팅이 비활성화되었습니다.`);
-			add_msg_list(channel, ircmsg.render_message());
+			msgList.addIRCMessage(null, i18n.t('tmi:followerDisabled', {channel : channel}), false);
 		}
 	});
 
 	client.on('message', (channel, userstate, message, self) => {
 		if(dev) console.log('message tags : ', userstate);
-		// let chat = new Chat(message, userstate, self, tapi.channel_badges, tapi.global_badges, tapi.emote_sets);
-		let chat = new Chat(message, userstate, self, tapi, filter);
-		add_msg_list(channel, chat.render_chat(), chat.checkFilter());
+		msgList.addChatMessage(channel, message, userstate, self);
 	});
 	client.on('clearchat', (channel) => {
 		// 전체 채팅을 삭제.
 		clearAllChat(true);
-		const ircmsg = new IRC_Message(`${channel} 채널의 채팅이 모두 삭제되었습니다.`);
-		add_msg_list(channel, ircmsg.render_message());
+		msgList.addIRCMessage(null, i18n.t('tmi:claerchat', {channel : channel}), false);
 	});
 
 	client.on("messagedeleted", (channel, username, deletedMessage, userstate) => {
@@ -705,8 +576,7 @@ import { Etc } from './utils/etc';
 	// 특정 유저의 채팅 (일시 밴, 영구 밴 등등)을 모두 삭제함.
 	client.on("timeout", (channel, username, reason, duration) => {
 		if (username === tapi.username) {
-			const ircmsg = new IRC_Message(`${duration}초 동안 임시 퇴장됐습니다.`);
-			add_msg_list(channel, ircmsg.render_message());
+			msgList.addIRCMessage(null, i18n.t('tmi:timeout', {duration : duration}), false);
 		}
 		clearUserChat(username, true);
 	});
@@ -723,66 +593,63 @@ import { Etc } from './utils/etc';
 
 	// 신규 구독
 	client.on("subscription", (channel, username, method, message, userstate) => {
-		add_userNotice(channel, message, userstate);
+		msgList.addUserNoticeMessage(channel, userstate, message);
 	});
 	// 비트 후원
 	client.on("cheer", (channel, userstate, message) => {
-		// let chat = new Chat(message, userstate, false, tapi.channel_badges, tapi.global_badges, tapi.emote_sets, tapi.cheermotes);
-		let chat = new Chat(message, userstate, false, tapi, filter);
-		add_msg_list(channel, chat.render_chat());
+		msgList.addChatMessage(channel, message, userstate, false);
 	});
 	// 선물받은 구독 연장
 	// Username is continuing the Gift Sub they got from sender in channel.
 	client.on("giftpaidupgrade", (channel, username, sender, userstate) => {
-		add_userNotice(channel, userstate.message, userstate);
+		msgList.addUserNoticeMessage(channel, userstate, userstate.message);
 	});
 	// 익명 사용자로부터 선물받은 구독 연장
 	// Username is continuing the Gift Sub they got from an anonymous user in channel.
 	client.on("anongiftpaidupgrade", (channel, username, userstate) => {
-		add_userNotice(channel, userstate.message, userstate);
+		msgList.addUserNoticeMessage(channel, userstate, userstate.message);
 	});
 	// 산타
 	// Username is gifting a subscription to someone in a channel.
 	client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) => {
-		add_userNotice(channel, userstate.message, userstate);
+		msgList.addUserNoticeMessage(channel, userstate, userstate.message);
 	});
 	// 구독 연장
 	client.on("resub", (channel, username, months, message, userstate, methods) => {
-		add_userNotice(channel, message, userstate);
+		msgList.addUserNoticeMessage(channel, userstate, message);
 	});
 	client.on('primepaidupgrade', (channel, username, methods, userstate) => {
-		add_userNotice(channel, userstate.message, userstate);
+		msgList.addUserNoticeMessage(channel, userstate, userstate.message);
 	});
 	// Username gifted a subscription to recipient in a channel.
 	client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
-		add_userNotice(channel, userstate.message, userstate);
+		msgList.addUserNoticeMessage(channel, userstate, userstate.message);
 	});
 
 	client.on("raided", (channel, username, viewers) => {
-		let subs = new UserNotice('raid', `[raid] ${username} is raiding with a party of ${viewers}`);
-		const sub_container = subs.render_sub_container();
-		add_msg_list(channel, sub_container);
+		const userstate: UserNoticeState = {
+			'message-type' : 'raided',
+			'system-msg' :  `[raid] ${username} is raiding with a party of ${viewers}`
+		}
+		msgList.addUserNoticeMessage(channel, userstate);
 	});
 
 	client.on("subscribers", (channel, enabled) => {
 		let message = '';
 		if (enabled) {
-			message = `#${channel} 구독자 전용 채팅이 활성화되었습니다.`;
+			message = i18n.t('tmi:subscribersEnabled', {channel : channel});
 		} else {
-			message = `#${channel} 구독자 전용 채팅이 비활성화되었습니다.`;
+			message = i18n.t('tmi:subscribersDisabled', {channel : channel});
 		}
-		const ircmsg = new IRC_Message(message);
-		add_msg_list(channel, ircmsg.render_message());
+		msgList.addIRCMessage(channel, message, false);
 	});
 
 	client.on('hosting', (channel, target, viewers) => {
-		const ircmsg = new IRC_Message(`#${target} 호스트 중.`);
-		add_msg_list(channel, ircmsg.render_message());
+		msgList.addIRCMessage(channel, i18n.t('tmi:hosting'), false);
 	});
 
 	client.on('notice', (channel, msgid, message) => {
-		const ircmsg = new IRC_Message(message);
-		add_msg_list(channel, ircmsg.render_message(), '', true);
+		msgList.addIRCMessage(channel, message, false);
 	});
 
 	client.on("emotesets", (sets, obj) => {
@@ -793,11 +660,6 @@ import { Etc } from './utils/etc';
 	});
 
 	channel_connect_btn.addEventListener('click', e => {
-		if (!tapi.access_token) {
-			const ircmsg = new IRC_Message(`로그인이 필요합니다.`);
-			add_msg_list(null, ircmsg.render_message(), '', true);
-			return;
-		}
 		joinChatRoom(channel_id_input.value);
 		channel_id_input.value = '';
 	});
@@ -813,13 +675,14 @@ import { Etc } from './utils/etc';
 		const channel = tapi.current_channel;
 
 		if (!channel || channel === '') {
-			const ircmsg = new IRC_Message(`연결된 채널이 없습니다.`);
-			add_msg_list(null, ircmsg.render_message(), '', true);
+			msgList.addIRCMessage(channel, i18n.t('page:noChannel'), false);
 			return;
 		}
 
 		client.say(channel, msg).then(c => {
 			chat_text_input.value = '';
+		}).catch(err => {
+			msgList.addIRCMessage(channel, err, false);
 		});
 	});
 
@@ -830,24 +693,21 @@ import { Etc } from './utils/etc';
 	chat_text_input.addEventListener('keyup', e => {
 		if (e.key === 'Enter' || e.code == 'Enter') chat_text_send_btn.click();
 	});
-	chat_text_input.addEventListener('focus', e => {
-		// scrollDownChatList();
-	});
+	// chat_text_input.addEventListener('focus', e => {
+	// 	// scrollDownChatList();
+	// });
 
 	chat_list_origin.addEventListener("scroll", function () {
-		origChatIsAtBottom = chat_list_origin.scrollTop + chat_list_origin.clientHeight >= chat_list_origin.scrollHeight - 40;
+		msgList.origChatIsAtBottom = chat_list_origin.scrollTop + chat_list_origin.clientHeight >= chat_list_origin.scrollHeight - 40;
 	}, false);
 	chat_list_clone.addEventListener("scroll", function () {
-		cloneChatIsAtBottom = chat_list_clone.scrollTop + chat_list_clone.clientHeight >= chat_list_clone.scrollHeight - 40;
+		msgList.cloneChatIsAtBottom = chat_list_clone.scrollTop + chat_list_clone.clientHeight >= chat_list_clone.scrollHeight - 40;
 	}, false);
 
 	auth_info.addEventListener('click', e => {
 		user_setting.classList.toggle('hidden');
 	});
-
-	twitch_login_btn_big.addEventListener('click', e=> {
-		auth.toggleLoginStatus(tapi, 'main');
-	});
+	
 	twitch_login_btn_small.addEventListener('click', e=> {
 		auth.toggleLoginStatus(tapi, 'main');
 	});
