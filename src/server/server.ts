@@ -1,9 +1,13 @@
 import express from 'express';
 import path from 'path';
 import session from 'express-session';
-import {redisClient} from './redis_client.js';
+import { redisSessClient } from './redis_client.js';
 import logger from './utils/logger';
 import morgan_logger from './utils/morgan_logger';
+import axios from 'axios';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = require('./router');
 const app = express();
@@ -13,7 +17,7 @@ let RedisStore = require('connect-redis')(session);
 app.use(session({
 	name: 'sessionId',
 	store: new RedisStore({
-		client: redisClient,
+		client: redisSessClient,
 		ttl : 3 * 60 * 60
 	}),
 	secret: 'nanayang',
@@ -35,13 +39,25 @@ app.set('trust proxy', 1); // Proxy 를 사용하는 경우 필요한 설정.
 app.disable('x-powered-by');
 app.use('/', router);
 app.use('/static', express.static(path.join(__dirname, '../src', 'public')));
+
 app.use((req,res,next) => {
     res.status(404).send("PAGE NOT FOUND");
     logger.error(`400 || ${res.statusMessage} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 });
 
 app.use((err,req,res,next) => {
-    logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+	if(axios.isAxiosError(err)){
+		if(err.response){
+			res.status(err.response.status).json(err.response.data);
+		}else if(err.request){
+			res.status(500).json(err.message);
+		}else{
+			res.status(500).json({status : false});
+		}
+	}else{
+		logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+		res.status(500).send({status : false});
+	}
 });
 
 app.listen('4488', () => {

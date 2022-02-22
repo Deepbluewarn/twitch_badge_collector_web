@@ -3,10 +3,6 @@ import { Auth } from './auth';
 import i18n from './i18n/index';
 import * as swal_setting from './swal_setting';
 
-// import type Swal from 'sweetalert2';
-// import type { Client, Options, CommonUserstate } from 'tmi.js';
-// const Swal = require('sweetalert2');
-
 interface badge_info {
     id: string;
     image_url_1x: string;
@@ -35,87 +31,72 @@ class Twitch_Api {
         this.client_id = c_id;
     }
 
-    get_users(...logins: string[]) {
+    async get_users(...logins: string[]) {
         let params = new URLSearchParams();
         logins.forEach(login=>{
             params.append('login', login);
         });
-        return this.request(`https://api.twitch.tv/helix/users?${params}`, 'GET');
+        return await this.request(`/api/users?${params}`, 'GET');
     }
-    get_followed_streams(user_id: string, after?: string) {
+    async get_followed_streams(user_id: string, after?: string) {
         if(after === null) return Promise.reject();
 
         let params = new URLSearchParams();
         params.append('user_id', user_id);
         if(after) params.append('after', after);
-        params.append('first', '10');
+        params.append('first', '20');
 
-        const url = `https://api.twitch.tv/helix/streams/followed?${params}`;
-        return this.request(url, 'GET');
+        const url = `/api/streams/followed?${params}`;
+        return await this.request(url, 'GET');
     }
-    get_users_follows(user_id: string, after?: string) {
-        if(after === null) return Promise.reject();
 
-        let params = new URLSearchParams();
-        params.append('user_id', user_id);
-        if(after) params.append('after', after);
+    async get_channel_chat_badges(broadcaster_id: string, map: boolean) {
+        const url = `/api/badge/channels?broadcaster_id=${broadcaster_id}`;
 
-        const url = `https://api.twitch.tv/helix/users/follows?${params}`;
-        return this.request(url, 'GET');
+        const badges = await this.request(url, 'GET');
+        return map ? this.badge_data_to_map(badges) : badges;
     }
-    get_channel_chat_badges(broadcaster_id: string, map: boolean) {
-        const url = `https://api.twitch.tv/helix/chat/badges?broadcaster_id=${broadcaster_id}`;
-        return this.request(url, 'GET').then(badges => {
-            const m = map ? this.badge_data_to_map(badges) : badges;
-            if(this.dev) console.log(m);
-            return m;
-        });
+    async get_global_chat_badges(map: boolean) {
+        const url = '/api/badge/global';
+
+        const badges = await this.request(url, 'GET');
+        return map ? this.badge_data_to_map(badges) : badges;
     }
-    get_global_chat_badges(map: boolean) {
-        const url = 'https://api.twitch.tv/helix/chat/badges/global';
-        return this.request(url, 'GET').then(badges=>{
-            const m = map ? this.badge_data_to_map(badges) : badges;
-            if(this.dev) console.log(m);
-            return m;
-        });
-    }
-    getChannelChatBadges(broadcaster_id: string){
+    async getChannelChatBadges(broadcaster_id: string){
         let params = new URLSearchParams();
         params.append('language', i18n.language);
-        const url = `https://badges.twitch.tv/v1/badges/channels/${broadcaster_id}/display?${params}`
-        return this.request(url, 'GET').then(badges=>{
-            return badges;
-        });
+        params.append('broadcaster_id', broadcaster_id);
+        const url = `/api/ud/badge/channels?${params}`;
+
+        return await this.request(url, 'GET');
     }
-    getGlobalChatBadges(){
+    async getGlobalChatBadges(){
         let params = new URLSearchParams();
         params.append('language', i18n.language);
-        const url = `https://badges.twitch.tv/v1/badges/global/display?${params}`
-        return this.request(url, 'GET').then(badges=>{
-            return badges;
-        });
+        const url = `/api/ud/badge/global`;
+
+        return await this.request(url, 'GET');
     }
-    get_emote_sets(emote_sets_id: string[]) {
-        const url = 'https://api.twitch.tv/helix/chat/emotes/set?';
+
+    async get_emote_sets(emote_sets_id: string[]) {
+        const url = '/api/emote?';
 
         let params = new URLSearchParams();
         for(let i = 0; i < emote_sets_id.length; i++){
-            params.append('emote_set_id', emote_sets_id[i]);
+            params.append('emote_id', emote_sets_id[i]);
         }
-        return this.request(url + params, 'GET').then(sets=>{
-            sets.data.forEach(e => {
-                this.emote_sets.set(e.name, e);
-            });
-            return this.emote_sets;
+
+        const sets = await this.request(url + params, 'GET');
+        sets.data.forEach(e =>{
+            this.emote_sets.set(e.name, e);
         });
+        return this.emote_sets;
     }
-    get_cheermotes(broadcaster_id: string){
-        const url = `https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=${broadcaster_id}`;
-        return this.request(url, 'GET').then(cm => {
-            const m = this.cheermote_map(cm);
-            if(this.dev) console.log(m);
-            return m;
-        });
+
+    async get_cheermotes(broadcaster_id: string){
+        const url = `/api/cheermote?broadcaster_id=${broadcaster_id}`;
+        const cm = await this.request(url, 'GET');
+        return this.cheermote_map(cm);
     }
 
     get user_id(){
@@ -182,43 +163,27 @@ class Twitch_Api {
     private request(url: string, m: string) {
         return fetch(url, {
             method: m,
-            headers: {
-                Authorization: `Bearer ${this.token}`,
-                'Client-Id': this.client_id
-            }
-        }).then(res => {
-            if(this.dev) console.log('twitch_api request res : ', res);
-            if (!res.ok) {
-                if(res.status === 401){
-                    this.auth.token_refresh().then(token => {
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Client-Id': this.client_id
+                }
+        }).then(async res => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                if (res.status === 401) {
+                    this.auth.getToken().then(token=> {
                         if(token.status){
                             this.access_token = token.access_token;
-
-                            this.Toast.fire({
-                                icon: 'error',
-                                title: '로그인 정보가 갱신 되었습니다.',
-                                text: '다시 시도하세요.'
-                            });
-                        }else{
-                            this.Toast.fire({
-                                icon: 'error',
-                                title: '요청 실패',
-                                text: '새로고침 후 다시 로그인하세요.'
-                            });
+                            console.log('세션이 갱신되었습니다. 다시 시도하세요.');
                         }
+                    }).catch(err => {
+                        console.log('요청이 실패했습니다. 다시 로그인하세요.');
                     });
-                }else{
-                    return Promise.reject(res);
                 }
-            } else {
-                return res.json();
             }
         }).catch(err => {
-            this.Toast.fire({
-                icon : 'error',
-                title : '오류',
-                text : '알 수 없는 오류가 발생했습니다.'
-            });
+            console.log('요청이 실패했습니다.');
         });
     }
     badge_data_to_map(badges) {
