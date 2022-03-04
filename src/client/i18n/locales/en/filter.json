@@ -1,0 +1,13 @@
+{
+    "broadcaster" : "Streamer",
+    "manager" : "Manager",
+    "vip" : "VIP",
+    "verified" : "Verified",
+
+    "login_name" : "Name",
+    "badge_uuid" : "Badge",
+    "keyword" : "Keyword",
+    "include" : "Include",
+    "exclude" : "Exclude",
+    "sleep" : "Sleep"
+}

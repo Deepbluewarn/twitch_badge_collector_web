@@ -18,7 +18,7 @@ i18n
     },
     // lng: "en", // if you're using a language detector, do not define the lng option
     fallbackLng: "en",
-    ns:['page', 'tmi'],
+    ns:['page', 'filterPage', 'tmi', 'filter'],
     detection: detectorOptions
   });
 

@@ -1,6 +1,8 @@
-import page from './page.json'
+import page from './page.json';
+import filterPage from './filterPage.json';
 import tmi from './tmi.json';
+import filter from './filter.json';
 
 export default{
-    page, tmi
+    page, filterPage, tmi, filter
 }

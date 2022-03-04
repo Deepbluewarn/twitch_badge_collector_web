@@ -1,0 +1,13 @@
+{
+    "broadcaster" : "스트리머",
+    "manager" : "매니저",
+    "vip" : "VIP",
+    "verified" : "인증 완료",
+
+    "login_name" : "닉네임",
+    "badge_uuid" : "배지",
+    "keyword" : "키워드",
+    "include" : "포함",
+    "exclude" : "제외",
+    "sleep" : "꺼짐"
+}
