@@ -17,6 +17,7 @@ module.exports = {
 
     entry: {
         main: './src/client/tbc.ts',
+        mini: './src/client/mini.ts',
         filter: './src/client/filterSetting.ts'
     },
 
