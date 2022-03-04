@@ -21,8 +21,8 @@ export class Filter{
         // Check with Nickname Filter.
         let username_res = this.checkFilter('login_name', username, true);
         let disp_name_res = this.checkFilter('login_name', disp_name, true);
-        badge_priority.set('login_name', username_res);
-        badge_priority.set('login_name', disp_name_res);
+        badge_priority.set('u_login_name', username_res);
+        badge_priority.set('d_login_name', disp_name_res);
 
         // Check with Badge Filter.
         let bp_res: string[] = [];
@@ -47,7 +47,10 @@ export class Filter{
         for(const[k, v] of badge_priority){
             if(v === 'FILTER_NOT_FOUND') continue;
             if(v === 'FILTER_INCLUDE'){
-                return k;
+                if(['u_login_name', 'd_login_name'].includes(k)){
+                    return 'login_name';
+                }
+                return <string>k;
             }
             break;
         }
