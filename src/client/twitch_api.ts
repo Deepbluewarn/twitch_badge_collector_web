@@ -49,41 +49,38 @@ class Twitch_Api {
         const url = `/api/streams/followed?${params}`;
         return await this.request(url, 'GET');
     }
-
     async get_channel_chat_badges(broadcaster_id: string, map: boolean) {
-        const url = `/api/badge/channels?broadcaster_id=${broadcaster_id}`;
+        const url = `/api/chat/badges?broadcaster_id=${broadcaster_id}`;
 
         const badges = await this.request(url, 'GET');
         return map ? this.badge_data_to_map(badges) : badges;
     }
     async get_global_chat_badges(map: boolean) {
-        const url = '/api/badge/global';
-
+        const url = '/api/chat/badges/global';
         const badges = await this.request(url, 'GET');
         return map ? this.badge_data_to_map(badges) : badges;
     }
     async getChannelChatBadges(broadcaster_id: string){
         let params = new URLSearchParams();
         params.append('language', i18n.language);
-        params.append('broadcaster_id', broadcaster_id);
-        const url = `/api/ud/badge/channels?${params}`;
+        const url = `/udapi/badges/channels/${broadcaster_id}/display?${params}`;
 
         return await this.request(url, 'GET');
     }
     async getGlobalChatBadges(){
         let params = new URLSearchParams();
         params.append('language', i18n.language);
-        const url = `/api/ud/badge/global`;
+        const url = `/udapi/badges/global/display?${params}`;
 
         return await this.request(url, 'GET');
     }
 
     async get_emote_sets(emote_sets_id: string[]) {
-        const url = '/api/emote?';
+        const url = '/api/chat/emotes/set?';
 
         let params = new URLSearchParams();
         for(let i = 0; i < emote_sets_id.length; i++){
-            params.append('emote_id', emote_sets_id[i]);
+            params.append('emote_set_id', emote_sets_id[i]);
         }
 
         const sets = await this.request(url + params, 'GET');
@@ -92,9 +89,8 @@ class Twitch_Api {
         });
         return this.emote_sets;
     }
-
     async get_cheermotes(broadcaster_id: string){
-        const url = `/api/cheermote?broadcaster_id=${broadcaster_id}`;
+        const url = `/api/bits/cheermotes?broadcaster_id=${broadcaster_id}`;
         const cm = await this.request(url, 'GET');
         return this.cheermote_map(cm);
     }
@@ -162,11 +158,7 @@ class Twitch_Api {
 
     private request(url: string, m: string) {
         return fetch(url, {
-            method: m,
-                headers: {
-                    Authorization: `Bearer ${this.token}`,
-                    'Client-Id': this.client_id
-                }
+            method: m
         }).then(async res => {
             if (res.ok) {
                 return res.json();
@@ -175,16 +167,21 @@ class Twitch_Api {
                     this.auth.getToken().then(token=> {
                         if(token.status){
                             this.access_token = token.access_token;
-                            console.log('세션이 갱신되었습니다. 다시 시도하세요.');
+                            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t('page:tokenRefreshed'), 'error');
+                        }else{
+                            this.showErrorMessage();
                         }
                     }).catch(err => {
-                        console.log('요청이 실패했습니다. 다시 로그인하세요.');
+                        this.showErrorMessage();
                     });
                 }
             }
         }).catch(err => {
-            console.log('요청이 실패했습니다.');
+            this.showErrorMessage();
         });
+    }
+    private showErrorMessage(){
+        this.Toast.fire(i18n.t('page:reqFailed'), i18n.t('page:reqFailedMessage'), 'error');
     }
     badge_data_to_map(badges) {
         const badge_data = badges.data;
