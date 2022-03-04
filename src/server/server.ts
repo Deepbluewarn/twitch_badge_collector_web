@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from 'express';
 import path from 'path';
 import session from 'express-session';
@@ -5,25 +8,25 @@ import { redisSessClient } from './redis_client.js';
 import logger from './utils/logger';
 import morgan_logger from './utils/morgan_logger';
 import axios from 'axios';
-import dotenv from "dotenv";
-
-dotenv.config();
+import { apiProxy, undocApiProxy, checkCacheAvailable} from './proxy';
 
 const router = require('./router');
 const app = express();
 
 let RedisStore = require('connect-redis')(session);
 
+
 app.use(session({
 	name: 'sessionId',
 	store: new RedisStore({
 		client: redisSessClient,
-		ttl : 3 * 60 * 60
+		ttl : 4 * 60 * 60
 	}),
-	secret: 'nanayang',
+	secret: getRandomString(),
 	resave: false,
 	saveUninitialized: false,
 	cookie: {
+		maxAge: 1000 * 60 * 60 * 4,
 		secure: true,
 		httpOnly: true,
 		domain: 'wtbc.bluewarn.dev'
@@ -37,6 +40,8 @@ app.use(morgan_logger);
 // X-Forwarded-Proto header 로 protocol 확인.
 app.set('trust proxy', 1); // Proxy 를 사용하는 경우 필요한 설정.
 app.disable('x-powered-by');
+app.use('/api', checkCacheAvailable, apiProxy);
+app.use('/udapi', checkCacheAvailable, undocApiProxy);
 app.use('/', router);
 app.use('/static', express.static(path.join(__dirname, '../src', 'public')));
 
@@ -48,17 +53,28 @@ app.use((req,res,next) => {
 app.use((err,req,res,next) => {
 	if(axios.isAxiosError(err)){
 		if(err.response){
+			const status = err.response.status;
+			const data = err.response.data;
+
 			res.status(err.response.status).json(err.response.data);
+			logger.error(`Axios response error. status : ${status}, data : ${data}`);
 		}else if(err.request){
-			res.status(500).json(err.message);
+			const msg = err.message;
+			res.status(500).json(msg);
+			logger.error(`Axios request error. msg : ${msg}`);
 		}else{
 			res.status(500).json({status : false});
+			logger.error(`Axios unknown error.`);
 		}
 	}else{
 		logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 		res.status(500).send({status : false});
 	}
 });
+
+function getRandomString() {
+	return Math.random().toString(36).substring(2,12);
+}
 
 app.listen('4488', () => {
 	logger.info('Server listening on port: 4488');
