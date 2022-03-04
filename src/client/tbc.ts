@@ -40,9 +40,9 @@ import { messageList } from './messageList';
 	const setting_container = document.getElementById('setting');
 
 	const font_size_examples = document.getElementById('font_size_examples');
-	const tbc_file_input = document.getElementById('tbc_file_upload');
-	const tbc_file_name = document.getElementById('tbc_file_name');
-	const current_tbc_file = document.getElementById('current_tbc_file');
+	// const tbc_file_input = document.getElementById('tbc_file_upload');
+	// const tbc_file_name = document.getElementById('tbc_file_name');
+	// const current_tbc_file = document.getElementById('current_tbc_file');
 
 	const handler = document.getElementById('handler');
 
@@ -51,6 +51,7 @@ import { messageList } from './messageList';
 	// Then we set the value in the --vh custom property to the root of the document
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
 
+	const filterChannel = new BroadcastChannel('Filter');
 	const Toast = Swal.mixin(swal_setting.setting_def);
 
 	let followed_streams_after: string = '';
@@ -66,12 +67,14 @@ import { messageList } from './messageList';
 
 	const font_setting = localStorage.getItem('fontSize');
 	setFontSize(font_setting);
+	setLanguage(localStorage.getItem('language'));
 
-	if (localStorage.getItem('theme') === 'dark_theme') {
-		setTheme('dark_theme');
-	} else {
-		setTheme('light_theme');
-	}
+	// if (localStorage.getItem('theme') === 'dark_theme') {
+	// 	setTheme('dark_theme');
+	// } else {
+	// 	setTheme('light_theme');
+	// }
+	setCurrentTheme();
 
 	change_container_ratio(parseInt(localStorage.getItem('ratio')) || 30);
 
@@ -80,12 +83,15 @@ import { messageList } from './messageList';
 	const auth = new Auth();
 	const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 
-	const filter_str = localStorage.getItem('tbc_file');
-	const filter: Filter = new Filter(JSON.parse(filter_str), tapi);
-	const msgList: messageList = new messageList(filter, tapi);
+	// const filter_str = localStorage.getItem('filter');
+	let localFilter = JSON.parse(localStorage.getItem('filter')) || {};
 
-	tbc_file_name.textContent = i18n.t('page:currentFile', {filename : localStorage.getItem('tbc_file_name')});
-	if(filter_str) current_tbc_file.classList.remove('hidden');
+	// localstorage 에 filter 가 없으면, (filter_str 이 null 이면)
+	const filter: Filter = new Filter(localFilter, tapi);
+	const msgList: messageList = new messageList(filter, tapi, true);
+
+	// tbc_file_name.textContent = i18n.t('page:currentFile', {filename : localStorage.getItem('tbc_file_name')});
+	// if(filter_str) current_tbc_file.classList.remove('hidden');
 
 	let tmi_client_obj: Options = {
 		options: {
@@ -146,10 +152,11 @@ import { messageList } from './messageList';
 			for (let i = 0; i < fs_data.length; i++) {
 				add_channel(online_list, fs_data[i].user_name, fs_data[i].user_login);
 			}
-		}).catch(r => {
-			if(dev) console.log('방송중인 채널 목록을 가져오는데 실패하였습니다.');
-			addReqFailedMsg();
 		});
+		// .catch(r => {
+		// 	if(dev) console.log('방송중인 채널 목록을 가져오는데 실패하였습니다.');
+		// 	addReqFailedMsg();
+		// });
 	}
 
 	function getChannelElement(username, user_login){
@@ -175,14 +182,13 @@ import { messageList } from './messageList';
 		parentHTML.appendChild(getChannelElement(username, user_login));
 	}
 
-	function addReqFailedMsg() {
-		msgList.addIRCMessage(null, '요청 실패', true);
-	}
+	// function addReqFailedMsg() {
+	// 	msgList.addIRCMessage(null, '요청 실패', true);
+	// }
 
 	function setRecentChannel(disp_name: string, user_login: string){
 		let rc = getRecentChannel();
 		let channel_avail: boolean = false;
-		if(!rc) rc = [];
 
 		for(let c of rc){
 			if(c.channel === user_login.toLocaleLowerCase()){
@@ -207,38 +213,7 @@ import { messageList } from './messageList';
 
 	function getRecentChannel(){
 		const KEY = 'RECENT_CONN_LIST';
-		return JSON.parse(localStorage.getItem(KEY));
-	}
-
-	function clearAllChat(line?: boolean) {
-		Array.from(chat_list_origin.childNodes).forEach(c => {
-			if (line) {
-				const he = (c as HTMLElement);
-				if (!he.children[0].classList.contains('irc_message')) {
-					he.classList.add('cancel_line');
-				}
-			} else {
-				c.remove();
-			}
-		});
-	}
-
-	function clearCopiedChat(){
-		Array.from(chat_list_clone.childNodes).forEach(c => {
-			c.remove();
-		});
-	}
-	function clearUserChat(username: string, line?: boolean) {
-		Array.from(chat_list_origin.getElementsByClassName(username)).forEach(c => {
-			if (line) {
-				if (c.classList.contains('chat')) {
-					c.classList.add('cancel_line');
-				}
-			} else {
-				c.getElementsByClassName('chat_message')[0].textContent = `< Message Deleted. >`;
-			}
-
-		});
+		return JSON.parse(localStorage.getItem(KEY)) || [];
 	}
 
 	function setPageLanguage(){
@@ -249,13 +224,16 @@ import { messageList } from './messageList';
 		document.getElementById('get_more_flw_str').textContent = i18n.t('page:getMore');
 		document.getElementById('refresh_flw_str').textContent = i18n.t('page:refresh');
 		document.getElementById('setting_btn_text').textContent = i18n.t('page:setting');
-		document.getElementById('guideTbc_tail').textContent = i18n.t('page:guideTbc');
+		document.getElementById('filter-setting__link').textContent = i18n.t('page:filterSetting');
+		const theme = localStorage.getItem('theme') === 'light_theme' ? 'darkmode' : 'lightmode';
+		document.getElementById('dark_mode_btn_text').textContent = i18n.t(`page:${theme}`);
+		// document.getElementById('guideTbc_tail').textContent = i18n.t('page:guideTbc');
 
 		document.getElementById('reverse_chat_btn_text').textContent = i18n.t('page:reverseChatOrder');
 		document.getElementById('twitch_login_small_text').textContent = i18n.t('page:loginTwitch');
 		document.getElementById('popup_title').textContent = i18n.t('page:setting');
-		document.getElementById('filterSetting').textContent = i18n.t('page:filterSetting');
-		document.getElementById('tbc_file_upload_label').textContent = i18n.t('page:fileUpload');
+		// document.getElementById('filterSetting').textContent = i18n.t('page:filterSetting');
+		// document.getElementById('tbc_file_upload_label').textContent = i18n.t('page:fileUpload');
 		document.getElementById('fontSizeSetting').textContent = i18n.t('page:chatFontSize');
 
 		document.getElementById('fontSmallText').textContent = i18n.t('page:fontSmall');
@@ -289,8 +267,8 @@ import { messageList } from './messageList';
 			}
 		}
 		UserColorMap.map.clear();
-		clearAllChat(false);
-		clearCopiedChat();
+		msgList.clearAllChat(false);
+		msgList.clearCopiedChat();
 		msgList.addIRCMessage(channel, i18n.t('tmi:chatConnected', {channel : channel}), true);
 	}
 
@@ -308,11 +286,18 @@ import { messageList } from './messageList';
 			return;
 		}
 
-		if(dev) console.log('joinChatRoom client.readyState() : ', client.readyState());
+		// if(dev) console.log('joinChatRoom client.readyState() : ', client.readyState());
 
-		if (client.readyState() === 'CLOSED') {
+		const readyState = client.readyState();
+
+		console.log('joinChatRoom readyState : ', readyState);
+
+		if (readyState === 'CLOSED') {
 			connected = await connectChatServer(tapi.username, tapi.access_token);
-		}else{
+		}
+		if(client.readyState() !== 'OPEN'){
+			return;
+		}else if(client.readyState() === 'OPEN'){
 			connected = true;
 		}
 		if(!connected) return;
@@ -376,25 +361,50 @@ import { messageList } from './messageList';
         chat_list_clone.style.flex = String(clone_size);
     }
 
-	function loadTbcFile (e) {
-		const file = e.target.files[0];
-		if(file){
-			let reader = new FileReader();
+	// function loadTbcFile (e) {
+	// 	const file = e.target.files[0];
+	// 	if(file){
+	// 		let reader = new FileReader();
 
-			reader.readAsText(file);
-			reader.onload = function(e) {
-				const res = reader.result as string;
-				const _filter = JSON.parse(res);
-				_filter.shift();
+	// 		reader.readAsText(file);
+	// 		reader.onload = function(e) {
+	// 			const res = reader.result as string;
+	// 			const _filter = JSON.parse(res);
+	// 			_filter.shift();
 
-				tbc_file_name.textContent = i18n.t('page:currentFile', {filename : file.name});
-				current_tbc_file.classList.remove('hidden');
+	// 			// tbc_file_name.textContent = i18n.t('page:currentFile', {filename : file.name});
+	// 			// current_tbc_file.classList.remove('hidden');
 				
-				localStorage.setItem('tbc_file_name', file.name);
-				localStorage.setItem('tbc_file', JSON.stringify(_filter));
-				filter.filter = _filter;
-			}
+	// 			// localStorage.setItem('tbc_file_name', file.name);
+	// 			// localStorage.setItem('tbc_file', JSON.stringify(_filter));
+	// 			filter.filter = _filter;
+	// 		}
+	// 	}
+	// }
+
+	// en, ko
+	function setLanguage(language){
+		let lang = '';
+		
+		if(language.includes('ko')){
+			lang = 'ko';
+		}else if(language.includes('en')){
+			lang = 'en';
 		}
+
+		const langOptions = document.getElementById('language-options').getElementsByClassName('language');
+
+		for(let lo of langOptions){
+			lo.classList.remove('language-status__enabled');
+		}
+
+		const option = document.getElementById(`language__${lang}`);
+		// option.classList.remove('language-status__disabled');
+		option.classList.add('language-status__enabled');
+
+		localStorage.setItem('language', language);
+		i18n.changeLanguage(language);
+		setPageLanguage();
 	}
 
 	function setFontSize(id: string){
@@ -449,6 +459,14 @@ import { messageList } from './messageList';
 		localStorage.setItem('theme', themeName);
 		document.documentElement.className = themeName;
 	}
+
+	function setCurrentTheme(){
+		if (localStorage.getItem('theme') === 'dark_theme') {
+			setTheme('dark_theme');
+		} else {
+			setTheme('light_theme');
+		}
+	}
 	function toggleTheme() {
 		if (localStorage.getItem('theme') === 'dark_theme') {
 			setTheme('light_theme');
@@ -459,14 +477,15 @@ import { messageList } from './messageList';
 
 	tapi.get_global_chat_badges(true).then(badges => {
 		tapi.global_badges = badges;
-	}).catch(err => {
-		if(dev) console.log('글로벌 배지 정보를 가져오는데 실패하였습니다.');
-		addReqFailedMsg();
 	});
+	// .catch(err => {
+	// 	if(dev) console.log('글로벌 배지 정보를 가져오는데 실패하였습니다.');
+	// 	addReqFailedMsg();
+	// });
 
 	const rc = getRecentChannel();
 
-	for(let c of rc.reverse()){
+	for(let c of rc.reverse() || []){
 		add_channel(recent_list, c.disp_name, c.channel);
 	}
 
@@ -488,10 +507,11 @@ import { messageList } from './messageList';
 				init_user_info(u);
 				updateFollowedStream(u.id);
 
-			}).catch(err => {
-				if(dev) console.log('유저 정보를 가져오는데 실패하였습니다.' ,err);
-				addReqFailedMsg();
 			});
+			// .catch(err => {
+			// 	if(dev) console.log('유저 정보를 가져오는데 실패하였습니다.' ,err);
+			// 	addReqFailedMsg();
+			// });
 		}
 	});
 
@@ -503,9 +523,18 @@ import { messageList } from './messageList';
 		chat_text_send_btn.disabled = true;
 	});
 	client.on('connected', (address: string, port: number) => {
-		if(tapi.current_channel && tapi.current_channel !== tapi.targetChannel){
-			joinChatRoom(tapi.targetChannel);
+		const channels = client.getChannels();
+
+		if(channels.length === 0 && !channels.includes(tapi.targetChannel)){
+			
+			//joinChatRoom(tapi.targetChannel);
 		}
+
+		// if(!tapi.current_channel && tapi.targetChannel){
+		// 	// joinChatRoom(tapi.targetChannel);
+		// }else if(tapi.current_channel && tapi.current_channel !== tapi.targetChannel){
+		// 	joinChatRoom(tapi.targetChannel);
+		// }
 		
 		msgList.addIRCMessage(null, i18n.t('tmi:connected'), true);
 		chat_text_send_btn.disabled = false;
@@ -514,22 +543,16 @@ import { messageList } from './messageList';
 		chat_text_send_btn.disabled = true;
 	});
 	client.on("disconnected", async (reason) => {
+		msgList.addIRCMessage(null, reason, true);
 		if(reason === 'Login authentication failed'){
 			const token = await auth.getToken();
+
 			if(token.status){
 				tapi.access_token = token.access_token;
-				joinChatRoom(tapi.current_channel);
+				msgList.addIRCMessage(null, i18n.t('page:tokenRefreshed'), true);
 			}else{
 				msgList.addIRCMessage(null, i18n.t('page:authFailed'), true);
 			}
-			// auth.getToken().then(token => {
-			// 	if(token.sttaus){
-			// 		tapi.access_token = token.access_token;
-			// 		joinChatRoom(tapi.current_channel);
-			// 	}else{
-			// 		msgList.addIRCMessage(null, i18n.t('page:authFailed'), true);
-			// 	}
-			// });
 		}
 		chat_text_send_btn.disabled = true;
 	});
@@ -541,7 +564,7 @@ import { messageList } from './messageList';
 		}
 	});
 	client.on("roomstate", (channel, state) => {
-		// console.log(`roomstate : channel : ${channel}, state : `, state);
+		if(dev) console.log(`roomstate : channel : ${channel}, state : `, state);
 		// Do your stuff.
 	});
 	client.on("emoteonly", (channel, enabled) => {
@@ -553,9 +576,16 @@ import { messageList } from './messageList';
 	});
 	client.on("followersonly", (channel, enabled, length) => {
 		if (enabled) {
-			msgList.addIRCMessage(null, i18n.t('tmi:followerEnabled', {channel : channel}), false);
+			msgList.addIRCMessage(null, i18n.t('tmi:followerEnabled', {channel : channel, length : length}), false);
 		} else {
-			msgList.addIRCMessage(null, i18n.t('tmi:followerDisabled', {channel : channel}), false);
+			msgList.addIRCMessage(null, i18n.t('tmi:followerDisabled', {channel : channel, length : length}), false);
+		}
+	});
+	client.on("slowmode", (channel, enabled, length) => {
+		if(enabled){
+			msgList.addIRCMessage(null, i18n.t('tmi:slowModeEnabled', {channel : channel, length : length}), false);
+		}else{
+			msgList.addIRCMessage(null, i18n.t('tmi:slowModeDisabled', {channel : channel}), false);
 		}
 	});
 
@@ -565,7 +595,7 @@ import { messageList } from './messageList';
 	});
 	client.on('clearchat', (channel) => {
 		// 전체 채팅을 삭제.
-		clearAllChat(true);
+		msgList.clearAllChat(true);
 		msgList.addIRCMessage(null, i18n.t('tmi:claerchat', {channel : channel}), false);
 	});
 
@@ -578,11 +608,11 @@ import { messageList } from './messageList';
 		if (username === tapi.username) {
 			msgList.addIRCMessage(null, i18n.t('tmi:timeout', {duration : duration}), false);
 		}
-		clearUserChat(username, true);
+		msgList.clearUserChat(username, true);
 	});
 
 	client.on('ban', (channel, username, reason) => {
-		clearUserChat(username, true);
+		msgList.clearUserChat(username, true);
 	});
 
 	client.on("raw_message", (messageCloned, message) => {
@@ -649,6 +679,7 @@ import { messageList } from './messageList';
 	});
 
 	client.on('notice', (channel, msgid, message) => {
+		if(dev) console.log(`notice channel : ${channel}, msgid : ${msgid}, message : ${message}`);
 		msgList.addIRCMessage(channel, message, false);
 	});
 
@@ -761,6 +792,8 @@ import { messageList } from './messageList';
 				if (followed_streams_after !== null) {
 					target.disabled = false;
 				}
+			}).catch(err => {
+				target.disabled = false;
 			});
 		} else if (target.id === 'refresh_flw_str') {
 			const get_more_flw_str = <HTMLButtonElement>document.getElementById('get_more_flw_str');
@@ -768,6 +801,8 @@ import { messageList } from './messageList';
 
 			updateFollowedStream(tapi.user_id).then(res => {
 				get_more_flw_str.disabled = false;
+				target.disabled = false;
+			}).catch(err => {
 				target.disabled = false;
 			});
 		}
@@ -788,7 +823,15 @@ import { messageList } from './messageList';
 		toggleSideBar();
 	});
 
-	tbc_file_input.addEventListener('change', loadTbcFile, false);
+	// tbc_file_input.addEventListener('change', loadTbcFile, false);
+
+	document.getElementById('language-options').addEventListener('click', e=> {
+		const target = <HTMLSpanElement>e.target;
+		const id = target.id;
+		const lang = id.replace('language__', '');
+
+		setLanguage(lang);
+	});
 
 	font_size_examples.addEventListener('click', e=> {
 		const target = <HTMLSpanElement>e.target;
@@ -854,5 +897,20 @@ import { messageList } from './messageList';
 
 		e.stopPropagation();
 	});
+
+	filterChannel.onmessage = event => {
+		if(!event.data.to.includes('wtbc-main')) return;
+		const data = event.data;
+
+		filter.filter = Object.fromEntries(data.filter);
+	}
+
+	// window.addEventListener('message', e=> {
+	// 	console.log('필터가 도착하였습니다. e.data : ', e.data);
+	// 	if(e.source !== window) return;
+	// 	if(!e.data.to.includes('wtbc-main')) return;
+
+	// 	console.log('필터가 변경되었습니다. e.data : ', e.data);
+	// });
 
 })();

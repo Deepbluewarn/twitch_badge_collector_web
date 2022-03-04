@@ -1,9 +1,12 @@
 import { CommonUserstate } from "tmi.js";
 import { Filter } from "./filter";
+import i18n from "./i18n";
 import { Chat } from "./messages/chat";
 import { IRC_Message } from "./messages/irc_message";
 import { UserNotice } from "./messages/usernotice";
 import { Twitch_Api } from "./twitch_api";
+
+import { Etc } from './utils/etc';
 
 class messageList{
 
@@ -18,10 +21,12 @@ class messageList{
 
 		filter: Filter;
 		tapi: Twitch_Api;
+		origin: boolean;
 
-    constructor(filter:Filter, tapi: Twitch_Api){
+    constructor(filter:Filter, tapi: Twitch_Api, origin: boolean){
 		this.filter = filter;
 		this.tapi = tapi;
+		this.origin = origin;
     }
 
     /**
@@ -31,10 +36,13 @@ class messageList{
 	 * @param isSysMsg 채널과 관계 없는 시스템 메시지이면 true.
 	 * @returns 
 	 */
-	private addMessage(channel: string, html: HTMLElement, filter_type?: string, isSysMsg?: boolean) {
-		if (!isSysMsg && this.trim_hash(channel) !== this.trim_hash(this.tapi.current_channel)) {
+	private addMessage(channel: string | null, html: HTMLElement, filter_type?: string, isSysMsg?: boolean) {
+		
+		isSysMsg = channel === null ? true : false;
+		if (!isSysMsg && Etc.trim_hash(channel) !== Etc.trim_hash(this.tapi.current_channel)) {
 			return;
 		}
+
 		filter_type = filter_type ? filter_type : '';
 		const isFilterExist = filter_type !== '';
 		const baseClassName = 'tbc_highlight';
@@ -50,16 +58,17 @@ class messageList{
 		
 		chat_line.appendChild(html);
 		
-		if(isFilterExist){
+		if(isFilterExist || (!this.origin && isSysMsg)){
 			let clone_chat = <HTMLDivElement>chat_line.cloneNode(true);
 			this.chat_list_clone.appendChild(clone_chat);
 			this.maintainChatCount(this.chat_list_clone);
 			if (this._cloneChatIsAtBottom) this.scrollDownChatList(this.chat_list_clone);
 		}
-
-		this.chat_list_origin.appendChild(chat_line);
-		this.maintainChatCount(this.chat_list_origin);
-		if (this._origChatIsAtBottom) this.scrollDownChatList(this.chat_list_origin);	
+		if(this.origin){
+			this.chat_list_origin.appendChild(chat_line);
+			this.maintainChatCount(this.chat_list_origin);
+			if (this._origChatIsAtBottom) this.scrollDownChatList(this.chat_list_origin);	
+		}
 	}
 
 	addChatMessage(channel: string, message: string, userstate: CommonUserstate, self: boolean){
@@ -67,7 +76,7 @@ class messageList{
 		this.addMessage(channel, chat.render_chat(), chat.checkFilter());
 	}
 
-	addIRCMessage(channel: string, message: string, sysmsg: boolean){
+	addIRCMessage(channel: string | null, message: string, sysmsg: boolean){
 		const ircmsg = new IRC_Message(message);
 		this.addMessage(channel, ircmsg.render_message(), null, sysmsg);
 	}
@@ -104,6 +113,19 @@ class messageList{
 		chat_list.scrollTop = chat_list.scrollHeight;
 	}
 
+	clearAllChat(line?: boolean) {
+		Array.from(this.chat_list_origin.childNodes).forEach(c => {
+			if (line) {
+				const he = (c as HTMLElement);
+				if (!he.children[0].classList.contains('irc_message')) {
+					he.classList.add('cancel_line');
+				}
+			} else {
+				c.remove();
+			}
+		});
+	}
+
 	clearCopiedChat(){
 		Array.from(this.chat_list_clone.childNodes).forEach(c => {
 			c.remove();
@@ -118,20 +140,10 @@ class messageList{
 				}
 			} else {
 				// c.remove();
-				c.getElementsByClassName('chat_message')[0].textContent = `< Message Deleted. >`;
+				c.getElementsByClassName('chat_message')[0].textContent = `< ${i18n.t('tmi:messageDeleted')} >`;
 			}
 		});
 	}
-
-	private trim_hash(str: string) {
-		let c1: string = '';
-
-		if (str && str !== '') {
-			c1 = str[0] === '#' ? str.substring(1) : str;
-		}
-		return c1;
-	}
-
 	set origChatIsAtBottom(bottom:boolean){
 		this._origChatIsAtBottom = bottom;
 	}

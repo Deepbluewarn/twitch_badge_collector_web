@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import i18n from './i18n';
 import * as swal_setting from './swal_setting';
 import { Twitch_Api } from './twitch_api';
 import { Etc } from './utils/etc';
@@ -46,22 +47,11 @@ class Auth {
 		}
 	}
 
-    // token_refresh(){
-    //     return fetch(`${REDIRECT_URI}/token/refresh`, {
-    //         method: 'POST'
-    //     }).then(res=>{
-    //         if(!res.ok) return Promise.reject();
-    //         return res.json();
-    //     }).catch(err => {
-    //         this.onError();
-    //     });
-    // }
-
     private onError(){
         this.Toast.fire({
             icon : 'error',
-            title : '서버 오류',
-            text : '알 수 없는 오류.'
+            title : i18n.t('page:serverError'),
+            text : i18n.t('page:unknownErrorOccured')
         });
     }
 }

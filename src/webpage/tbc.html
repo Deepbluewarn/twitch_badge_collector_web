@@ -57,9 +57,11 @@
                 <div class='container card-1 container_col scroller' id='channel_list_container'>
                     <div id="recent_connections">
                         <span class='channel_list_title bold' id="recentChannel">최근 연결</span>
-                        <div>
-                            <div class='channel_list recent container_col'></div>
-                        </div>
+                        <!-- <span id="recent-channel__description">최근에 연결한 채널이 여기에 표시됩니다.</span> -->
+                        <div class='channel_list recent container_col'></div>
+                        <!-- <div>
+                            
+                        </div> -->
                     </div>
                     <div class="hidden" id="followed_online-list">
                         <span class='channel_list_title bold' id="onlineChannel">온라인 (팔로우)</span>
@@ -91,6 +93,11 @@
                     <span class="material-icons-round noselect" id='setting_btn_icon'>settings</span>
                     <span id="setting_btn_text">설정</span>
                 </div>
+                <div class='container_row user_setting_list' id='filter-setting_btn'>
+                    <span class="material-icons-round">filter_alt</span>
+                    <a id='filter-setting__link' href="https://wtbc.bluewarn.dev/setting/filter" target="_blank">필터 설정</a>
+                    <!-- <span>필터 설정</span> -->
+                </div>
                 <div class='container_row user_setting_list' id='dark_mode_btn'>
                     <span class="material-icons-round noselect" id='dark_mode_btn_icon'></span>
                     <span id="dark_mode_btn_text"></span>
@@ -113,14 +120,13 @@
             <span class='text-1 bold' id='popup_title'>설정</span>
 
             <div class='container container_col scroller' id="setting_list">
-                <div class='container container_col setting_container' id='tbc_upload'>
+                <!-- <div class='container container_col setting_container' id='tbc_upload'>
                     <span class='text-2 bold' id="filterSetting">필터 설정</span>
                     
                     <label id='tbc_file_upload_label' for="tbc_file_upload">파일 업로드</label>
     
                     <span class='hidden' id='current_tbc_file'>
                         <span class='text-3' id='tbc_file_name'></span>
-                        <!-- <span class='text-3'> 파일이 적용되었습니다.</span> -->
                     </span>
 
                     <span class='text-3'>
@@ -128,6 +134,15 @@
                         <span id="guideTbc_tail"></span>
                     </span>
                     <input class='hidden' type="file" name="TBC 파일 업로드" id="tbc_file_upload" accept=".tbc">
+                </div> -->
+
+                <div class="container container_col setting_container", id="setting-language">
+                    <span class='text-2 bold' id="settingLanguage">언어</span>
+
+                    <div class='container_row flex-space-around' id="language-options">
+                        <span class='language' id="language__ko">한국어</span>
+                        <span class='language' id="language__en">English</span>
+                    </div>
                 </div>
 
                 <div class="container container_col setting_container", id="font_size_setting">
