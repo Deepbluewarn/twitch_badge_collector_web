@@ -1,69 +1,56 @@
 import { createLogger, format, transports } from 'winston';
+import path from 'path';
+import WinstonDaily from 'winston-daily-rotate-file';
 
-const { combine, timestamp, prettyPrint, printf, label, errors } = format;
+const { combine, timestamp, prettyPrint, printf, colorize, label, errors } = format;
 
-const myFormat = printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`
-});
+const logDir = 'logs';
 
-const options = {
-  file: {
-    level: 'info',
-    filename: `logs/tbc-info.log`,
-    handleExceptions: true,
-    json: false,
-    maxsize: 5242880, // 5MB
-    maxFiles: 5,
-    colorize: false,
-    format: combine(
-        label({ label: 'express' }),
-        timestamp(),
-        myFormat
-    )
-  },
-  http: {
-    level: 'http',
-    filename: `logs/tbc-http.log`,
-    handleExceptions: true,
-    json: false,
-    maxsize: 5242880, // 5MB
-    maxFiles: 5,
-    colorize: false,
-    format: combine(
-        label({ label: 'express' }),
-        timestamp(),
-        myFormat
-    )
-  },
-  error: {
-    level: 'error',
-    filename: `logs/tbc-error.log`,
-    handleExceptions: true,
-    json: false,
-    maxsize: 5242880, // 5MB
-    maxFiles: 5,
-    colorize: false,
-    format: combine(label({ label: 'express' }), timestamp(), errors(), myFormat),
-  },
-  console: {
-    level: 'debug',
-    handleExceptions: true,
-    json: false,
-    colorize: true,
-    format: combine(label({ label: 'express' }), timestamp(), myFormat),
-  },
+const logFormat = combine(
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+  printf((info) => {
+    if (info.stack) {
+      return `${info.timestamp} ${info.level}: ${info.message} \n Error Stack: ${info.stack}`
+    }
+    return `${info.timestamp} ${info.level}: ${info.message}`
+  })
+);
+
+const consoleOpts = {
+  handleExceptions: true,
+  level: process.env.NODE_ENV === 'production' ? 'error' : 'debug',
+  format: combine(
+    colorize({ all: true }),
+    timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' })
+  )
 }
 
+const transpt = [
+  new WinstonDaily({
+    level: 'error',
+    datePattern: 'YYYY-MM-DD',
+    filename: '%DATE%.error.log',
+    dirname: path.join(logDir, '/error'),
+    maxFiles: 30,
+    zippedArchive: true
+  }),
+  // 모든 레벨 로그를 저장할 파일 설정
+  new WinstonDaily({
+    level: 'debug',
+    datePattern: 'YYYY-MM-DD',
+    filename: '%DATE%.all.log',
+    dirname: path.join(logDir, '/all'),
+    maxFiles: 7,
+    zippedArchive: true
+  })
+]
+
 const logger = createLogger({
-  format: combine(format.json(), timestamp(), prettyPrint()),
-  transports: [
-      new transports.File(options.file),
-      new transports.File(options.http),
-      new transports.File(options.error)
-    ]
+  format: logFormat,
+  transports: transpt
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  logger.add(new transports.Console(options.console));
+  logger.add(new transports.Console(consoleOpts));
 }
-export default logger
+export default logger;
