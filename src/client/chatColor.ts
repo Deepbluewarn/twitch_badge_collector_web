@@ -100,8 +100,12 @@ class ChatColor {
 
     getReadableColor(name: string, color: string){
         // Readable Color
-        const currentTheme = localStorage.getItem('theme');
-        const bgColor = currentTheme === 'light_theme' ? '#f7f7f8' : '#121212';
+        // const currentTheme = localStorage.getItem('theme');
+
+        // const bgColor = currentTheme === 'light_theme' ? '#f7f7f8' : '#121212';
+        const light = document.documentElement.classList.contains('light_theme');
+        const currentTheme = light ? 'light_theme' : 'dark_theme';
+        const bgColor = light ? '#f7f7f8' : '#121212';
         
         let _color = this.resolveColor(name, color);
 
