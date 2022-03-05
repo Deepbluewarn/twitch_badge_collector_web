@@ -194,6 +194,22 @@ img.chat_badge{
 .bits_amount{
     font-weight: bold;
 }
+
+#notification{
+    background-color: var(--bg-color-1);
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+#notification-messageList{
+    padding: 16px 8px 16px 24px;
+}
+.notification__message{
+
+}
+.notification__x{
+    padding: 0px 24px;
+}
 .container{
     margin: 9px 9px 9px 9px;
     background-color: var(--container-bg-color);
