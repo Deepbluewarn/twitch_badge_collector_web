@@ -1,8 +1,8 @@
 node_modules
 dist
-src/public/js
 src/public/favicon
 logs
 temp
 stress_test
+journal
 .env
