@@ -1,12 +1,3 @@
-*{
-    box-sizing: border-box;
-
-    -webkit-transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
-    -moz-transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
-    -o-transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
-    transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
-}
-
 /* https://codepen.io/sdthornton/pen/wBZdXq */
 
 .light_theme{
@@ -77,9 +68,6 @@
 html, body {
     overscroll-behavior-y: contain;
 }
-html{
-    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-}
 body{
     height: calc(var(--vh, 1vh) * 100);
     margin: 0;
@@ -102,7 +90,6 @@ button{
     font-weight: bold;
     font-size: 0.9rem;
     text-align: center;
-    /* min-width: 3.4rem; */
     align-items: center;
     white-space: nowrap;
     padding: 3px 12px 3px 12px;
@@ -117,18 +104,6 @@ input{
     border: 1px solid var(--bottom-background-color);
     padding-left: 14px;
 }
-input::-webkit-input-placeholder {
-    font-family: inherit;
-}
-input:-ms-input-placeholder {
-    font-family: inherit;
-}
-input:-moz-placeholder {
-    font-family: inherit;
-}
-input::-moz-placeholder {
-    font-family: inherit;
-}
 a{
     color: var(--anchor-color);
     text-decoration: none;
@@ -136,20 +111,6 @@ a{
 hr{
     border: 1px solid var(--chat-room-divider-color);
 }
-/* .btn{}
-.btn:disabled{
-    background-color: var(--button-background-color-disabled);
-} */
-
-div::-webkit-scrollbar{
-    background-color: rgba(255, 255, 255, 0);
-}
-div::-webkit-scrollbar-thumb{
-    background-color: var(--scrollbar-color);
-    border-radius: 4px;
-    margin: 2px;
-}
-
 #header{
     background-color: var(--bg-color-2);
     padding: var(--header-padding);
@@ -181,7 +142,7 @@ input#channel_id::placeholder{
 }
 #title{
     justify-content: center;
-    margin: 16px 0 4px 0;
+    margin: 0px 0 8px 0;
 }
 #auth_info{
     padding: 2px;
@@ -266,15 +227,19 @@ div#sidebar{
     margin: 8px;
     border-radius: 4px;
 }
-/* #twitch_login_btn_big{
-    background-color: #9147FF;
-    color: #eeeeee;
-    font-weight: bold;
+#sidebar-close{
+    justify-content: flex-end;
+}
+#sidebar-close__btn{
     cursor: pointer;
-    padding: 26px 0 26px 0;
-    justify-content: center;
-    align-items: center;
-} */
+    padding: 8px 8px 8px 8px;
+}
+#sidebar-close__btn:hover{
+    font-weight: bold;
+}
+#contact-developer{
+    padding: 10px;
+}
 .container_list{
     overflow: auto;
     gap: 14px;
@@ -408,161 +373,4 @@ div#sidebar{
 .channel_list_title{
     font-size: 0.9rem;
     margin: 0 0 0 19px;
-}
-div.chat_line{
-    padding: 4px 8px 4px 8px;
-    overflow-wrap: anywhere;
-}
-div.chat{
-    margin: 4px 20px 4px 0px;
-    vertical-align: middle;
-}
-span.badges{
-    display: inline-flex;
-    vertical-align: inherit;
-}
-span.author{
-    vertical-align: inherit;
-}
-span.chat_message{
-    vertical-align: inherit;
-}
-div.usernotice{
-    padding: 4px 10px 4px 10px;
-    background-color: var(--usernotice-bg-color);
-    border-radius: 10px;
-}
-img.chat_badge{
-    display: inline-block;
-    margin-right: 4px;
-    vertical-align: baseline;
-}
-.highlighted-message{
-    color: var(--highlight-msg-color);
-    font-weight: bold;
-    padding: 2px;
-    background-color: var(--highlight-msg-bg-color);
-}
-.chat_author_disp{
-    font-weight: 700;
-}
-.emoticon_container{
-    display: inline-flex;
-    width: 1.75rem;
-    height: 1.75rem;
-
-    vertical-align: inherit;
-    margin: -0.8rem 0;
-    align-items: center;
-    cursor: pointer;
-    font-style: normal;
-    justify-content: center;
-    outline: none;
-    pointer-events: all;
-    padding: 0 0 0.4rem 0;
-}
-.irc_message_span{
-    color: var(--irc-msg-color);
-}
-.bold{
-    font-weight: bold;
-}
-.chat_message_separator{
-    white-space: pre-wrap;
-}
-.chat_sent_ts{
-    display: inline-flex;
-    align-items: center;
-    margin-right: 5px;
-    color: var(--chat-sent-ts-color);
-    vertical-align: middle;
-}
-.bits_amount{
-    font-weight: bold;
-}
-.container{
-    margin: 9px 9px 9px 9px;
-    background-color: var(--container-bg-color);
-    border-radius: 4px;
-}
-.container_row{
-    display: flex;
-    flex-direction: row;
-}
-.container_col{
-    display: flex;
-    flex-direction: column;
-}
-.text-0{
-    font-size: 1.2rem;
-}
-.text-1{
-    font-size: 1.1rem;
-}
-.text-2{
-    font-size: 0.9rem;
-}
-.text-3{
-    font-size: 0.8rem;
-}
-.text-4{
-    font-size: 0.7rem;
-}
-
-.font_size_0{
-    font-size: 0.76rem;
-}
-.font_size_1{
-    font-size: 0.86rem;
-}
-.font_size_2{
-    font-size: 0.96rem;
-}
-.font_size_3{
-    font-size: 1.06rem;
-}
-
-.tbc_highlight{
-    border-left: 8px solid #333333;
-}
-.tbc_highlight_badge{
-    border-left: 8px solid #ea5656;
-}
-.tbc_highlight_login_name{
-    border-left: 8px solid #fbd000;
-}
-.tbc_highlight_keyword{
-    border-left: 8px solid #1e97ff;
-}
-.selected{
-    font-weight: bold;
-    color: var(--text-color);
-}
-.flex-space-around{
-    justify-content: space-around;
-    align-items: center;
-}
-.gap-8{
-    gap: 8px;
-}
-.scroller {
-    scrollbar-color: var(--scrollbar-color) rgba(255, 255, 255, 0);
-    scrollbar-width: thin;
-}
-.card-1 {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-}
-.noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    user-select: none; 
-}
-.hidden{
-    display: none !important;
-}
-.italic{
-    font-style: italic;
-}
-.cancel_line{
-    text-decoration: line-through;
 }

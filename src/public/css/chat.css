@@ -1,0 +1,84 @@
+#chat_room{
+    flex: 1;
+    width: 100%;
+}
+#chat_list_container{
+    display: flex;
+    flex-direction: column;
+    font-size: inherit;
+    flex: 1;
+    overflow: auto;
+}
+.chat_list{
+    flex: 1;
+    overflow: auto;
+    overflow: overlay;
+    font-size: inherit;
+}
+div.chat_line{
+    padding: 4px 8px 4px 8px;
+    overflow-wrap: anywhere;
+}
+div.chat{
+    margin: 4px 20px 4px 0px;
+    vertical-align: middle;
+}
+span.badges{
+    display: inline-flex;
+    vertical-align: inherit;
+}
+span.author{
+    vertical-align: inherit;
+}
+span.chat_message{
+    vertical-align: inherit;
+}
+div.usernotice{
+    padding: 4px 10px 4px 10px;
+    background-color: var(--usernotice-bg-color);
+    border-radius: 10px;
+}
+img.chat_badge{
+    display: inline-block;
+    margin-right: 4px;
+    vertical-align: baseline;
+}
+.highlighted-message{
+    color: var(--highlight-msg-color);
+    font-weight: bold;
+    padding: 2px;
+    background-color: var(--highlight-msg-bg-color);
+}
+.chat_author_disp{
+    font-weight: 700;
+}
+.emoticon_container{
+    display: inline-flex;
+    width: 1.75rem;
+    height: 1.75rem;
+    vertical-align: inherit;
+    margin: -0.8rem 0;
+    align-items: center;
+    cursor: pointer;
+    font-style: normal;
+    justify-content: center;
+    outline: none;
+    pointer-events: all;
+    padding: 0 0 0.4rem 0;
+}
+.irc_message_span{
+    color: var(--irc-msg-color);
+}
+.chat_message_separator{
+    white-space: pre-wrap;
+}
+.chat_sent_ts{
+    display: inline-flex;
+    align-items: center;
+    margin-right: 5px;
+    color: var(--chat-sent-ts-color);
+    vertical-align: middle;
+}
+.bits_amount{
+    font-weight: bold;
+}

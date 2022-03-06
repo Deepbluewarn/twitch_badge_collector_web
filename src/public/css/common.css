@@ -1,0 +1,159 @@
+*{
+    box-sizing: border-box;
+
+    -webkit-transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
+    -moz-transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
+    -o-transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
+    transition: background-color 0.2s cubic-bezier(.25,.8,.25,1);
+}
+
+:root{
+    --tbc-red : #ea5656;
+    --tbc-gray : #4e4e4e;
+    --tbc-yellow : #fbd000;
+    --tbc-blue : #1e97ff;
+    --tbc-green : #3fa944;
+}
+html{
+    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}
+a{
+    color: var(--anchor-color);
+    text-decoration: none;
+}
+hr{
+    border: 1px solid var(--chat-room-divider-color);
+}
+input::-webkit-input-placeholder {
+    font-family: inherit;
+}
+input:-ms-input-placeholder {
+    font-family: inherit;
+}
+input:-moz-placeholder {
+    font-family: inherit;
+}
+input::-moz-placeholder {
+    font-family: inherit;
+}
+*::-webkit-scrollbar{
+    background-color: rgba(255, 255, 255, 0);
+}
+*::-webkit-scrollbar-thumb{
+    background-color: var(--scrollbar-color);
+    border-radius: 4px;
+    margin: 2px;
+}
+
+.tbc_highlight{
+    border-left: 8px solid var(--tbc-gray);
+}
+.tbc_highlight_badge{
+    border-left: 8px solid var(--tbc-red);
+}
+.tbc_highlight_login_name{
+    border-left: 8px solid var(--tbc-yellow);
+}
+.tbc_highlight_keyword{
+    border-left: 8px solid var(--tbc-blue);
+}
+
+.container{
+    margin: 9px 20px 9px 20px;
+    background-color: var(--container-bg-color);
+    border-radius: 4px;
+}
+.container_row{
+    display: flex;
+    flex-direction: row;
+}
+.container_col{
+    display: flex;
+    flex-direction: column;
+}
+.flex-space-around{
+    justify-content: space-around;
+    align-items: center;
+}
+.gap-8{
+    gap: 8px;
+}
+.text-0{
+    font-size: 1.2rem;
+}
+.text-1{
+    font-size: 1.1rem;
+}
+.text-2{
+    font-size: 0.9rem;
+}
+.text-3{
+    font-size: 0.8rem;
+}
+.text-4{
+    font-size: 0.7rem;
+}
+
+.font_size_0{
+    font-size: 0.76rem;
+}
+.font_size_1{
+    font-size: 0.86rem;
+}
+.font_size_2{
+    font-size: 0.96rem;
+}
+.font_size_3{
+    font-size: 1.06rem;
+}
+
+.scroller {
+    scrollbar-color: var(--scrollbar-color) rgba(255, 255, 255, 0);
+    scrollbar-width: thin;
+}
+
+.hidden{
+    display: none !important;
+}
+.italic{
+    font-style: italic;
+}
+.bold{
+    font-weight: bold;
+}
+.cancel_line{
+    text-decoration: line-through;
+}
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    user-select: none; 
+}
+.ellipsis{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-1 {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+#notification{
+    background-color: var(--bg-color-1);
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+#notification-messageList{
+    padding: 16px 8px 16px 24px;
+}
+.notification__message{
+
+}
+#notification__x{
+    cursor: pointer;
+    padding: 0px 24px;
+}
+#notification__x:hover{
+    font-weight: bold;
+}
