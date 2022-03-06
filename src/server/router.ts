@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
     logger.info(`${logMsgHeader}`);
 
-    res.cookie('language', getRequestedLang(req));
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
     
     res.sendFile(path.join(__dirname, "../src", "webpage", "tbc.html"));
 });
@@ -19,7 +19,7 @@ router.get('/mini', (req, res) => {
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
     logger.info(`${logMsgHeader}`);
 
-    res.cookie('language', getRequestedLang(req));
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
     
     res.sendFile(path.join(__dirname, "../src", "webpage", "mini.html"));
 });
@@ -28,7 +28,7 @@ router.get('/setting/filter', (req, res) => {
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
     logger.info(`${logMsgHeader}`);
     
-    res.cookie('language', getRequestedLang(req));
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
 
     res.sendFile(path.join(__dirname, "../src", "webpage", "filter.html"));
 });
