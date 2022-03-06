@@ -22,11 +22,24 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/static/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SC2TRFYTBW"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-SC2TRFYTBW');
+
+    </script>
+
     <link rel="preload" as="style" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="preload" as="style">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
+    <link rel="stylesheet" href="/static/css/common.css">
     <link rel="stylesheet" href="/static/css/filter.css">
     <script src="/static/js/filter.js" defer></script>
 
@@ -35,7 +48,9 @@
 <body class='container_col'>
     <div class="container_row card-1" id="header">
         <div class='container_row' id="header-left">
-            <img id="logo" src="/static/logo/cc_icon128.png" alt="logo">
+            <a href="http://wtbc.bluewarn.dev" target="_blank">
+                <img id="logo" src="/static/logo/cc_icon128.png" alt="logo">
+            </a>
             <span id="page-title">Twitch Badge Collector :: 필터 설정</span>
         </div>
         <div class='container container_row' id='auth_info'>
@@ -43,22 +58,26 @@
         </div>
     </div>
 
+    <!-- <div class='container_row card-1' id="notification">
+        <div id="notification-messageList">
+            <span class="notification__message">
+                <a href="http://wtbc.bluewarn.dev" target="_blank">Twitch Badge Collector</a>
+                <span id="try">
+                    웹 버전을 이용해보세요!
+                </span>
+            </span>
+        </div>
+        <span class="material-icons-round" id="notification__x">close</span>
+    </div> -->
+
     <div id="main">
 
         <div class='container_col noselect card-1 hidden' id='user_setting'>
             <div class='container_col container_list'>
-                <!-- <div class='container_row user_setting_list hidden' id='user-info__login'>
-                    <img id='user-profile_img'>
-                    <span id="user-display_name"></span>
-                </div> -->
                 <div class='container_row user_setting_list' id='dark_mode_btn'>
                     <span class="material-icons-round noselect" id='dark_mode_btn_icon'></span>
                     <span id="dark_mode_btn_text"></span>
                 </div>
-                <!-- <div class='container_row user_setting_list' id='twitch-login__btn'>
-                    <span class="material-icons-round noselect" id='login_btn_icon'>login</span>
-                    <span id='twitch_login_small_text'>트위치로 로그인</span>
-                </div> -->
             </div>
         </div>
 
@@ -69,7 +88,6 @@
             <div class='container container_row' id="filter-add__header">
                 <select id="category-select" required="required">
                     <option id='cat_option_login' value="login_name">닉네임</option>
-                    <!-- <option id='cat_option_badge' value="badge_uuid">배지</option> -->
                     <option id='cat_option_keyword' value="keyword">키워드</option>
                     <option class='hidden' id='cat_option_badge' value="badge_uuid">배지</option>
                 </select>
@@ -77,7 +95,6 @@
                 <div class="container_row hidden" id="filter-add__badge-info">
                     <img id="filter-add__badge-img" src="" alt="">
                     <input class='ellipsis' id='filter-add__badge-desc' type="text" placeholder="배지 설명 입력">
-                    <!-- <span class='ellipsis' id="filter-add__badge-desc"></span> -->
                 </div>
     
                 <select id="type-select" required="required">
@@ -98,7 +115,6 @@
                 
                 <div id="search-badge__container">
                     <div class='container container_col' id="search-badge__header">
-                        <!-- 채널 인풋 비었으면 글로벌 검색, 채널 있-->
                         <div class="container_row" id="search-badge__search">
                             <input class='ellipsis' id='search-badge__channel' type="text" placeholder="채널 이름을 입력하세요.">
                             <button id="search-badge__btn">검색</button>
@@ -171,9 +187,9 @@
                             </div>
                             
                             <div class="pagination-page">
-                                <span class="page-current"></span>
+                                <span class="page-current">0</span>
                                 <span>/</span>
-                                <span class="page-length"></span>
+                                <span class="page-length">0</span>
                             </div>
                             
                         </div>
@@ -267,7 +283,6 @@
                         <button id="filter-control__rm-sel">선택 삭제</button>
                         <button id="filter-control__rm-all">전체 삭제</button>
                         <button id="filter-control__backup">파일 백업</button>
-                        <!-- <button id="filter-control__upload">파일 업로드</button> -->
                         <label id="filter-control__upload" for="tbc_file_upload">파일 업로드</label>
                         <input class="hidden" type="file" name="TBC 파일 업로드" id="tbc_file_upload" accept=".tbc">
                     </div>
@@ -280,9 +295,9 @@
                             </div>
                             
                             <div class="pagination-page">
-                                <span class="page-current"></span>
+                                <span class="page-current">0</span>
                                 <span>/</span>
-                                <span class="page-length"></span>
+                                <span class="page-length">0</span>
                             </div>
                             
                         </div>
