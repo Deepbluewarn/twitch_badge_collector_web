@@ -1,4 +1,4 @@
-import { UserColorMap } from './UserColorMap';
+import { UserColorMap } from './usercolormap';
 
 const color_list = [
     '#FF0000', '#0000FF', '#008000', '#B22222',

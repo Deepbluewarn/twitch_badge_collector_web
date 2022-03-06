@@ -8,6 +8,7 @@ import * as swal_setting from './swal_setting';
 const auth = new Auth();
 const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 const Toast = Swal.mixin(swal_setting.setting_def);
+const askToast = Swal.mixin(swal_setting.ask_user);
 
 enum FilterType {
     badge = 'badge_uuid',
@@ -135,6 +136,7 @@ function setPageLanguage(){
     document.getElementById('filter-control__rm-all').textContent = i18n.t('filterPage:removeAll');
     document.getElementById('filter-control__backup').textContent = i18n.t('filterPage:backupFile');
     document.getElementById('filter-control__upload').textContent = i18n.t('filterPage:uploadFile');
+    // document.getElementById('try').textContent = i18n.t('page:advertise');
 }
 
 setPageLanguage();
@@ -337,16 +339,34 @@ function initBadgeInput(){
     (document.getElementById('cat_option_badge')as HTMLOptionElement).classList.add('hidden');
 }
 
-function deleteSelectedFilter(){
-    const list = document.getElementById('filter-list__result').getElementsByClassName('filter-list__line');
-    for(let fl of Array.from(list)){
-        if(fl.id === 'filter-list__title') continue;
-        const chboxes = <HTMLInputElement>fl.getElementsByClassName('filter-checkbox')[0];
-        if(chboxes.checked){
-            const filter_id = fl.getAttribute('filter_id');
+async function deleteSelectedFilter(){
+
+    const chboxes = document.getElementById('filter-list__result');
+    const checkedBoxes = chboxes.querySelectorAll('input[type=checkbox]:checked');
+    const boxlen = checkedBoxes.length
+
+    if(boxlen === 0) return;
+
+    const setting = swal_setting.ask_user;
+    setting.title = i18n.t('filterPage:filterDelete');
+    setting.text = i18n.t('filterPage:filterDeleteConfirm', {length : boxlen});
+    setting.cancelButtonText = i18n.t('page:cancel');
+    setting.confirmButtonText = i18n.t('page:apply');
+
+    const confirm = await Swal.fire(setting);
+
+    if(!confirm.isConfirmed) return;
+
+    for (let chbox of Array.from(checkedBoxes)) {
+        const line = chbox.closest('.filter-list__line');
+        const chboxes = <HTMLInputElement>line.getElementsByClassName('filter-checkbox')[0];
+        if (line.id === 'filter-list__title') {
             chboxes.checked = false;
-            filter.delete(filter_id);
+            continue;
         }
+        const filter_id = line.getAttribute('filter_id');
+        chboxes.checked = false;
+        filter.delete(filter_id);
     }
 
     // refresh filter list
@@ -355,7 +375,18 @@ function deleteSelectedFilter(){
     setFilter();
     sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
 }
-function deleteAllFilter(){
+async function deleteAllFilter(){
+
+    const setting = swal_setting.ask_user;
+    setting.title = i18n.t('filterPage:filterDelete');
+    setting.text = i18n.t('filterPage:filterDeleteAllConfirm');
+    setting.cancelButtonText = i18n.t('page:cancel');
+    setting.confirmButtonText = i18n.t('page:apply');
+
+    const confirm = await Swal.fire(setting);
+
+    if(!confirm.isConfirmed) return;
+
     filter.clear();
     // refresh filter list
     setFilterList(getFilter(), currentFilterPageNum);
@@ -364,13 +395,21 @@ function deleteAllFilter(){
     sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
 }
 
-function loadFilterFromFile(event:ProgressEvent){
-    
+async function loadFilterFromFile(event:ProgressEvent){
+
+    const setting = swal_setting.ask_user;
+    setting.title = i18n.t('filterPage:filterApply');
+    setting.text = i18n.t('filterPage:filterInitConfirm');
+    setting.cancelButtonText = i18n.t('page:cancel');
+    setting.confirmButtonText = i18n.t('page:apply');
+
+    const confirm = await Swal.fire(setting);
+
+    if(!confirm.isConfirmed) return;
+
     let target = <FileReader>event.target;
     let _filter = JSON.parse(String(target.result));
     let meta = _filter.shift();
-
-    console.log('업로드 필터 : ', _filter);
 
     if(!meta.version || !meta.date){
         Toast.fire(i18n.t('filterPage:uploadFilter'), i18n.t('filterPage:noMetaInFile'), 'error');
@@ -380,15 +419,13 @@ function loadFilterFromFile(event:ProgressEvent){
     filter.clear();
 
     for(let f of _filter){
-        if(!f.filter_id){
-            console.log('필터 ID 값이 없습니다.');
+        if(!f.filter_id || f.filter_id === ''){
+            Toast.fire(i18n.t('filterPage:uploadFilter'), i18n.t('filterPage:noFilterID'), 'error');
             return;
         }
         if(!f.note) f.note = f.value;
         filter.set(f.filter_id, f);
-        console.log('필터에 set 하였습니다. : ', f);
     }
-    console.log('적용된 필터 : ', filter);
     setFilter();
     setFilterList(getFilter(), currentFilterPageNum);
     sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
@@ -476,7 +513,7 @@ function addFilter(filterInfo: filterInfo){
             return;
         }
     }
-    let id = '';
+    let id = getRandomString();
     while(filter.has(id)){
         id = getRandomString();
     }
@@ -798,6 +835,9 @@ document.getElementById('tbc_file_upload').addEventListener('change', e => {
         reader.readAsText(files[0]);
     }
 });
+// document.getElementById('notification__x').addEventListener('click', e=> {
+//     document.getElementById('notification').classList.add('hidden');
+// });
 
 document.addEventListener('click', e=> {
     const target = e.target as HTMLElement;

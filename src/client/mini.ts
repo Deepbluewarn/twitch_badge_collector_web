@@ -41,6 +41,7 @@ let tmi_client_obj: Options = {
 let client: Client = new Client(tmi_client_obj);
 
 setTheme(theme);
+// setPageLanguage();
 
 function setTheme(theme: string){
     let th = '';
@@ -75,6 +76,9 @@ function setFontSize(id: string){
     }
     chat_room.classList.add(cls);
 }
+// function setPageLanguage(){
+//     document.getElementById('try').textContent = i18n.t('page:advertise');
+// }
 
 tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
@@ -99,6 +103,7 @@ client.connect().then(async () => {
 
 
 client.on('connected', (address: string, port: number) => {
+    // msgList.addIRCMessage(null, i18n.t('page:advertiseChat'), true);
     msgList.addIRCMessage(null, i18n.t('tmi:connected'), true);
     const channels = client.getChannels();
     
@@ -151,6 +156,10 @@ client.on("emotesets", (sets, obj) => {
 chat_list_clone.addEventListener("scroll", function () {
     msgList.cloneChatIsAtBottom = chat_list_clone.scrollTop + chat_list_clone.clientHeight >= chat_list_clone.scrollHeight - 40;
 }, false);
+
+// document.getElementById('notification__x').addEventListener('click', e=> {
+//     document.getElementById('notification').classList.add('hidden');
+// });
 
 filterChannel.onmessage = event => {
     const data = event.data;

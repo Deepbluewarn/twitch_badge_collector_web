@@ -5,7 +5,7 @@ import i18n from './i18n/index';
 import { Auth, CLIENT_ID } from './auth';
 import { Twitch_Api } from './twitch_api'
 
-import { UserColorMap } from './UserColorMap';
+import { UserColorMap } from './usercolormap';
 
 import { Filter } from './filter';
 import { ChatColor } from './chatColor';
@@ -38,12 +38,7 @@ import { messageList } from './messageList';
 	const recent_list = document.getElementsByClassName('channel_list recent')[0];
 	const online_list = document.getElementsByClassName('channel_list online')[0];
 	const setting_container = document.getElementById('setting');
-
 	const font_size_examples = document.getElementById('font_size_examples');
-	// const tbc_file_input = document.getElementById('tbc_file_upload');
-	// const tbc_file_name = document.getElementById('tbc_file_name');
-	// const current_tbc_file = document.getElementById('current_tbc_file');
-
 	const handler = document.getElementById('handler');
 
 	// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
@@ -52,7 +47,6 @@ import { messageList } from './messageList';
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
 
 	const filterChannel = new BroadcastChannel('Filter');
-	const Toast = Swal.mixin(swal_setting.setting_def);
 
 	let followed_streams_after: string = '';
 	let LAST_JOIN_TIME: number = 0;
@@ -223,6 +217,7 @@ import { messageList } from './messageList';
 		document.getElementById('onlineChannel').textContent = i18n.t('page:onlineFollowed');
 		document.getElementById('get_more_flw_str').textContent = i18n.t('page:getMore');
 		document.getElementById('refresh_flw_str').textContent = i18n.t('page:refresh');
+		document.getElementById('contact-developer__a').textContent = i18n.t('page:contactDeveloper');
 		document.getElementById('setting_btn_text').textContent = i18n.t('page:setting');
 		document.getElementById('filter-setting__link').textContent = i18n.t('page:filterSetting');
 		const theme = localStorage.getItem('theme') === 'light_theme' ? 'darkmode' : 'lightmode';
@@ -525,25 +520,19 @@ import { messageList } from './messageList';
 	client.on('connected', (address: string, port: number) => {
 		const channels = client.getChannels();
 
-		if(channels.length === 0 && !channels.includes(tapi.targetChannel)){
-			
-			//joinChatRoom(tapi.targetChannel);
-		}
-
-		// if(!tapi.current_channel && tapi.targetChannel){
-		// 	// joinChatRoom(tapi.targetChannel);
-		// }else if(tapi.current_channel && tapi.current_channel !== tapi.targetChannel){
-		// 	joinChatRoom(tapi.targetChannel);
-		// }
-		
 		msgList.addIRCMessage(null, i18n.t('tmi:connected'), true);
+
+		if(channels.length === 0 && channels.includes(tapi.targetChannel)){
+			joinChatRoom(tapi.targetChannel);
+		}
+		
 		chat_text_send_btn.disabled = false;
 	});
 	client.on('reconnect', () => {
 		chat_text_send_btn.disabled = true;
 	});
 	client.on("disconnected", async (reason) => {
-		msgList.addIRCMessage(null, reason, true);
+		// msgList.addIRCMessage(null, reason, true);
 		if(reason === 'Login authentication failed'){
 			const token = await auth.getToken();
 
@@ -882,6 +871,10 @@ import { messageList } from './messageList';
 		document.documentElement.style.setProperty('--vh', `${vh}px`);
 	});
 
+	document.getElementById('sidebar-close__btn').addEventListener('click', e=> {
+		closeSideBar();
+	});
+
 	document.addEventListener('click', e=> {
 		const target = e.target as HTMLElement;
 
@@ -913,4 +906,11 @@ import { messageList } from './messageList';
 	// 	console.log('필터가 변경되었습니다. e.data : ', e.data);
 	// });
 
+
+	document.getElementById('debug-1').addEventListener('click', e=> {
+		client.connect();
+	});
+	document.getElementById('debug-2').addEventListener('click', e=> {
+		client.disconnect();
+	});
 })();
