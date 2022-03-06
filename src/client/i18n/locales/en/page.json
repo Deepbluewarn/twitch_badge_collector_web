@@ -28,5 +28,8 @@
     "add" : "Add",
     "search" : "Search",
     "tokenRefreshed" : "Session has been renewed. Please try again.",
-    "reqFailedMessage" : "The request failed. Please log in again."
+    "reqFailedMessage" : "The request failed. Please log in again.",
+    "contactDeveloper" : "Contact Developer",
+    "advertise" : "Get the web version of Twitch Badge Collector!",
+    "advertiseChat" : "Get the web version of Twitch Badge Collector! https://wtbc.bluewarn.dev"
 }

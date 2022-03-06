@@ -27,6 +27,12 @@
     "chat" : "채팅",
     "add" : "추가",
     "search" : "검색",
+    "cancel" : "취소",
+    "apply" : "적용",
     "tokenRefreshed" : "세션이 갱신되었습니다. 다시 시도하세요.",
-    "reqFailedMessage" : "요청이 실패했습니다. 다시 로그인하세요."
+    "reqFailedMessage" : "요청이 실패했습니다. 다시 로그인하세요.",
+    
+    "contactDeveloper" : "개발자에게 문의하기",
+    "advertise" : "웹 버전을 사용해보세요!",
+    "advertiseChat" : "Twitch Badge Collector 웹 버전을 사용해보세요! https://wtbc.bluewarn.dev"
 }
