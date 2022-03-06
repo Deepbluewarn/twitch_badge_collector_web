@@ -166,7 +166,6 @@ filterChannel.onmessage = event => {
     
     if(!data.to.includes('wtbc-mini')) return;
     filter.filter = Object.fromEntries(data.filter);
-    console.log('mini filterChannel onmessage data : ', data);
 }
 
 window.addEventListener('message', e=> {

@@ -285,8 +285,6 @@ import { messageList } from './messageList';
 
 		const readyState = client.readyState();
 
-		console.log('joinChatRoom readyState : ', readyState);
-
 		if (readyState === 'CLOSED') {
 			connected = await connectChatServer(tapi.username, tapi.access_token);
 		}

@@ -35,7 +35,6 @@ function onProxyReq(proxyReq, req, res){
     }else if(pathname === '/streams/followed'){
         access_token = req.session.access_token;
     }
-    console.log(`pathname : ${pathname}, access_token : ${access_token}`);
 
     proxyReq.setHeader('Authorization', `Bearer ${access_token}`);
     proxyReq.setHeader('Client-Id', process.env.CLIENT_ID);

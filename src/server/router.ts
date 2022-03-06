@@ -7,8 +7,8 @@ const router = express.Router();
 const tapi = new Twitch_Api();
 
 router.get('/', (req, res) => {
-    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    logger.info(`${logMsgHeader}`);
+    // const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    // logger.info(`${logMsgHeader}`);
 
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
     
@@ -16,8 +16,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/mini', (req, res) => {
-    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    logger.info(`${logMsgHeader}`);
+    // const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    // logger.info(`${logMsgHeader}`);
 
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
     
@@ -25,8 +25,8 @@ router.get('/mini', (req, res) => {
 });
 
 router.get('/setting/filter', (req, res) => {
-    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    logger.info(`${logMsgHeader}`);
+    // const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    // logger.info(`${logMsgHeader}`);
     
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
 
@@ -35,7 +35,7 @@ router.get('/setting/filter', (req, res) => {
 
 router.get('/login', wrapAsync(async(req, res) => {
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    logger.info(`${logMsgHeader}`);
+    // logger.info(`${logMsgHeader}`);
     const client_state = <string>req.query.cstate;
     const server_state = <string>req.query.state;
     const auth_code = <string>req.query.code;
@@ -81,7 +81,7 @@ router.get('/login', wrapAsync(async(req, res) => {
 
 router.post('/token', wrapAsync(async(req, res) => {
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-	logger.info(`${logMsgHeader}`);
+	// logger.info(`${logMsgHeader}`);
 
 	const access_token = req.session.access_token;
 
@@ -90,8 +90,6 @@ router.post('/token', wrapAsync(async(req, res) => {
 		res.json({ status: false });
         return;
 	}
-
-    console.log('validate token access token : ', access_token);
     tapi.validate_token(access_token).then((token => {
         req.session.expire_time = token.expires_in;
         res.json({
