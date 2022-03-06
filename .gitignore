@@ -1,6 +1,5 @@
 node_modules
 dist
-src/public/favicon
 logs
 temp
 stress_test
