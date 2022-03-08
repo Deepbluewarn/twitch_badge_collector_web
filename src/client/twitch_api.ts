@@ -36,7 +36,11 @@ class Twitch_Api {
         logins.forEach(login=>{
             params.append('login', login);
         });
-        return await this.request(`/api/users?${params}`, 'GET');
+        const res = await this.request(`/api/users?${params}`, 'GET');
+        if(res.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(res.message), 'error');
+        }
+        return res;
     }
     async get_followed_streams(user_id: string, after?: string) {
         if(after === null) return Promise.reject();
@@ -47,17 +51,28 @@ class Twitch_Api {
         params.append('first', '20');
 
         const url = `/api/streams/followed?${params}`;
-        return await this.request(url, 'GET');
+        const res = await this.request(url, 'GET');
+        if(res.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(res.message), 'error');
+        }
+        return res;
     }
     async get_channel_chat_badges(broadcaster_id: string, map: boolean) {
         const url = `/api/chat/badges?broadcaster_id=${broadcaster_id}`;
 
         const badges = await this.request(url, 'GET');
+        if(badges.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(badges.message), 'error');
+        }
         return map ? this.badge_data_to_map(badges) : badges;
     }
     async get_global_chat_badges(map: boolean) {
         const url = '/api/chat/badges/global';
         const badges = await this.request(url, 'GET');
+
+        if(badges.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(badges.message), 'error');
+        }
         return map ? this.badge_data_to_map(badges) : badges;
     }
     async getChannelChatBadges(broadcaster_id: string){
@@ -65,14 +80,24 @@ class Twitch_Api {
         params.append('language', i18n.language);
         const url = `/udapi/badges/channels/${broadcaster_id}/display?${params}`;
 
-        return await this.request(url, 'GET');
+        const res = await this.request(url, 'GET');
+
+        if(res.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(res.message), 'error');
+        }
+        return res;
     }
     async getGlobalChatBadges(){
         let params = new URLSearchParams();
         params.append('language', i18n.language);
         const url = `/udapi/badges/global/display?${params}`;
 
-        return await this.request(url, 'GET');
+        const res = await this.request(url, 'GET');
+
+        if(res.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(res.message), 'error');
+        }
+        return res;
     }
 
     async get_emote_sets(emote_sets_id: string[]) {
@@ -84,6 +109,10 @@ class Twitch_Api {
         }
 
         const sets = await this.request(url + params, 'GET');
+
+        if(sets.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(sets.message), 'error');
+        }
         sets.data.forEach(e =>{
             this.emote_sets.set(e.name, e);
         });
@@ -92,6 +121,11 @@ class Twitch_Api {
     async get_cheermotes(broadcaster_id: string){
         const url = `/api/bits/cheermotes?broadcaster_id=${broadcaster_id}`;
         const cm = await this.request(url, 'GET');
+
+        if(cm.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(cm.message), 'error');
+        }
+
         return this.cheermote_map(cm);
     }
 
@@ -174,6 +208,8 @@ class Twitch_Api {
                     }).catch(err => {
                         this.showErrorMessage();
                     });
+                }else{
+                    this.showErrorMessage();
                 }
             }
         }).catch(err => {
