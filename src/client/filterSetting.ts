@@ -327,6 +327,13 @@ function sendFilter(from: string, to: string[]){
     filterChannel.postMessage(msg);
 }
 
+// function showSearchBadgesLoader(){
+//     document.getElementsByClassName('loader')[0].classList.remove('hidden');
+// }
+// function hideSearchBadgesLoader(){
+//     document.getElementsByClassName('loader')[0].classList.add('hidden');
+// }
+
 function getBadge(){
     return badgeUserSearchMode ? badgeUserSearchedResult : searchedBadgeResult;
 }
@@ -396,7 +403,7 @@ async function deleteAllFilter(){
 }
 
 async function loadFilterFromFile(event:ProgressEvent){
-
+    (document.getElementById('tbc_file_upload')as HTMLInputElement).value = '';
     const setting = swal_setting.ask_user;
     setting.title = i18n.t('filterPage:filterApply');
     setting.text = i18n.t('filterPage:filterInitConfirm');
@@ -637,6 +644,7 @@ searchBadgeBtn.addEventListener('click', async e => {
     const searchCategory = channel.value === '' ? 'global' : 'channel';
     let req: Promise<any>;
 
+    // showSearchBadgesLoader();
     if(searchCategory === 'global'){
         if(searchedBadgeID === null) return;
         req = tapi.getGlobalChatBadges();
@@ -647,7 +655,7 @@ searchBadgeBtn.addEventListener('click', async e => {
         if(channel.value === searchedBadgeID) return;
 
         let user = await tapi.get_users(channel.value);
-        if(user.data.length === 0){
+        if(!user || !user.data || user.data.length === 0){
             return;
         }
         searchedBadgeChannel = user.data[0].display_name;
@@ -660,6 +668,7 @@ searchBadgeBtn.addEventListener('click', async e => {
         badgeUserSearchMode = false;
         filterUserSearchMode = false;
         setSearchedBadgeList(getBadge(), searchedBadgeChannel, 1);
+        // hideSearchBadgesLoader();
     });
     channel.value = '';
     
