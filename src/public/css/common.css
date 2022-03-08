@@ -137,6 +137,9 @@ input::-moz-placeholder {
 .card-1 {
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
+.underline{
+    text-decoration: underline;
+}
 
 #notification{
     background-color: var(--bg-color-1);
