@@ -7,8 +7,6 @@ import { Etc } from './utils/etc';
 import i18n from './i18n/index';
 import { ChatColor } from "./chatColor";
 
-const VERSION = '0.0.1';
-
 const filterChannel = new BroadcastChannel('Filter');
 
 const chat_list_container = document.getElementById('chat_list_container');
@@ -16,11 +14,15 @@ const chat_list_clone = <HTMLDivElement>chat_list_container.getElementsByClassNa
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const params = Object.fromEntries(urlSearchParams.entries());
-let channel = params.channel;
-const theme = params.theme;
+const messageId = params.messageId;
+const channel = params.channel;
+const language = params.language || 'en';
+const font_size = params.font_size || 'default';
+const theme = params.theme || 'light';
 
-const font_setting = localStorage.getItem('fontSize');
-setFontSize(font_setting);
+i18n.changeLanguage(language);
+setFontSize(`font_${font_size}`);
+setTheme(theme);
 
 let localFilter = JSON.parse(localStorage.getItem('filter')) || {};
 
@@ -40,9 +42,6 @@ let tmi_client_obj: Options = {
 };
 let client: Client = new Client(tmi_client_obj);
 
-setTheme(theme);
-// setPageLanguage();
-
 function setTheme(theme: string){
     let th = '';
     if(theme === 'dark'){
@@ -51,6 +50,21 @@ function setTheme(theme: string){
         th = 'light_theme';
     }
     document.documentElement.className = th;
+    updateChatColor();
+}
+function updateChatColor(){
+    const chatColor = new ChatColor();
+
+    const chatListContainer = document.getElementById('chat_list_container');
+    const chat = chatListContainer.getElementsByClassName('chat');
+
+    for (let c of chat) {
+        const author = <HTMLSpanElement>c.getElementsByClassName('author')[0];
+        if (!author) continue;
+
+        const username = c.classList.item(1);
+        author.style.color = chatColor.getReadableColor(username, null);
+    }
 }
 
 function setFontSize(id: string){
@@ -76,9 +90,6 @@ function setFontSize(id: string){
     }
     chat_room.classList.add(cls);
 }
-// function setPageLanguage(){
-//     document.getElementById('try').textContent = i18n.t('page:advertise');
-// }
 
 tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
@@ -97,13 +108,10 @@ client.connect().then(async () => {
 
     tapi.channel_badges = channelBadges;
     tapi.cheermotes = cheer;
-
-    channel = user.data[0].login;
 });
 
 
 client.on('connected', (address: string, port: number) => {
-    // msgList.addIRCMessage(null, i18n.t('page:advertiseChat'), true);
     msgList.addIRCMessage(null, i18n.t('tmi:connected'), true);
     const channels = client.getChannels();
     
@@ -157,10 +165,6 @@ chat_list_clone.addEventListener("scroll", function () {
     msgList.cloneChatIsAtBottom = chat_list_clone.scrollTop + chat_list_clone.clientHeight >= chat_list_clone.scrollHeight - 40;
 }, false);
 
-// document.getElementById('notification__x').addEventListener('click', e=> {
-//     document.getElementById('notification').classList.add('hidden');
-// });
-
 filterChannel.onmessage = event => {
     const data = event.data;
     
@@ -169,20 +173,19 @@ filterChannel.onmessage = event => {
 }
 
 window.addEventListener('message', e=> {
+    if(!messageId) return;
+    if(e.data.messageId !== messageId) return;
 
-    const chatColor = new ChatColor();
-
-    const chatListContainer = document.getElementById('chat_list_container');
-    const chat = chatListContainer.getElementsByClassName('chat');
-    const theme = e.data === 'light' ? 'light_theme' : 'dark_theme';
+    console.log(e);
+    const data = e.data;
+    const msgType = data.type;
+    const msgValue = data.value;
     
-    setTheme(e.data);
-
-    for (let c of chat) {
-        const author = <HTMLSpanElement>c.getElementsByClassName('author')[0];
-        if (!author) continue;
-
-        const username = c.classList.item(1);
-        author.style.color = chatColor.getReadableColor(username, null);
+    if(msgType === 'language'){
+        i18n.changeLanguage(language);
+    }else if(msgType === 'font_size'){
+        setFontSize(`font_${msgValue}`);
+    }else if(msgType === 'theme'){
+        setTheme(msgValue);
     }
 });
