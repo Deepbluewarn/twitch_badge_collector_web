@@ -8,8 +8,6 @@ const color_list = [
 ];
 
 class ChatColor {
-
-    dev = JSON.parse(localStorage.getItem('dev'));
     constructor(){
 
     }
@@ -153,7 +151,6 @@ class ChatColor {
             UserColorMap.map.set(name, color);
             resolvedColor = color;
         }
-        if(this.dev) console.log('this.userColorList : ', UserColorMap.map);
         return resolvedColor;
     }
 

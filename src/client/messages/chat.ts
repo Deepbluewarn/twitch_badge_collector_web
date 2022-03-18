@@ -138,7 +138,7 @@ class Chat{
     private render_message(){
         let message = this.text;
         let chat_span = document.createElement('span');
-        const isDarkTheme = localStorage.getItem('theme') === 'dark_theme' ? true : false;
+        // const isDarkTheme = localStorage.getItem('theme') === 'dark_theme' ? true : false;
 
         chat_span.classList.add('chat_message');
 
@@ -177,7 +177,8 @@ class Chat{
 
                 const min_bits = this.getMinBits(bits);
                 const tier = this.getTierByMinBits(prefix, min_bits);
-                const links = isDarkTheme ? tier.images.dark.animated : tier.images.light.animated;
+                // const links = isDarkTheme ? tier.images.dark.animated : tier.images.light.animated;
+                const links = tier.images.dark.animated;
                 const tier_color = tier.color;
 
                 span.classList.add('bits_amount');

@@ -24,10 +24,8 @@ i18n.changeLanguage(language);
 setFontSize(`font_${font_size}`);
 setTheme(theme);
 
-let localFilter = JSON.parse(localStorage.getItem('filter')) || {};
-
 const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
-const filter: Filter = new Filter(localFilter, tapi);
+const filter: Filter = new Filter(tapi);
 const msgList: messageList = new messageList(filter, tapi, false);
 
 const random = Math.floor(1000 + Math.random() * 9000);
@@ -176,7 +174,6 @@ window.addEventListener('message', e=> {
     if(!messageId) return;
     if(e.data.messageId !== messageId) return;
 
-    console.log(e);
     const data = e.data;
     const msgType = data.type;
     const msgValue = data.value;
@@ -187,5 +184,7 @@ window.addEventListener('message', e=> {
         setFontSize(`font_${msgValue}`);
     }else if(msgType === 'theme'){
         setTheme(msgValue);
+    }else if(msgType === 'filter'){
+        filter.filter = Object.fromEntries(data.value);
     }
 });

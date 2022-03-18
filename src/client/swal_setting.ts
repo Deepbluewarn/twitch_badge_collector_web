@@ -1,7 +1,5 @@
 import Swal, { SweetAlertOptions } from 'sweetalert2';
 
-const theme = localStorage.getItem('theme');
-
 export const setting_def: SweetAlertOptions = {
     toast: true,
     position: 'top-end',

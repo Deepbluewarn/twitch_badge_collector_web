@@ -23,8 +23,6 @@ class Twitch_Api {
     _cheermotes: Map<string, object> = new Map();
     auth: Auth = new Auth();
 
-    dev = JSON.parse(localStorage.getItem('dev'));
-
     Toast = Swal.mixin(swal_setting.setting_def);
 
     constructor(c_id: string) {

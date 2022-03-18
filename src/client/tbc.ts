@@ -81,7 +81,7 @@ import { messageList } from './messageList';
 	let localFilter = JSON.parse(localStorage.getItem('filter')) || {};
 
 	// localstorage 에 filter 가 없으면, (filter_str 이 null 이면)
-	const filter: Filter = new Filter(localFilter, tapi);
+	const filter: Filter = new Filter(tapi, localFilter);
 	const msgList: messageList = new messageList(filter, tapi, true);
 
 	// tbc_file_name.textContent = i18n.t('page:currentFile', {filename : localStorage.getItem('tbc_file_name')});
