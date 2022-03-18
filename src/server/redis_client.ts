@@ -13,8 +13,15 @@ const cacheClientOption = {
     password: process.env.CACHE_REDIS_AUTH,
     db: 0
 }
-const redisSessClient = redis.createClient(sessClientOption);
-const redisCacheClient = redis.createClient(cacheClientOption);
+const sessSubscribeOption = {
+    host: 'localhost',
+    port: 6379,
+    password: process.env.SESSION_REDIS_AUTH,
+    db: 0
+}
+export const redisSessClient = redis.createClient(sessClientOption);
+export const redisCacheClient = redis.createClient(cacheClientOption);
+export const redisTokenSubscriber = redis.createClient(sessSubscribeOption);
 
 redisSessClient.on('connect',() => {
     logger.info('connected to redis for session successfully!');
@@ -32,4 +39,10 @@ redisCacheClient.on('error',(error) => {
     logger.error('Redis for cache connection error ', error);
 });
 
-export {redisSessClient, redisCacheClient};
+redisTokenSubscriber.on('connect',() => {
+    logger.info('connected to redis for redisTokenSubscriber successfully!');
+});
+
+redisTokenSubscriber.on('error',(error) => {
+    logger.error('Redis for redisTokenSubscriber connection error ', error);
+});

@@ -1,12 +1,28 @@
 import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middleware';
-import { Twitch_Api } from './api/twitchApi';
-import { redisCacheClient } from './redis_client.js';
+import { redisSessClient, redisTokenSubscriber, redisCacheClient } from './redis_client.js';
 import logger from './utils/logger';
 
 var url = require('url');
 
-const tapi = new Twitch_Api();
-tapi.getAppAccessToken();
+let AppAccessToken;
+
+redisSessClient.get(process.env.APP_ACCESS_TOKEN_KEY).then(t => {
+    AppAccessToken = t;
+});
+
+redisTokenSubscriber.subscribe(process.env.TOKEN_PUBLISH_CHANNEL, (err, count) => {
+    if(err) {
+        logger.error("Failed to subscribe: %s", err.message);
+    }else{
+        logger.info(`Subscribed successfully! This client is currently subscribed to ${count} channels.`);
+    }
+});
+
+redisTokenSubscriber.on("message", (channel, message) => {
+    if(channel === process.env.TOKEN_PUBLISH_CHANNEL){
+        AppAccessToken = message;
+    }
+});
 
 const onProxyRes = responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
     if (proxyRes.headers['content-type'].includes('application/json')) {
@@ -28,12 +44,14 @@ function onProxyReq(proxyReq, req, res){
     const pathname = parseUrl.pathname;
     const query = parseUrl.query;
 
-    let access_token = tapi.token; // 서버 APP ACCESS TOKEN.
+    let access_token = '';
 
     if(pathname === '/users' && !query.login){
         access_token = req.session.access_token;
     }else if(pathname === '/streams/followed'){
         access_token = req.session.access_token;
+    }else{
+        access_token = AppAccessToken;
     }
 
     proxyReq.setHeader('Authorization', `Bearer ${access_token}`);
