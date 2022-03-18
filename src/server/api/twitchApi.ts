@@ -42,20 +42,6 @@ class Twitch_Api {
         });
         return this.request(url, 'post', null);
     }
-    
-    getAppAccessToken(){
-        const params = new URLSearchParams();
-        params.append('client_id', process.env.CLIENT_ID);
-        params.append('client_secret', process.env.CLIENT_SECRET);
-        params.append('grant_type', 'client_credentials');
-    
-        const url = `https://id.twitch.tv/oauth2/token?${params}`;
-
-        return this.request(url, 'post', null).then(token => {
-            this.token = token.access_token;
-        });
-    }
-
     private async request(url: string, m: Method, headers, userToken?: string) {
         headers = headers ? headers : {
             Authorization: `Bearer ${userToken || this.token}`,
