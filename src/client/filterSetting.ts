@@ -48,7 +48,9 @@ let filterUserSearchedResult;
 let badgeUserSearchMode = false;
 let filterUserSearchMode = false;
 
+const messageIdChannel = new BroadcastChannel('MessageId');
 const filterChannel = new BroadcastChannel('Filter');
+
 let filter = new Map();
 
 let localFilter = JSON.parse(localStorage.getItem('filter'));
@@ -82,28 +84,28 @@ if(localFilter === null){
 setFilter();
 setFilterList(getFilter(), 1);
 
+messageIdChannel.onmessage = event => {
+    if(!(event.data.from === 'tbc' && event.data.to.includes('wtbc-filter'))) return;
+    if(msg_id === ''){
+        msg_id = event.data.msg_id;
+    }
+}
 filterChannel.onmessage = event => {
-
     if(!(event.data.from === 'tbc' && event.data.to.includes('wtbc-filter'))) return;
 
     if(msg_id === ''){
         msg_id = event.data.msg_id;
     }
+    const _filter = event.data.filter;
 
-    if(localFilter !== null) return;
+    filter.clear();
 
-    if(localFilter === null){
-        const _filter = event.data.filter;
-
-        filter.clear();
-
-        for(let f of _filter){
-            filter.set(f[1].filter_id, f[1]);
-        }
-    
-        setFilter();
-        setFilterList(getFilter(), 1);
+    for (let f of _filter) {
+        filter.set(f[1].filter_id, f[1]);
     }
+
+    setFilter();
+    setFilterList(getFilter(), 1);
 }
 
 function setPageLanguage(){
@@ -820,6 +822,16 @@ document.getElementById('filter-list__result').addEventListener('click', e=> {
         setFilter();
         sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
     }
+});
+
+document.getElementById('filter-add__badge-desc').addEventListener('keyup', e=> {
+    if (e.key === 'Enter') filterAddBtn.click();
+});
+document.getElementById('filter-value').addEventListener('keyup', e=> {
+    if (e.key === 'Enter') filterAddBtn.click();
+});
+document.getElementById('search-badge__channel').addEventListener('keyup', e=> {
+    if (e.key === 'Enter') searchBadgeBtn.click();
 });
 
 document.getElementById('filter-control__rm-sel').addEventListener('click', e=> {
