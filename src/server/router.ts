@@ -7,30 +7,38 @@ const router = express.Router();
 const tapi = new Twitch_Api();
 
 router.get('/', (req, res) => {
-    // const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    // logger.info(`${logMsgHeader}`);
-
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-    
     res.sendFile(path.join(__dirname, "../src", "webpage", "tbc.html"));
 });
 
 router.get('/mini', (req, res) => {
-    // const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    // logger.info(`${logMsgHeader}`);
-
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-    
     res.sendFile(path.join(__dirname, "../src", "webpage", "mini.html"));
 });
 
 router.get('/setting/filter', (req, res) => {
-    // const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    // logger.info(`${logMsgHeader}`);
-    
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-
     res.sendFile(path.join(__dirname, "../src", "webpage", "filter.html"));
+});
+
+router.get('/dev/broadcast', (req, res) => {
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/broadcastChannel.html"));
+});
+
+router.get('/dev', (req, res) => {
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/tbc.html"));
+});
+
+router.get('/dev/mini', (req, res) => {
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/mini.html"));
+});
+
+router.get('/dev/setting/filter', (req, res) => {
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/filter.html"));
 });
 
 router.get('/login', wrapAsync(async(req, res) => {
