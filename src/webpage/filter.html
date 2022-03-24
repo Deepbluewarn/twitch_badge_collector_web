@@ -21,7 +21,6 @@
         gtag('js', new Date());
 
         gtag('config', 'G-SC2TRFYTBW');
-
     </script>
 
     <link rel="preload" as="style" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
@@ -29,13 +28,10 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="preload" as="style">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@31fcb83b8e03d0829270b88c3c9ebef9b05cbcd3/src/public/css/common.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@31fcb83b8e03d0829270b88c3c9ebef9b05cbcd3/src/public/css/filter.css">
-    <!-- <link rel="stylesheet" href="/static/css/common.css">
-    <link rel="stylesheet" href="/static/css/filter.css"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/css/common.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/css/filter.css">
 
-    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@31fcb83b8e03d0829270b88c3c9ebef9b05cbcd3/src/public/js/filter.js" defer></script>
-    <!-- <script src="/static/js/filter.js" defer></script> -->
+    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/js/filter.js" defer></script>
 
     <title>Twitch Badge Collector :: Setting</title>
 </head>
@@ -51,18 +47,6 @@
             <span class="material-icons-round noselect">person</span>
         </div>
     </div>
-
-    <!-- <div class='container_row card-1' id="notification">
-        <div id="notification-messageList">
-            <span class="notification__message">
-                <a href="http://wtbc.bluewarn.dev" target="_blank">Twitch Badge Collector</a>
-                <span id="try">
-                    웹 버전을 이용해보세요!
-                </span>
-            </span>
-        </div>
-        <span class="material-icons-round" id="notification__x">close</span>
-    </div> -->
 
     <div id="main">
 
@@ -111,17 +95,20 @@
                     <div class='container container_col' id="search-badge__header">
                         <div class="container_row" id="search-badge__search">
                             <input class='ellipsis' id='search-badge__channel' type="text" placeholder="채널 이름을 입력하세요.">
-                            <button id="search-badge__btn">검색</button>
+                            <button id="search-badge__btn"></button>
                         </div>
                         <input class='ellipsis' id='search-badge__badgeName' type="text" placeholder="배지 이름 검색">
                     </div>
                     <div class='container container_col' id="search-badge__result">
+                        
                         <div class="badge-info__line" id="badge-info__title">
-                            <span id="badge-image__title">배지</span>
-                            <span id="badge-channel__title">채널</span>
-                            <span id="badge-note__title">비고</span>
-                            <span id="badge-description__title">배지 이름</span>
+                            <span class='underline' id="badge-image__title">배지</span>
+                            <span class='underline' id="badge-channel__title">채널</span>
+                            <span class='underline' id="badge-note__title">비고</span>
+                            <span class='underline' id="badge-description__title">배지 이름</span>
                         </div>
+
+                        <div class="loader hidden">Loading...</div>
         
                         <div class="badge-info__line hidden">
                             <img class='badge-image' src="">
@@ -192,6 +179,17 @@
                         </div>
                     </div>
                 </div>
+
+                <div class='ad_container'>
+                    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6919358765398721"
+                        crossorigin="anonymous"></script>
+                    <!-- filter_footer -->
+                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6919358765398721" data-ad-slot="4921177665"
+                        data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+                    <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
             </div>
     
             <div id="filter-list">
@@ -210,10 +208,10 @@
                     <div class='container container_col' id="filter-list__result">
                         <div class="filter-list__line" id="filter-list__title">
                             <input id="filter-chackbox__title" class='filter-checkbox' type="checkbox">
-                            <span id="filter-category__title">카테고리</span>
-                            <span id="filter-badge__title">배지</span>
-                            <span id="filter-value__title">내용</span>
-                            <span id="filter-type__title">조건</span>
+                            <span class='underline' id="filter-category__title">카테고리</span>
+                            <span class='underline' id="filter-badge__title">배지</span>
+                            <span class='underline' id="filter-value__title">내용</span>
+                            <span class='underline' id="filter-type__title">조건</span>
                         </div>
         
                         <div class="filter-list__line hidden">
@@ -300,6 +298,18 @@
                         </div>
                     </div>
                 </div>
+
+                <div class='ad_container'>
+                    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6919358765398721"
+                        crossorigin="anonymous"></script>
+                    <!-- filter_footer -->
+                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6919358765398721" data-ad-slot="4921177665"
+                        data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+                    <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+
             </div>
         </div>
 
