@@ -162,16 +162,6 @@ option{
 .user_setting_list:hover{
     font-weight: bold;
 }
-.container-title{
-    display: inline-block;
-    margin: 8px 0 8px 20px;
-    font-weight: bold;
-}
-.container-title__note{
-    padding-left: 20px;
-    font-size: 0.9rem;
-    color: var(--text-color-2);
-}
 #header{
     background-color: var(--bg-color-1);
     justify-content: space-between;
@@ -241,7 +231,7 @@ option{
 }
 #search-badge__result{
     gap: 7px;
-    height: 22.7rem;
+    height: 25.8rem;
     overflow: auto;
 }
 .search-badge__message{
@@ -265,7 +255,7 @@ option{
 #badge-info__title{
     font-size: 0.9rem;
     margin-top: 8px;
-    margin-bottom: 8px;
+    /* margin-bottom: 8px; */
 }
 #filter-list__title{
     font-size: 0.9rem;
