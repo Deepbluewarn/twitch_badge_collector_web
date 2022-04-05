@@ -1,0 +1,14 @@
+{
+    "title" : "{{APP_NAME}} :: Save Chat",
+    "saveChat" : "Save Chat",
+    "saveChat_description" : "Save Chat as Image",
+    "saveChat_description_1" : "Only available with the [ {{settingName}} ] setting.",
+    "selectChatRoom" : "Select Chat Room",
+    "InputImageWidthPlaceholder" : "Image Width (px)",
+    "InputFilenamePlaceholder" : "filename",
+    "download" : "Download",
+    "selectChat" : "Select Chat",
+    "selectChatRoomError" : "Please select chat room.",
+    "noChatList" : "No Chat Lists",
+    "insertChatClient" : "Insert Chat Client"
+}
