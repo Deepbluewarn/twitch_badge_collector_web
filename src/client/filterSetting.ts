@@ -21,7 +21,7 @@ interface filterInfo{
 }
 
 setCurrentTheme();
-const PAGE_LIST_CNT = 10; // 한 페이지에 표시할 목록 갯수.
+const PAGE_LIST_CNT = 8; // 한 페이지에 표시할 목록 갯수.
 const filterAddBtn = document.getElementById('filterAddBtn');
 const searchBadgeBtn = document.getElementById('search-badge__btn');
 
