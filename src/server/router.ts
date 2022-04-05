@@ -21,6 +21,11 @@ router.get('/setting/filter', (req, res) => {
     res.sendFile(path.join(__dirname, "../src", "webpage", "filter.html"));
 });
 
+router.get('/chat', (req, res) => {
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/chatSaver.html"));
+});
+
 router.get('/dev/broadcast', (req, res) => {
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
     res.sendFile(path.join(__dirname, "../src", "webpage", "dev/broadcastChannel.html"));
@@ -39,6 +44,11 @@ router.get('/dev/mini', (req, res) => {
 router.get('/dev/setting/filter', (req, res) => {
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
     res.sendFile(path.join(__dirname, "../src", "webpage", "dev/filter.html"));
+});
+
+router.get('/dev/chat', (req, res) => {
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/chatSaver.html"));
 });
 
 router.get('/login', wrapAsync(async(req, res) => {
