@@ -8,6 +8,7 @@ import i18n from './i18n/index';
 import { ChatColor } from "./chatColor";
 
 const filterChannel = new BroadcastChannel('Filter');
+const chatChannel = new BroadcastChannel('Chat');
 
 const chat_list_container = document.getElementById('chat_list_container');
 const chat_list_clone = <HTMLDivElement>chat_list_container.getElementsByClassName('chat_list clone')[0];
@@ -18,7 +19,8 @@ const messageId = params.messageId;
 const channel = params.channel;
 const language = params.language || 'en';
 const font_size = params.font_size || 'default';
-const theme = params.theme || 'light';
+let displayName = '';
+let theme = params.theme || 'light';
 
 i18n.changeLanguage(language);
 setFontSize(`font_${font_size}`);
@@ -100,6 +102,7 @@ client.connect().then(async () => {
         msgList.addIRCMessage(null, i18n.t('tmi:channelNotFound', { channel: channel }), true);
         return;
     }
+    displayName = user.data[0].display_name;
 
     let channelBadges = await tapi.get_channel_chat_badges(user.data[0].id, true);
     let cheer = await tapi.get_cheermotes(user.data[0].id);
@@ -168,6 +171,31 @@ filterChannel.onmessage = event => {
     
     if(!data.to.includes('wtbc-mini')) return;
     filter.filter = Object.fromEntries(data.filter);
+    msgList.addIRCMessage(null, '필터가 업데이트 되었습니다.', true);
+}
+chatChannel.onmessage = event => {
+    if(event.data.type === 'REQUEST_MINI_ID'){
+        chatChannel.postMessage({
+            type: 'RESPONSE_MINI_ID',
+            theme: theme,
+            channel: channel,
+            displayName: displayName,
+            random: random,
+        });
+    }
+
+    if(event.data.type === 'REQUEST_CHAT_LIST'){
+        if(event.data.id !== `${random}-${channel}`){
+            return;
+        }
+        const se = new XMLSerializer();
+        const chatListXML = se.serializeToString(document.getElementsByClassName('chat_list')[0]);
+
+        chatChannel.postMessage({
+            type: 'chatList',
+            chatListXML: chatListXML
+        });
+    }
 }
 
 window.addEventListener('message', e=> {
@@ -183,6 +211,7 @@ window.addEventListener('message', e=> {
     }else if(msgType === 'font_size'){
         setFontSize(`font_${msgValue}`);
     }else if(msgType === 'theme'){
+        theme = msgValue;
         setTheme(msgValue);
     }else if(msgType === 'filter'){
         filter.filter = Object.fromEntries(data.value);
