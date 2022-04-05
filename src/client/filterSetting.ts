@@ -5,10 +5,8 @@ import i18n from './i18n/index';
 import Swal from 'sweetalert2';
 import * as swal_setting from './swal_setting';
 
-const auth = new Auth();
 const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 const Toast = Swal.mixin(swal_setting.setting_def);
-const askToast = Swal.mixin(swal_setting.ask_user);
 
 enum FilterType {
     badge = 'badge_uuid',
@@ -23,7 +21,7 @@ interface filterInfo{
 }
 
 setCurrentTheme();
-const PAGE_LIST_CNT = 8; // 한 페이지에 표시할 목록 갯수.
+const PAGE_LIST_CNT = 10; // 한 페이지에 표시할 목록 갯수.
 const filterAddBtn = document.getElementById('filterAddBtn');
 const searchBadgeBtn = document.getElementById('search-badge__btn');
 
