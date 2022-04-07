@@ -12,6 +12,7 @@ import { ChatColor } from './chatColor';
 import { Etc } from './utils/etc';
 import { messageList } from './messageList';
 
+import { BroadcastChannel } from 'broadcast-channel';
 
 (() => {
 	const APP_TITLE = 'Twitch Badge Collector';
@@ -47,14 +48,10 @@ import { messageList } from './messageList';
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
 
 	const filterChannel = new BroadcastChannel('Filter');
+	const Toast = Swal.mixin(swal_setting.setting_def);
 
 	let followed_streams_after: string = '';
 	let LAST_JOIN_TIME: number = 0;
-
-	localStorage.setItem('dev', 'false');
-	let dev = JSON.parse(localStorage.getItem('dev'));
-
-	// 저장된 설정으로 화면 초기화.
 
 	let container_ratio = localStorage.getItem('ratio') || 0;
 	let chat_order_reversed: boolean = localStorage.getItem('ratio') === 'true';
@@ -63,11 +60,6 @@ import { messageList } from './messageList';
 	setFontSize(font_setting);
 	setLanguage(localStorage.getItem('language'));
 
-	// if (localStorage.getItem('theme') === 'dark_theme') {
-	// 	setTheme('dark_theme');
-	// } else {
-	// 	setTheme('light_theme');
-	// }
 	setCurrentTheme();
 
 	change_container_ratio(parseInt(localStorage.getItem('ratio')) || 30);
@@ -76,16 +68,9 @@ import { messageList } from './messageList';
 
 	const auth = new Auth();
 	const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
-
-	// const filter_str = localStorage.getItem('filter');
 	let localFilter = JSON.parse(localStorage.getItem('filter')) || {};
-
-	// localstorage 에 filter 가 없으면, (filter_str 이 null 이면)
 	const filter: Filter = new Filter(tapi, localFilter);
 	const msgList: messageList = new messageList(filter, tapi, true);
-
-	// tbc_file_name.textContent = i18n.t('page:currentFile', {filename : localStorage.getItem('tbc_file_name')});
-	// if(filter_str) current_tbc_file.classList.remove('hidden');
 
 	let tmi_client_obj: Options = {
 		options: {
@@ -99,12 +84,11 @@ import { messageList } from './messageList';
 	let client: Client = new Client(tmi_client_obj);
 
 	function connectChatServer(username: string, password: string) {
+
 		const random = Math.floor(1000 + Math.random() * 9000);
+
 		tmi_client_obj.identity.username = password ? username : 'justinfan' + random;
 		tmi_client_obj.identity.password = password ? `oauth:${password}` : '';
-
-		// tmi_client_obj.identity.username = 'justinfan4444';
-		// tmi_client_obj.identity.password
 
 		return client.connect().then(() => {
 			return true;
@@ -141,7 +125,6 @@ import { messageList } from './messageList';
 
 			const online_list = document.getElementsByClassName('channel_list online')[0];
 			let fs_data = fs.data;
-			if(dev) console.log(fs_data);
 
 			for (let i = 0; i < fs_data.length; i++) {
 				add_channel(online_list, fs_data[i].user_name, fs_data[i].user_login);
@@ -268,7 +251,6 @@ import { messageList } from './messageList';
 	}
 
 	async function joinChatRoom (_channel: string) {
-		if(dev) console.log('joinChannel channel : ', _channel);
 		tapi.targetChannel = _channel;
 		const cur_time = new Date().getTime();
 		const delay_time = cur_time - LAST_JOIN_TIME;
@@ -492,7 +474,6 @@ import { messageList } from './messageList';
 
 			tapi.get_users().then(user => {
 				let u = user['data'][0];
-				if(dev) console.log(u);
 
 				tapi.user_id = u.id;
 				tapi.username = u.login;
@@ -545,15 +526,11 @@ import { messageList } from './messageList';
 	});
 
 	client.on('part', (channel, username, self) => {
-		if(dev) console.log(`PART : ${channel} 채널에서 ${username} 님이 떠났습니다.`);
-		if(UserColorMap.map.delete(username)){
-			if(dev) console.log(`PART : ${username} 님의 색상 정보가 삭제되었습니다.`);
-		}
+		UserColorMap.map.delete(username);
 	});
-	client.on("roomstate", (channel, state) => {
-		if(dev) console.log(`roomstate : channel : ${channel}, state : `, state);
-		// Do your stuff.
-	});
+	// client.on("roomstate", (channel, state) => {
+	// 	// Do your stuff.
+	// });
 	client.on("emoteonly", (channel, enabled) => {
 		if (enabled) {
 			msgList.addIRCMessage(null, i18n.t('tmi:emoteEnabled', {channel : channel}), false);
@@ -577,7 +554,6 @@ import { messageList } from './messageList';
 	});
 
 	client.on('message', (channel, userstate, message, self) => {
-		if(dev) console.log('message tags : ', userstate);
 		msgList.addChatMessage(channel, message, userstate, self);
 	});
 	client.on('clearchat', (channel) => {
@@ -602,9 +578,8 @@ import { messageList } from './messageList';
 		msgList.clearUserChat(username, true);
 	});
 
-	client.on("raw_message", (messageCloned, message) => {
-		if(dev) console.debug('raw_message : ', message);
-	});
+	// client.on("raw_message", (messageCloned, message) => {
+	// });
 
 	// subscription
 
@@ -666,7 +641,6 @@ import { messageList } from './messageList';
 	});
 
 	client.on('notice', (channel, msgid, message) => {
-		if(dev) console.log(`notice channel : ${channel}, msgid : ${msgid}, message : ${message}`);
 		msgList.addIRCMessage(channel, message, false);
 	});
 
@@ -888,22 +862,11 @@ import { messageList } from './messageList';
 
 		e.stopPropagation();
 	});
-
-	filterChannel.onmessage = event => {
-		if(!event.data.to.includes('wtbc-main')) return;
-		const data = event.data;
-
-		filter.filter = Object.fromEntries(data.filter);
+	filterChannel.onmessage = msg => {
+		if(!msg.to.includes('wtbc-main')) return;
+		filter.filter = Object.fromEntries(msg.filter);
+		Toast.fire('필터 업데이트', '필터가 업데이트 되었습니다.', 'info');
 	}
-
-	// window.addEventListener('message', e=> {
-	// 	console.log('필터가 도착하였습니다. e.data : ', e.data);
-	// 	if(e.source !== window) return;
-	// 	if(!e.data.to.includes('wtbc-main')) return;
-
-	// 	console.log('필터가 변경되었습니다. e.data : ', e.data);
-	// });
-
 
 	document.getElementById('debug-1').addEventListener('click', e=> {
 		client.connect();

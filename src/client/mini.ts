@@ -6,6 +6,7 @@ import { Client, Options } from "tmi.js";
 import { Etc } from './utils/etc';
 import i18n from './i18n/index';
 import { ChatColor } from "./chatColor";
+import { BroadcastChannel } from 'broadcast-channel';
 
 const filterChannel = new BroadcastChannel('Filter');
 const chatChannel = new BroadcastChannel('Chat');
@@ -166,15 +167,13 @@ chat_list_clone.addEventListener("scroll", function () {
     msgList.cloneChatIsAtBottom = chat_list_clone.scrollTop + chat_list_clone.clientHeight >= chat_list_clone.scrollHeight - 40;
 }, false);
 
-filterChannel.onmessage = event => {
-    const data = event.data;
-    
-    if(!data.to.includes('wtbc-mini')) return;
-    filter.filter = Object.fromEntries(data.filter);
+filterChannel.onmessage = msg => {
+    if(!msg.to.includes('wtbc-mini')) return;
+    filter.filter = Object.fromEntries(msg.filter);
     msgList.addIRCMessage(null, '필터가 업데이트 되었습니다.', true);
 }
-chatChannel.onmessage = event => {
-    if(event.data.type === 'REQUEST_MINI_ID'){
+chatChannel.onmessage = msg => {
+    if(msg.type === 'REQUEST_MINI_ID'){
         chatChannel.postMessage({
             type: 'RESPONSE_MINI_ID',
             theme: theme,
@@ -184,8 +183,8 @@ chatChannel.onmessage = event => {
         });
     }
 
-    if(event.data.type === 'REQUEST_CHAT_LIST'){
-        if(event.data.id !== `${random}-${channel}`){
+    if(msg.type === 'REQUEST_CHAT_LIST'){
+        if(msg.id !== `${random}-${channel}`){
             return;
         }
         const se = new XMLSerializer();

@@ -3,6 +3,8 @@ import { Options } from 'html-to-image/lib/options';
 import Swal from 'sweetalert2';
 import * as swal_setting from './swal_setting';
 import i18n from './i18n/index';
+import { BroadcastChannel } from 'broadcast-channel';
+
 const download = require('downloadjs');
 
 const chatChannel = new BroadcastChannel('Chat');
@@ -22,17 +24,15 @@ let random = 0;
 let channel = '';
 let displayName = '';
 
-chatChannel.onmessage = (ev) => {
-    console.log('chatSaver chatChannel.onmessage ev : ', ev);
-    const type = ev.data.type;
+chatChannel.onmessage = (msg) => {
+    const type = msg.type;
 
     if(type === 'RESPONSE_MINI_ID'){
         const option = document.createElement('option');
-        channel = ev.data.channel;
-        displayName = ev.data.displayName;
-        random = ev.data.random;
-
-        theme = ev.data.theme;
+        channel = msg.channel;
+        displayName = msg.displayName;
+        random = msg.random;
+        theme = msg.theme;
 
         option.value = `${random}-${channel}`;
         option.textContent = `${random} - ${displayName} (${channel})`;
@@ -41,8 +41,6 @@ chatChannel.onmessage = (ev) => {
     }
 
     if(type === 'chatList'){
-        const data = ev.data;
-        const chatListXML = data.chatListXML;
         const chatListContainer = document.getElementById('select__chat-list');
         const cl = chatListContainer.getElementsByClassName('chat_list');
 
@@ -52,7 +50,7 @@ chatChannel.onmessage = (ev) => {
 
         setTheme(theme);
 
-        chatListContainer.insertAdjacentHTML('beforeend', chatListXML);
+        chatListContainer.insertAdjacentHTML('beforeend', msg.chatListXML);
 
         const chatListElem = <HTMLDivElement>chatListContainer.getElementsByClassName('chat_list')[0];
 

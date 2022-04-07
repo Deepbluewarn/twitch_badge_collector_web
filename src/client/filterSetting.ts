@@ -5,6 +5,8 @@ import i18n from './i18n/index';
 import Swal from 'sweetalert2';
 import * as swal_setting from './swal_setting';
 
+import { BroadcastChannel } from 'broadcast-channel';
+
 const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 const Toast = Swal.mixin(swal_setting.setting_def);
 
@@ -77,24 +79,27 @@ if(localFilter === null){
         });
     }
 }else{
-    filter = new Map(Object.entries(localFilter));
+    for (let f of localFilter) {
+        filter.set(f[1].filter_id, f[1]);
+    }
 }
 setFilter();
 setFilterList(getFilter(), 1);
 
-messageIdChannel.onmessage = event => {
-    if(!(event.data.from === 'tbc' && event.data.to.includes('wtbc-filter'))) return;
+messageIdChannel.onmessage = msg => {
+    if(!(msg.from === 'tbc' && msg.to.includes('wtbc-filter'))) return;
     if(msg_id === ''){
-        msg_id = event.data.msg_id;
+        msg_id = msg.msg_id;
     }
 }
-filterChannel.onmessage = event => {
-    if(!(event.data.from === 'tbc' && event.data.to.includes('wtbc-filter'))) return;
+filterChannel.onmessage = msg => {
+    if(!(msg.from === 'tbc' && msg.to.includes('wtbc-filter'))) return;
 
     if(msg_id === ''){
-        msg_id = event.data.msg_id;
+        msg_id = msg.msg_id;
     }
-    const _filter = event.data.filter;
+
+    const _filter = msg.filter;
 
     filter.clear();
 
@@ -136,7 +141,6 @@ function setPageLanguage(){
     document.getElementById('filter-control__rm-all').textContent = i18n.t('filterPage:removeAll');
     document.getElementById('filter-control__backup').textContent = i18n.t('filterPage:backupFile');
     document.getElementById('filter-control__upload').textContent = i18n.t('filterPage:uploadFile');
-    // document.getElementById('try').textContent = i18n.t('page:advertise');
 }
 
 setPageLanguage();
@@ -259,13 +263,6 @@ function setFilterList(_filter: Map<string, any>, page: number){
             filter_type_cls.remove(filter_type_cls[2]);    
         }
         filter_type.classList.add(`filter-type__${filter.filter_type}`);
-        
-
-        // for(let [i, ft] of filter_type_cls){
-        //     if(ft.includes('filter-type__')){
-        //         filter_type_cls.remove(ft);
-        //     }
-        // }
         filter_type.textContent = i18n.t(`filter:${filter.filter_type}`);
         
         divFilter.classList.remove('hidden');
@@ -314,7 +311,7 @@ function getFilter(origin?: boolean){
     return filterUserSearchMode ? filterUserSearchedResult : filter;
 }
 function setFilter(){
-    const filterStr = JSON.stringify(Object.fromEntries(filter));
+    const filterStr = JSON.stringify(Array.from(filter));
     localStorage.setItem('filter', filterStr);
 }
 function sendFilter(from: string, to: string[]){
@@ -322,17 +319,10 @@ function sendFilter(from: string, to: string[]){
         from : from,
         to : to,
         msg_id : msg_id,
-        filter : filter
+        filter : Array.from(filter)
     }
     filterChannel.postMessage(msg);
 }
-
-// function showSearchBadgesLoader(){
-//     document.getElementsByClassName('loader')[0].classList.remove('hidden');
-// }
-// function hideSearchBadgesLoader(){
-//     document.getElementsByClassName('loader')[0].classList.add('hidden');
-// }
 
 function getBadge(){
     return badgeUserSearchMode ? badgeUserSearchedResult : searchedBadgeResult;
@@ -461,10 +451,6 @@ function backupFilterToFile(){
     vLink.click();
 }
 
-// function updateFilterType(filter_id: string, type: FilterType){
-//     const f = filter.get(filter_id).filter_type = type;
-//     filter.set(filter_id, f);
-// }
 function uuidFromURL(url:string){
     let badge_uuid:string = '';
 
@@ -588,47 +574,9 @@ function getRandomString() {
     return Math.random().toString(36).substring(2,12);
 }
 
-// function getBrowserInstance(): typeof chrome {
-//     // Get extension api Chrome or Firefox
-//     const browserInstance = window.chrome || (window as any)['browser'];
-//     return browserInstance;
-// }
-
-// auth.getToken().then(token => {
-//     const userInfo = <HTMLDivElement>document.getElementById('user-info__login');
-
-//     if (token.status) {
-//         const expr_time = 60 * 1000;
-//         tapi.access_token = token.access_token;
-//         tapi.expire_time = expr_time;
-        
-//         tapi.get_users().then(user => {
-//             let u = user['data'][0];
-
-//             tapi.user_id = u.id;
-//             tapi.username = u.login;
-
-//             const profile = <HTMLImageElement>document.getElementById('user-profile_img');
-//             const name = <HTMLSpanElement>document.getElementById('user-display_name');
-
-//             profile.src = u.profile_image_url;
-//             name.textContent = u.display_name;
-
-//             document.getElementById('login_btn_icon').textContent = 'logout';
-// 		    document.getElementById('twitch_login_small_text').textContent = i18n.t('page:logout');
-
-//             userInfo.classList.remove('hidden');
-//         });
-//     }
-// });
-
 auth_info.addEventListener('click', e=> {
     document.getElementById('user_setting').classList.toggle('hidden');
 });
-
-// loginBtn.addEventListener('click', e=> {
-//     auth.toggleLoginStatus(tapi, 'filter');
-// });
 
 dark_mode_btn.addEventListener('click', e=> {
     toggleTheme();
@@ -644,7 +592,6 @@ searchBadgeBtn.addEventListener('click', async e => {
     const searchCategory = channel.value === '' ? 'global' : 'channel';
     let req: Promise<any>;
 
-    // showSearchBadgesLoader();
     if(searchCategory === 'global'){
         if(searchedBadgeID === null) return;
         req = tapi.getGlobalChatBadges();
@@ -664,11 +611,9 @@ searchBadgeBtn.addEventListener('click', async e => {
     }
     req.then(badges => {
         searchedBadgeResult = badgesToArray(badges);
-        // const pgNum = calcPageNum(searchedBadgeResult.length, PAGE_LIST_CNT);
         badgeUserSearchMode = false;
         filterUserSearchMode = false;
         setSearchedBadgeList(getBadge(), searchedBadgeChannel, 1);
-        // hideSearchBadgesLoader();
     });
     channel.value = '';
     
@@ -744,11 +689,7 @@ document.getElementById('search-badge__result').addEventListener('click', e =>{
 
     valueInput.classList.add('hidden');
 
-    // <img id="filter-add__badge-img" src="" alt="">
-    // <span id="filter-add__badge-desc"></span>
-
     badgeImage.src = badge.image_url_2x;
-    // badgeImage.srcset = `${badge.image_url_2x} 2x, ${badge.image_url_4x} 4x`;
     badgeDesc.value = `${searchedBadgeChannel || 'Global'} / ${badge.title}`;
 
     badgePrev.setAttribute('index', index.toString());
@@ -772,14 +713,8 @@ document.getElementById('filter-list__filterNote').addEventListener('input', e=>
     const value = target.value.toLowerCase();
 
     filterUserSearchMode = value === '' ? false : true;
-    // const badge = getBadge();
     if(value !== ''){
-        // const f = JSON.parse(localStorage.getItem('filter'));
-        // filterUserSearchedResult = f.filter(f => f.note.toLowerCase().includes(value));
-
-        const f = getFilter(true); // Map
-        filterUserSearchedResult = new Map([...f].filter(([k, v])=> v.note.toLowerCase().includes(value)));
-
+        filterUserSearchedResult = new Map([...getFilter(true)].filter(([k, v])=> v.note.toLowerCase().includes(value)));
     }
     setFilterList(getFilter(), 1);
 });
@@ -833,20 +768,15 @@ document.getElementById('search-badge__channel').addEventListener('keyup', e=> {
 });
 
 document.getElementById('filter-control__rm-sel').addEventListener('click', e=> {
-    // 선택 삭제
     deleteSelectedFilter();
 });
 document.getElementById('filter-control__rm-all').addEventListener('click', e=> {
-    // 전체 삭제
     deleteAllFilter();
 });
 document.getElementById('filter-control__backup').addEventListener('click', e=> {
-    // 파일 백업
     backupFilterToFile();
 });
 document.getElementById('tbc_file_upload').addEventListener('change', e => {
-    // 파일 업로드
-
     let files = (<HTMLInputElement>e.target).files;
     let reader = new FileReader();
     reader.onload = loadFilterFromFile;
@@ -854,9 +784,6 @@ document.getElementById('tbc_file_upload').addEventListener('change', e => {
         reader.readAsText(files[0]);
     }
 });
-// document.getElementById('notification__x').addEventListener('click', e=> {
-//     document.getElementById('notification').classList.add('hidden');
-// });
 
 document.addEventListener('click', e=> {
     const target = e.target as HTMLElement;
@@ -867,12 +794,3 @@ document.addEventListener('click', e=> {
 
     e.stopPropagation();
 });
-
-
-
-// document.getElementById('messageTestBtn').addEventListener('click', e => {
-//     window.postMessage({
-//         type: 'saveFilterObj', 
-//         text: 'message from filter setting page'
-//     });
-// });
