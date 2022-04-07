@@ -79,6 +79,9 @@ if(localFilter === null){
         });
     }
 }else{
+    if(!Array.isArray(localFilter)){
+        localFilter = Array.from(Object.entries(localFilter));
+    }
     for (let f of localFilter) {
         filter.set(f[1].filter_id, f[1]);
     }
