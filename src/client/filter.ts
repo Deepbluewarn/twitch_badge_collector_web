@@ -69,11 +69,11 @@ export class Filter{
         let include, exclude;
 
         if(match){
-            include = filter_arr.filter(el => (el.value === value) && (el.filter_type === 'include'));
-            exclude = filter_arr.filter(el => (el.value === value) && (el.filter_type === 'exclude'));
+            include = filter_arr.filter(el => (el.value.toLowerCase() === value.toLowerCase()) && (el.filter_type === 'include'));
+            exclude = filter_arr.filter(el => (el.value.toLowerCase() === value.toLowerCase()) && (el.filter_type === 'exclude'));
         }else{
-            include = filter_arr.filter(el => value.toLowerCase().includes(el.value.toLowerCase()) && el.filter_type === 'include');
-            exclude = filter_arr.filter(el => value.toLowerCase().includes(el.value.toLowerCase()) && el.filter_type === 'exclude');
+            include = filter_arr.filter(el => value.includes(el.value) && el.filter_type === 'include');
+            exclude = filter_arr.filter(el => value.includes(el.value) && el.filter_type === 'exclude');
         }
 
         let i_len = include.length;
