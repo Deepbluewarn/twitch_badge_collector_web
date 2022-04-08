@@ -173,9 +173,9 @@ filterChannel.onmessage = msg => {
     msgList.addIRCMessage(null, '필터가 업데이트 되었습니다.', true);
 }
 chatChannel.onmessage = msg => {
-    if(msg.type === 'REQUEST_MINI_ID'){
+    if(msg.type === 'REQUEST_CHATROOM_ID'){
         chatChannel.postMessage({
-            type: 'RESPONSE_MINI_ID',
+            type: 'RESPONSE_CHATROOM_ID',
             theme: theme,
             channel: channel,
             displayName: displayName,

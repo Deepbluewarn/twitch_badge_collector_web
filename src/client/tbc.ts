@@ -47,7 +47,10 @@ import { BroadcastChannel } from 'broadcast-channel';
 	// Then we set the value in the --vh custom property to the root of the document
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
 
+	const random = Math.floor(1000 + Math.random() * 9000);
 	const filterChannel = new BroadcastChannel('Filter');
+	const chatChannel = new BroadcastChannel('Chat');
+	
 	const Toast = Swal.mixin(swal_setting.setting_def);
 
 	let followed_streams_after: string = '';
@@ -55,6 +58,7 @@ import { BroadcastChannel } from 'broadcast-channel';
 
 	let container_ratio = localStorage.getItem('ratio') || 0;
 	let chat_order_reversed: boolean = localStorage.getItem('ratio') === 'true';
+	let channelDisplayName = '';
 
 	const font_setting = localStorage.getItem('fontSize');
 	setFontSize(font_setting);
@@ -69,7 +73,7 @@ import { BroadcastChannel } from 'broadcast-channel';
 	const auth = new Auth();
 	const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 	let localFilter = JSON.parse(localStorage.getItem('filter')) || {};
-	const filter: Filter = new Filter(tapi, localFilter);
+	const filter: Filter = new Filter(tapi, Object.fromEntries(localFilter));
 	const msgList: messageList = new messageList(filter, tapi, true);
 
 	let tmi_client_obj: Options = {
@@ -233,6 +237,7 @@ import { BroadcastChannel } from 'broadcast-channel';
 		updateChatRoom(channel);
 		setRecentChannel(disp_name, channel);
 
+		channelDisplayName = disp_name;
 		LAST_JOIN_TIME = new Date().getTime();
 
 		tapi.channel_badges = badges;
@@ -435,12 +440,21 @@ import { BroadcastChannel } from 'broadcast-channel';
 		document.documentElement.className = themeName;
 	}
 
-	function setCurrentTheme(){
+	function getCurrentTheme(){
 		if (localStorage.getItem('theme') === 'dark_theme') {
-			setTheme('dark_theme');
+			return 'dark';
 		} else {
-			setTheme('light_theme');
+			return 'light';
 		}
+	}
+
+	function setCurrentTheme(){
+		setTheme(`${getCurrentTheme()}_theme`);
+		// if (localStorage.getItem('theme') === 'dark_theme') {
+		// 	setTheme('dark_theme');
+		// } else {
+		// 	setTheme('light_theme');
+		// }
 	}
 	function toggleTheme() {
 		if (localStorage.getItem('theme') === 'dark_theme') {
@@ -866,6 +880,34 @@ import { BroadcastChannel } from 'broadcast-channel';
 		if(!msg.to.includes('wtbc-main')) return;
 		filter.filter = Object.fromEntries(msg.filter);
 		Toast.fire('필터 업데이트', '필터가 업데이트 되었습니다.', 'info');
+	}
+	chatChannel.onmessage = msg => {
+		if(msg.type === 'REQUEST_CHATROOM_ID'){
+			if(!tapi.current_channel){
+				console.log('연결된 채널이 없습니다.');
+				return;
+			}
+			chatChannel.postMessage({
+				type: 'RESPONSE_CHATROOM_ID',
+				theme: getCurrentTheme(),
+				channel: tapi.current_channel,
+				displayName: channelDisplayName,
+				random: random,
+			});
+		}
+	
+		if(msg.type === 'REQUEST_CHAT_LIST'){
+			if(msg.id !== `${random}-${tapi.current_channel}`){
+				return;
+			}
+			const se = new XMLSerializer();
+			const chatListXML = se.serializeToString(document.getElementsByClassName('chat_list')[1]);
+	
+			chatChannel.postMessage({
+				type: 'chatList',
+				chatListXML: chatListXML
+			});
+		}
 	}
 
 	document.getElementById('debug-1').addEventListener('click', e=> {

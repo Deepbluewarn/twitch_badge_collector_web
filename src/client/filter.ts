@@ -9,7 +9,7 @@ export class Filter{
     _filter: any;
     tapi: Twitch_Api;
 
-    constructor(tapi: Twitch_Api, filter?: Filter){
+    constructor(tapi: Twitch_Api, filter?){
         this._filter = filter;
         this.tapi = tapi;
     }

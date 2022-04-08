@@ -11,7 +11,7 @@ const chatChannel = new BroadcastChannel('Chat');
 const Toast = Swal.mixin(swal_setting.setting_def);
 
 chatChannel.postMessage({
-    type: 'REQUEST_MINI_ID'
+    type: 'REQUEST_CHATROOM_ID'
 });
 
 const selectChannel = <HTMLSelectElement>document.getElementById('select__channel');
@@ -27,7 +27,7 @@ let displayName = '';
 chatChannel.onmessage = (msg) => {
     const type = msg.type;
 
-    if(type === 'RESPONSE_MINI_ID'){
+    if(type === 'RESPONSE_CHATROOM_ID'){
         const option = document.createElement('option');
         channel = msg.channel;
         displayName = msg.displayName;
