@@ -57,7 +57,7 @@ img.chat_badge{
     width: 1.75rem;
     height: 1.75rem;
     vertical-align: inherit;
-    margin: -0.8rem 0;
+    /* margin: -0.8rem 0; */
     align-items: center;
     cursor: pointer;
     font-style: normal;

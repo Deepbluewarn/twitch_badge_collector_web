@@ -14,6 +14,8 @@
     <meta name="msapplication-TileColor" content="#ffc40d">
     <meta name="theme-color" content="#ffffff">
 
+    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7677f810b3b3b9e1e73b620c3c79cb05423b3868/src/public/js/sentryInit.js" defer></script>
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SC2TRFYTBW"></script>
     <script>
@@ -28,13 +30,12 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="preload" as="style">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7677f810b3b3b9e1e73b620c3c79cb05423b3868/src/public/css/common.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7677f810b3b3b9e1e73b620c3c79cb05423b3868/src/public/css/chat.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7677f810b3b3b9e1e73b620c3c79cb05423b3868/src/public/css/tbc.css">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/css/common.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/css/chat.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/css/mini.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/css/tbc.css">
-
-    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@2ea677c61001f3e7f29c7ec902c1e0b953e1b103/src/public/js/main.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7677f810b3b3b9e1e73b620c3c79cb05423b3868/src/public/js/main.js" defer></script>
     <title>Twitch Badge Collector</title>
 </head>
 
@@ -93,7 +94,13 @@
                         <a id='contact-developer__a' href="mailto:n5lp97@gmail.com">개발자에게 문의</a>
                     </div>
                 </div>
+
             </div>
+            
+
+            <!-- <div class='container container_col card-1' id='twitch_login_btn_big'>
+                <span>트위치로 로그인</span>
+            </div> -->
         </div>
 
         <div class='container_col noselect card-1 hidden' id='user_setting'>
@@ -108,7 +115,8 @@
                 </div>
                 <div class='container_row user_setting_list' id='filter-setting_btn'>
                     <span class="material-icons-round">filter_alt</span>
-                    <a id='filter-setting__link' href="https://wtbc.bluewarn.dev/setting/filter" target="_blank">필터 설정</a>
+                    <a id='filter-setting__link' href="https://wtbc.bluewarn.dev/setting/filter?ext_version=web" target="_blank">필터 설정</a>
+                    <!-- <span>필터 설정</span> -->
                 </div>
                 <div class='container_row user_setting_list' id='dark_mode_btn'>
                     <span class="material-icons-round noselect" id='dark_mode_btn_icon'></span>

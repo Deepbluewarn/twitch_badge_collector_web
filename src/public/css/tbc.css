@@ -267,6 +267,9 @@ div#sidebar{
 #filter-setting__link{
     color: inherit;
 }
+#chat-as-image__link{
+    color: inherit;
+}
 #setting{
     background-color: var(--bg-color-2);
     position: absolute;
