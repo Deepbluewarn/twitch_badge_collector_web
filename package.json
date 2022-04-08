@@ -38,9 +38,12 @@
   },
   "dependencies": {
     "@loadingio/css-spinner": "^2.0.1",
+    "@sentry/browser": "^6.19.4",
+    "@sentry/tracing": "^6.19.4",
     "@sweetalert2/theme-dark": "^5.0.8",
     "@types/chrome": "^0.0.179",
     "axios": "^0.24.0",
+    "broadcast-channel": "^4.10.0",
     "connect-redis": "^6.0.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.0",
