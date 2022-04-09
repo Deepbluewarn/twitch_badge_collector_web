@@ -64,6 +64,7 @@ export class Filter{
      * @returns 필터의 Category 와 Value 에 맞는 필터 중 filter_type 이 include 이면서 동시에 exclude 인 경우가 없으면 true 반환.
      */
     private checkFilter(category: string, value: string, match: boolean){
+        if(!this._filter) return '';
         let filter_arr = Object.keys(this._filter).map(el => this._filter[el]).filter(f => f.category === category && f.filter_type != 'sleep');
 
         let include, exclude;
