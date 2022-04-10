@@ -13,6 +13,6 @@ Sentry.init({
       }
     })
   ],
-  release: '1.2.3',
+  release: '4.4.4',
   tracesSampleRate: 1.0,
 });
