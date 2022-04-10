@@ -6,5 +6,6 @@ Sentry.init({
   integrations: [
     new BrowserTracing(),
   ],
+  release: '1.2.3',
   tracesSampleRate: 1.0,
 });
