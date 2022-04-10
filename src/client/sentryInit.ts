@@ -7,7 +7,10 @@ Sentry.init({
   integrations: [
     new BrowserTracing(),
     new RewriteFramesIntegration({
-      root: '/src'
+      iteratee: (frame) => {
+        frame.filename = `~/src/public/js/${frame.filename.substring(frame.filename.lastIndexOf('/') + 1)}`
+        return frame;
+      }
     })
   ],
   release: '1.2.3',
