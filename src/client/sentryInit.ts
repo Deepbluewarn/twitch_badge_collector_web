@@ -3,7 +3,7 @@ import { BrowserTracing } from "@sentry/tracing";
 import { RewriteFrames as RewriteFramesIntegration } from "@sentry/integrations";
 
 Sentry.init({
-  dsn: "https://0361dbd0abb844de811e4bfc87cabc7b@o1197178.ingest.sentry.io/6319987",
+  dsn: "https://fce2dd0e90344e28ad44a8edeae7d5e1@o1197563.ingest.sentry.io/6320351",
   release: '4.4.4',
   integrations: [
     new BrowserTracing(),
