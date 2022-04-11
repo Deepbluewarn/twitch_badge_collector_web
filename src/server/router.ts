@@ -5,6 +5,7 @@ import { Twitch_Api } from './api/twitchApi';
 
 const router = express.Router();
 const tapi = new Twitch_Api();
+const latestVersion = ['1.4.7', 'web'];
 
 router.get('/', (req, res) => {
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
@@ -12,18 +13,49 @@ router.get('/', (req, res) => {
 });
 
 router.get('/mini', (req, res) => {
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    const extVersion = <string>req.query.ext_version;
+
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+
+    if(!latestVersion.includes(extVersion)){
+        logger.info(`${logMsgHeader} extVersion is not latestVersion`);
+        res.sendFile(path.join(__dirname, "../src", "webpage", "old/mini.html"));
+        return;
+    }
+
     res.sendFile(path.join(__dirname, "../src", "webpage", "mini.html"));
 });
 
 router.get('/setting/filter', (req, res) => {
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    const extVersion = <string>req.query.ext_version;
+
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+
+    if(!latestVersion.includes(extVersion)){
+        logger.info(`${logMsgHeader} extVersion is not latestVersion`);
+        res.sendFile(path.join(__dirname, "../src", "webpage", "old/filter.html"));
+        return;
+    }
+
     res.sendFile(path.join(__dirname, "../src", "webpage", "filter.html"));
 });
 
 router.get('/chat', (req, res) => {
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    const extVersion = <string>req.query.ext_version;
+
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/chatSaver.html"));
+
+    if(!latestVersion.includes(extVersion)){
+        logger.info(`${logMsgHeader} extVersion is not latestVersion`);
+        // res.sendFile(path.join(__dirname, "../src", "webpage", "old/chatSaver.html"));
+        res.send('채팅 저장 기능은 확장 프로그램 1.4.7 버전부터 사용 가능한 기능입니다.');
+        return;
+    }
+
+    res.sendFile(path.join(__dirname, "../src", "webpage", "chatSaver.html"));
 });
 
 router.get('/dev/broadcast', (req, res) => {
@@ -37,23 +69,46 @@ router.get('/dev', (req, res) => {
 });
 
 router.get('/dev/mini', (req, res) => {
+    const extVersion = <string>req.query.ext_version;
+
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+
+    if(!latestVersion.includes(extVersion)){
+        res.sendFile(path.join(__dirname, "../src", "webpage", "old/mini.html"));
+        return;
+    }
+
     res.sendFile(path.join(__dirname, "../src", "webpage", "dev/mini.html"));
 });
 
 router.get('/dev/setting/filter', (req, res) => {
+    const extVersion = <string>req.query.ext_version;
+    
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+
+    if(!latestVersion.includes(extVersion)){
+        res.sendFile(path.join(__dirname, "../src", "webpage", "old/filter.html"));
+        return;
+    }
+    
     res.sendFile(path.join(__dirname, "../src", "webpage", "dev/filter.html"));
 });
 
 router.get('/dev/chat', (req, res) => {
+    const extVersion = <string>req.query.ext_version;
+
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+
+    if(!latestVersion.includes(extVersion)){
+        res.sendFile(path.join(__dirname, "../src", "webpage", "old/chatSaver.html"));
+        return;
+    }
+
     res.sendFile(path.join(__dirname, "../src", "webpage", "dev/chatSaver.html"));
 });
 
 router.get('/login', wrapAsync(async(req, res) => {
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
-    // logger.info(`${logMsgHeader}`);
     const client_state = <string>req.query.cstate;
     const server_state = <string>req.query.state;
     const auth_code = <string>req.query.code;
