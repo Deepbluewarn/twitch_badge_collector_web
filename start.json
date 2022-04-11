@@ -1,0 +1,22 @@
+{
+    "apps": 
+    [{
+      "name": "wtbc",
+      "script": "dist/server.js",
+      "watch": false,
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "exec_mode": "cluster_mode",
+      "instances": 0
+    },
+    {
+      "name": "token_watchdog",
+      "script": "dist/api/token.js",
+      "watch": false,
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }]
+}
+  
