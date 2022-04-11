@@ -169,6 +169,10 @@ chat_list_clone.addEventListener("scroll", function () {
 
 filterChannel.onmessage = msg => {
     if(!msg.to.includes('wtbc-mini')) return;
+    if(!msg.filter){
+        msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
+        return;
+    }
     filter.filter = Object.fromEntries(msg.filter);
     msgList.addIRCMessage(null, '필터가 업데이트 되었습니다.', true);
 }
@@ -213,6 +217,10 @@ window.addEventListener('message', e=> {
         theme = msgValue;
         setTheme(msgValue);
     }else if(msgType === 'filter'){
+        if(!data.value){
+            msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
+            return;
+        }
         filter.filter = Object.fromEntries(data.value);
     }
 });

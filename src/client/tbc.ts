@@ -885,6 +885,10 @@ document.addEventListener('click', e => {
 });
 filterChannel.onmessage = msg => {
 	if (!msg.to.includes('wtbc-main')) return;
+	if (!msg.filter){
+		Toast.fire('필터 업데이트', '필터를 업데이트하지 못했습니다.', 'warning');
+		return;
+	}
 	filter.filter = Object.fromEntries(msg.filter);
 	Toast.fire('필터 업데이트', '필터가 업데이트 되었습니다.', 'info');
 }
