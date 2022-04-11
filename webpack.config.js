@@ -1,7 +1,8 @@
 const path = require("path");
+const SentryCliPlugin = require('@sentry/webpack-plugin');
 
 module.exports = {
-    mode: "development",
+    mode: "production",
     module: {
         rules: [
             {
@@ -18,11 +19,28 @@ module.exports = {
     entry: {
         main: './src/client/tbc.ts',
         mini: './src/client/mini.ts',
-        filter: './src/client/filterSetting.ts'
+        filter: './src/client/filterSetting.ts',
+        chatsaver: '/src/client/chatSaver.ts',
+        sentryInit: '/src/client/sentryInit.ts',
+        broadcastChannelTest: './src/client/broadcastChannelTest.ts'
     },
 
     output: {
         filename: "[name].js",
         path: path.resolve(__dirname, 'src/public/js')
     },
+    devtool: 'source-map',
+    plugins: [
+        new SentryCliPlugin({
+          ignoreFile: '.gitignore',
+          ignore: ['node_modules', 'webpack.config.js'],
+          configFile: 'sentry.properties',
+          dryRun: false,
+          release: '1.4.4',
+          urlPrefix: '~/src/public/js',
+          org: 'tbc-b1',
+          project: 'tbc-web',
+          authToken: process.env.SENTRY_AUTH_TOKEN
+        }),
+      ],
 }
