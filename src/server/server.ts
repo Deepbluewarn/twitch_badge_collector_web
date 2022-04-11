@@ -2,9 +2,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from 'express';
-import path from 'path';
 import session from 'express-session';
 import { redisSessClient } from './redis_client.js';
+import path from 'path';
 import logger from './utils/logger';
 import morgan_logger from './utils/morgan_logger';
 import axios from 'axios';
@@ -22,7 +22,7 @@ app.use(session({
 		client: redisSessClient,
 		ttl : 4 * 60 * 60
 	}),
-	secret: getRandomString(),
+	secret: process.env.SECRET,
 	resave: false,
 	saveUninitialized: false,
 	cookie: {
@@ -71,10 +71,6 @@ app.use((err,req,res,next) => {
 		res.status(500).send({status : false});
 	}
 });
-
-function getRandomString() {
-	return Math.random().toString(36).substring(2,12);
-}
 
 app.listen('4488', () => {
 	logger.info('Server listening on port: 4488');
