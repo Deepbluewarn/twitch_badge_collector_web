@@ -22,7 +22,6 @@ module.exports = {
         filter: './src/client/filterSetting.ts',
         chatsaver: '/src/client/chatSaver.ts',
         sentryInit: '/src/client/sentryInit.ts',
-        broadcastChannelTest: './src/client/broadcastChannelTest.ts'
     },
 
     output: {
