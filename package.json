@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Deepbluewarn/twitch_badge_collector_web#readme",
   "devDependencies": {
+    "@sentry/webpack-plugin": "^1.18.8",
     "@types/express-session": "^1.17.4",
     "@types/node": "^17.0.8",
     "@types/tmi.js": "^1.8.1",
@@ -38,9 +39,9 @@
   },
   "dependencies": {
     "@loadingio/css-spinner": "^2.0.1",
-    "@sentry/browser": "^6.19.4",
+    "@sentry/browser": "^6.19.6",
+    "@sentry/integrations": "^6.19.6",
     "@sentry/tracing": "^6.19.4",
-    "@sweetalert2/theme-dark": "^5.0.8",
     "@types/chrome": "^0.0.179",
     "axios": "^0.24.0",
     "broadcast-channel": "^4.10.0",
