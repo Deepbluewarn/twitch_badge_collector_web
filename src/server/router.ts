@@ -5,106 +5,45 @@ import { Twitch_Api } from './api/twitchApi';
 
 const router = express.Router();
 const tapi = new Twitch_Api();
-const latestVersion = ['1.4.7', 'web'];
+const latestVersion = ['1.4.7', '1.4.8', 'web'];
 
 router.get('/', (req, res) => {
+    const dev = <string>req.query.dev;
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-    res.sendFile(path.join(__dirname, "../src", "webpage", "tbc.html"));
+    res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('filter', 'web', dev)));
 });
 
 router.get('/mini', (req, res) => {
+    const dev = <string>req.query.dev;
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
     const extVersion = <string>req.query.ext_version;
 
+    logger.info(`${logMsgHeader} extVersion : ${extVersion}`);
+
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-
-    if(!latestVersion.includes(extVersion)){
-        logger.info(`${logMsgHeader} extVersion is not latestVersion`);
-        res.sendFile(path.join(__dirname, "../src", "webpage", "old/mini.html"));
-        return;
-    }
-
-    res.sendFile(path.join(__dirname, "../src", "webpage", "mini.html"));
+    res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('mini', extVersion, dev)));
 });
 
 router.get('/setting/filter', (req, res) => {
+    const dev = <string>req.query.dev;
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
     const extVersion = <string>req.query.ext_version;
 
+    logger.info(`${logMsgHeader} extVersion : ${extVersion}`);
+
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-
-    if(!latestVersion.includes(extVersion)){
-        logger.info(`${logMsgHeader} extVersion is not latestVersion`);
-        res.sendFile(path.join(__dirname, "../src", "webpage", "old/filter.html"));
-        return;
-    }
-
-    res.sendFile(path.join(__dirname, "../src", "webpage", "filter.html"));
+    res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('filter', extVersion, dev)));
 });
 
 router.get('/chat', (req, res) => {
+    const dev = <string>req.query.dev;
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
     const extVersion = <string>req.query.ext_version;
 
-    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-
-    if(!latestVersion.includes(extVersion)){
-        logger.info(`${logMsgHeader} extVersion is not latestVersion`);
-        // res.sendFile(path.join(__dirname, "../src", "webpage", "old/chatSaver.html"));
-        res.send('채팅 저장 기능은 확장 프로그램 1.4.7 버전부터 사용 가능한 기능입니다.');
-        return;
-    }
-
-    res.sendFile(path.join(__dirname, "../src", "webpage", "chatSaver.html"));
-});
-
-router.get('/dev/broadcast', (req, res) => {
-    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/broadcastChannel.html"));
-});
-
-router.get('/dev', (req, res) => {
-    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/tbc.html"));
-});
-
-router.get('/dev/mini', (req, res) => {
-    const extVersion = <string>req.query.ext_version;
+    logger.info(`${logMsgHeader} extVersion : ${extVersion}`);
 
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-
-    if(!latestVersion.includes(extVersion)){
-        res.sendFile(path.join(__dirname, "../src", "webpage", "old/mini.html"));
-        return;
-    }
-
-    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/mini.html"));
-});
-
-router.get('/dev/setting/filter', (req, res) => {
-    const extVersion = <string>req.query.ext_version;
-    
-    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-
-    if(!latestVersion.includes(extVersion)){
-        res.sendFile(path.join(__dirname, "../src", "webpage", "old/filter.html"));
-        return;
-    }
-    
-    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/filter.html"));
-});
-
-router.get('/dev/chat', (req, res) => {
-    const extVersion = <string>req.query.ext_version;
-
-    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-
-    if(!latestVersion.includes(extVersion)){
-        res.sendFile(path.join(__dirname, "../src", "webpage", "old/chatSaver.html"));
-        return;
-    }
-
-    res.sendFile(path.join(__dirname, "../src", "webpage", "dev/chatSaver.html"));
+    res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('chatSaver', extVersion, dev)));
 });
 
 router.get('/login', wrapAsync(async(req, res) => {
@@ -227,6 +166,18 @@ router.post('/token/refresh', wrapAsync(async(req, res)=>{
 router.get('/test', (req, res) => {
 	res.sendFile(path.join(__dirname, "../src", "webpage", "tbc_test.html"));
 });
+
+function getPagePathByVersion(htmlName: string, version: string, dev?:string){
+
+    if(!latestVersion.includes(version)){
+        return `old/${htmlName}.html`;
+    }
+    if(version === 'web'){
+        return dev ? `dev/tbc.html` : `tbc.html`;
+    }
+
+    return dev ? `dev/${htmlName}.html` : `${version}/${htmlName}.html`;
+}
 
 function getRequestedLang(req){
     const lang = req.acceptsLanguages('en', 'en-US', 'ko', 'ko-KR');
