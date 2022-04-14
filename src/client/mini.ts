@@ -16,16 +16,10 @@ const chat_list_clone = <HTMLDivElement>chat_list_container.getElementsByClassNa
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const params = Object.fromEntries(urlSearchParams.entries());
-const messageId = params.messageId;
 const channel = params.channel;
-const language = params.language || 'en';
-const font_size = params.font_size || 'default';
+let messageId = '';
 let displayName = '';
-let theme = params.theme || 'light';
-
-i18n.changeLanguage(language);
-setFontSize(`font_${font_size}`);
-setTheme(theme);
+let theme = 'light';
 
 const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 const filter: Filter = new Filter(tapi);
@@ -202,25 +196,31 @@ chatChannel.onmessage = msg => {
 }
 
 window.addEventListener('message', e=> {
-    if(!messageId) return;
-    if(e.data.messageId !== messageId) return;
-
     const data = e.data;
-    const msgType = data.type;
-    const msgValue = data.value;
-    
-    if(msgType === 'language'){
-        i18n.changeLanguage(language);
-    }else if(msgType === 'font_size'){
-        setFontSize(`font_${msgValue}`);
-    }else if(msgType === 'theme'){
-        theme = msgValue;
-        setTheme(msgValue);
-    }else if(msgType === 'filter'){
-        if(!data.value){
-            msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
-            return;
+
+    for(let d of data){
+        const msgType = d.type;
+        const msgValue = d.value;
+
+        if(msgType === 'messageId'){
+            messageId = msgValue;
         }
-        filter.filter = Object.fromEntries(data.value);
+        if(!messageId || messageId === '') return;
+        if(d.messageId !== messageId) return;
+
+        if(msgType === 'language'){
+            i18n.changeLanguage(msgValue);
+        }else if(msgType === 'font_size'){
+            setFontSize(`font_${msgValue}`);
+        }else if(msgType === 'theme'){
+            theme = msgValue;
+            setTheme(msgValue);
+        }else if(msgType === 'filter'){
+            if(!msgValue){
+                msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
+                return;
+            }
+            filter.filter = Object.fromEntries(msgValue);
+        }
     }
 });
