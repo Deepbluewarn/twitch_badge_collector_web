@@ -10,7 +10,7 @@ const latestVersion = ['1.4.7', '1.4.8', 'web'];
 router.get('/', (req, res) => {
     const dev = <string>req.query.dev;
     res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
-    res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('filter', 'web', dev)));
+    res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('tbc', 'web', dev)));
 });
 
 router.get('/mini', (req, res) => {
@@ -173,7 +173,7 @@ function getPagePathByVersion(htmlName: string, version: string, dev?:string){
         return `old/${htmlName}.html`;
     }
     if(version === 'web'){
-        return dev ? `dev/tbc.html` : `tbc.html`;
+        return dev ? `dev/${htmlName}.html` : `${htmlName}.html`;
     }
 
     return dev ? `dev/${htmlName}.html` : `${version}/${htmlName}.html`;
