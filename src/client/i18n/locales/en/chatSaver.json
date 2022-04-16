@@ -10,5 +10,5 @@
     "selectChat" : "Select Chat",
     "selectChatRoomError" : "Please select chat room.",
     "noChatList" : "No Chat Lists",
-    "insertChatClient" : "Insert Chat Client"
+    "insertChatClient" : "Chat Client"
 }
