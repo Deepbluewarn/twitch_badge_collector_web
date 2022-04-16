@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html class="dark_theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@11b149ef838c4c56e6676aca218fa6f85258bff0/src/public/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@11b149ef838c4c56e6676aca218fa6f85258bff0/src/public/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@11b149ef838c4c56e6676aca218fa6f85258bff0/src/public/favicon/favicon-16x16.png">
+    <link rel="manifest" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@11b149ef838c4c56e6676aca218fa6f85258bff0/src/public/favicon/site.webmanifest">
+    <link rel="mask-icon" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@11b149ef838c4c56e6676aca218fa6f85258bff0/src/public/favicon/safari-pinned-tab.svg" color="#fff355">
+    <meta name="msapplication-TileColor" content="#ffc40d">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@f85cc72b7ed55c9b304124ead40347f494ad7749/src/public/js/sentryInit.js" defer></script>
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SC2TRFYTBW"></script>
+    <script defer>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-SC2TRFYTBW', {cookie_flags: 'secure;samesite=none'});
+    </script>
+
+    <link rel="preload" as="style" type="text/css"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@226409cd72512943104fea289898fd2b4fc21de9/src/public/css/common.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@226409cd72512943104fea289898fd2b4fc21de9/src/public/css/chat.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@226409cd72512943104fea289898fd2b4fc21de9/src/public/css/mini.css">
+    
+    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@e99a911a30d7991636902a4811568cc8baab783b/src/public/js/mini.js" defer></script>
+    <title>Twitch Badge Collector :: Mini</title>
+</head>
+
+<body>
+    <div class='container_row' id='main'>
+        <div class='container_col font_size_1' id='chat_room'>
+            <div id="chat_list_container">
+                <div class='container_col scroller chat_list clone'></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
