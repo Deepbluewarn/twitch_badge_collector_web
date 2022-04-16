@@ -745,6 +745,11 @@ document.getElementById('filter-list__result').addEventListener('click', e=> {
 
         const id = line.getAttribute('filter_id');
         const newFilter = filter.get(id);
+        
+        if(!newFilter){
+            Toast.fire('Error', 'Filter Not Found.', 'error');
+            return;
+        }
         newFilter.filter_type = newType;
 
         filter.set(id, newFilter);
