@@ -4,7 +4,7 @@ import * as swal_setting from './swal_setting';
 import { Twitch_Api } from './twitch_api';
 import { Etc } from './utils/etc';
 
-const REDIRECT_URI = 'https://wtbc.bluewarn.dev';
+const REDIRECT_URI = location.origin;
 const CLIENT_ID = 'qrh8nkx7bzpij23zdudqsh05wzi9k0';
 
 class Auth {
