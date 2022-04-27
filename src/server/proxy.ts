@@ -2,7 +2,6 @@ import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middlewar
 import { redisSessClient, redisTokenSubscriber, redisCacheClient } from './redis_client.js';
 import logger from './utils/logger';
 
-var url = require('url');
 
 let AppAccessToken;
 
@@ -27,26 +26,34 @@ redisTokenSubscriber.on("message", (channel, message) => {
 const onProxyRes = responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
     if (proxyRes.headers['content-type'].includes('application/json')) {
         let data = JSON.parse(responseBuffer.toString('utf8'));
-        const parseUrl = url.parse(req.url, true);
-        const pathname = parseUrl.pathname;
-        const query = parseUrl.query;
-        const cacheKey = getCacheKey(pathname, query);
 
-        if(cacheKey !== '' && proxyRes.statusCode !== 401){
-            redisCacheClient.set(cacheKey, JSON.stringify(data));
+        const url = new URL(req.url, `https://${req.headers.host}`);
+        const pathname = url.pathname;
+        const cacheKey = getCacheKey(pathname, url.searchParams);
+
+        if(cacheKey && proxyRes.statusCode !== 401){
+            if(pathname === '/users'){
+                const rkeys = {};
+                for(let d of data.data){
+                    rkeys[`${pathname}:${d['login']}`] = JSON.stringify(d);
+                }
+                redisCacheClient.mset(rkeys);
+            }else{
+                redisCacheClient.set(Object.keys(cacheKey)[0], JSON.stringify(data.data));
+            }
         }
     }
     return responseBuffer;
 });
 
 function onProxyReq(proxyReq, req, res){
-    const parseUrl = url.parse(req.url, true);
-    const pathname = parseUrl.pathname;
-    const query = parseUrl.query;
+    const url = new URL(req.url, `https://${req.headers.host}`);
+    const pathname = url.pathname;
+    const params = url.searchParams;
 
     let access_token = '';
 
-    if(pathname === '/users' && !query.login){
+    if(pathname === '/users' && !params.get('login')){
         access_token = req.session.access_token;
     }else if(pathname === '/streams/followed'){
         access_token = req.session.access_token;
@@ -60,14 +67,13 @@ function onProxyReq(proxyReq, req, res){
 
 const onUndocProxyRes = responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
     if (proxyRes.headers['content-type'].includes('application/json')) {
-        let data = JSON.parse(responseBuffer.toString('utf8'));
-        const parseUrl = url.parse(req.url, true);
-        const pathname = parseUrl.pathname;
-        const query = parseUrl.query;
+        const url = new URL(req.url, `https://${req.headers.host}`);
+        const cacheKey = getCacheKey(url.pathname, url.searchParams);
 
-        const cacheKey = getCacheKey(pathname, query);
+        let data = JSON.parse(responseBuffer.toString('utf8'));
+
         if(cacheKey !== '' && proxyRes.statusCode !== 401){
-            redisCacheClient.set(cacheKey, JSON.stringify(data));
+            redisCacheClient.set(Object.keys(cacheKey)[0], JSON.stringify(data));
         }
     }
     return responseBuffer;
@@ -94,51 +100,71 @@ const undocApiProxy = createProxyMiddleware({
     onProxyRes: onUndocProxyRes
 });
 
-function getCacheKey(pathname: string, query){
-    let key = '';
+// getCacheKey pathname : /users, params : {"login":"2chamcham2"}
+function getCacheKey(pathname: string, params: URLSearchParams){
+    let keys: any = {};
     const bc_regex = /\/badges\/channels\/[0-9]+\/display/;
 
-    if(pathname === '/users'){
-        if(query.login){
-            key = `${pathname}:${query.login || ''}`;
-        }
-    }else if(pathname === '/streams/followed'){
-        // 캐싱 필요 없음.
-    }else if(pathname === '/chat/badges'){
-        key = `${pathname}:${query.broadcaster_id || ''}`;
+    let q: Array<string> | string;
+    if (pathname === '/users') {
+        q = params.getAll('login');
+    }else if (['/chat/badges', '/bits/cheermotes'].includes(pathname)){
+        q = params.get('broadcaster_id');
     }else if(pathname === '/chat/badges/global'){
-        // query 없음.
-        key = pathname;
-    }else if(bc_regex.test(pathname)){
-        key = `${pathname}:${query.language || ''}`;
-    }else if(pathname === '/badges/global/display'){
-        key = `${pathname}:${query.language || ''}`;
-    }else if(pathname === '/chat/emotes/set'){
-        // 캐싱 필요 없음.
-    }else if(pathname === '/bits/cheermotes'){
-        key = `${pathname}:${query.broadcaster_id || ''}`;
+        q = '';
+    }else if(bc_regex.test(pathname) || pathname === '/badges/global/display'){
+        q = params.get('language');
     }
 
-    return key;
+    if(!q) return;
+    if(Array.isArray(q) && q.length === 0) return;
+    if(typeof q === 'string'){
+        q = [q];
+    }
+    
+    for(let qq of q){
+        keys[`${pathname}${qq !== '' ? `:${qq}` : ''}`] = qq;
+    }
+
+    return keys;
 }
 
 async function checkCacheAvailable(req, res, next){
-    const parseUrl = url.parse(req.url, true);
-    const pathname = parseUrl.pathname;
-    const query = parseUrl.query;
-    const cacheKey = getCacheKey(pathname, query);
+    const url = new URL(req.url, `https://${req.headers.host}`);
+    const cacheKey = getCacheKey(url.pathname, url.searchParams);
 
-    let cache;
+    let cache: Array<string>;
+    let keys = [];
 
-    if(cacheKey !== ''){
-        cache = await redisCacheClient.get(cacheKey);
+    if(cacheKey){
+        keys = Object.keys(cacheKey);
+        cache = await redisCacheClient.mget(...keys);
     }
 
-    if(cache){
-        logger.info(`redis cache found. respond with cached value by pathname : ${pathname}, cacheKey : ${cacheKey}`);
-        res.json(JSON.parse(cache));
+    if(cache && ! cache.some((e) => e === null)){
+        logger.info(`redis cache found. respond with cached value by req.path : ${req.path}, cacheKey : ${JSON.stringify(cacheKey)}`);
+
+        const resObj: any = {data: []};
+
+        const bc_regex = /\/badges\/channels\/[0-9]+\/display/;
+
+        if(req.path === '/badges/global/display' || bc_regex.test(req.path)){
+            res.json(JSON.parse(cache[0]));
+            return;
+        }
+
+        if(req.path !== '/users' && cache.length === 1){
+            resObj.data.push(...JSON.parse(cache[0]));
+            res.json(resObj);
+            return;
+        }
+
+        for(let c = 0; c < cache.length; c++){
+            resObj.data.push(JSON.parse(cache[c]));
+        }
+        res.json(resObj);
     }else{
-        logger.info(`redis cache not found. pathname : ${pathname}, cacheKey : ${cacheKey}`);
+        logger.info(`redis cache not found. req.path : ${req.path}, cacheKey : ${JSON.stringify(cacheKey)}`);
         next();
     }
 }
