@@ -128,53 +128,73 @@ function updateFollowedStream(user_id: string, after?: string) {
 	return tapi.get_followed_streams(user_id, after).then(fs => {
 		document.getElementById('followed_online-list').classList.remove('hidden');
 
-		if (Etc.isEmpty(fs.pagination)) {
-			followed_streams_after = null;
-		} else {
-			followed_streams_after = fs.pagination.cursor;
-		}
-
-		const online_list = document.getElementsByClassName('channel_list online')[0];
 		let fs_data = fs.data;
+		const logins = [];
 
 		for (let i = 0; i < fs_data.length; i++) {
-			add_channel(online_list, fs_data[i].user_name, fs_data[i].user_login);
+			logins.push(fs_data[i].user_login);
 		}
+
+		tapi.get_users(...logins).then(users => {
+			const userMap = new Map();
+
+			for(let u of users.data){
+				userMap.set(u.login, u.profile_image_url);
+			}
+
+			if (Etc.isEmpty(fs.pagination)) {
+				followed_streams_after = null;
+			} else {
+				followed_streams_after = fs.pagination.cursor;
+			}
+	
+			const online_list = document.getElementsByClassName('channel_list online')[0];
+			
+	
+			for (let i = 0; i < fs_data.length; i++) {
+				add_channel(online_list, fs_data[i].user_name, fs_data[i].user_login, userMap.get(fs_data[i].user_login));
+			}
+		});
+
+		
 	});
-	// .catch(r => {
-	// 	if(dev) console.log('방송중인 채널 목록을 가져오는데 실패하였습니다.');
-	// 	addReqFailedMsg();
-	// });
 }
 
-function getChannelElement(username, user_login) {
-	let dv = document.createElement('div');
-	let sl = document.createElement('span');
+function getChannelElement(username, user_login, profile_image_url) {
+	const dv = document.createElement('div');
+	const sl = document.createElement('span');
+
+	const profileImg = document.createElement('img');
 	const sp_disp_name = document.createElement('span');
 	const sp_login_name = document.createElement('span');
+
 	dv.classList.add('channel_container');
 	dv.setAttribute('channel', user_login);
 	sp_disp_name.textContent = username;
 	sp_login_name.textContent = ` (${user_login})`;
+	profileImg.src = profile_image_url;
 
 	sp_disp_name.classList.add('c_disp_name');
 	sp_login_name.classList.add('c_login_name');
+	profileImg.classList.add('c_profile_img');
+	
 	sl.appendChild(sp_disp_name);
 	sl.appendChild(sp_login_name);
 	sl.classList.add('channel');
 
+	dv.appendChild(profileImg);
 	dv.appendChild(sl);
 	return dv;
 }
-function add_channel(parentHTML, username, user_login) {
-	parentHTML.appendChild(getChannelElement(username, user_login));
+function add_channel(parentHTML, username, user_login, profile_image_url) {
+	parentHTML.appendChild(getChannelElement(username, user_login, profile_image_url));
 }
 
 // function addReqFailedMsg() {
 // 	msgList.addIRCMessage(null, '요청 실패', true);
 // }
 
-function setRecentChannel(disp_name: string, user_login: string) {
+function setRecentChannel(disp_name: string, user_login: string, profile_image_url: string) {
 	let rc = getRecentChannel();
 	let channel_avail: boolean = false;
 
@@ -188,8 +208,8 @@ function setRecentChannel(disp_name: string, user_login: string) {
 	const KEY = 'RECENT_CONN_LIST';
 	const c = recent_list.getElementsByClassName('channel_container');
 
-	rc.push({ channel: user_login.toLocaleLowerCase(), disp_name: disp_name });
-	recent_list.prepend(getChannelElement(disp_name, user_login));
+	rc.push({ channel: user_login.toLocaleLowerCase(), disp_name: disp_name, profile_image_url: profile_image_url });
+	recent_list.prepend(getChannelElement(disp_name, user_login, profile_image_url));
 
 	if (rc.length > 4) {
 		rc.shift();
@@ -240,9 +260,9 @@ function closeSideBar() {
 	sidebar.classList.add('hidden');
 }
 
-function callbackJOIN(channel: string, disp_name: string, badges, cheermotes) {
+function callbackJOIN(channel: string, disp_name: string, profile_image_url: string, badges, cheermotes) {
 	updateChatRoom(channel);
-	setRecentChannel(disp_name, channel);
+	setRecentChannel(disp_name, channel, profile_image_url);
 
 	channelDisplayName = disp_name;
 	LAST_JOIN_TIME = new Date().getTime();
@@ -304,7 +324,7 @@ async function joinChatRoom(_channel: string) {
 	const channel = user.data[0].login;
 
 	await client.join(channel).then(j => {
-		callbackJOIN(channel, disp_name, badges, cheer);
+		callbackJOIN(channel, disp_name, user.data[0].profile_image_url, badges, cheer);
 	}).catch(err => {
 		msgList.addIRCMessage(channel, i18n.t('tmi:chatConnectFailed', { channel: channel }), true);
 	});
@@ -482,7 +502,7 @@ tapi.get_global_chat_badges(true).then(badges => {
 const rc = getRecentChannel();
 
 for (let c of rc.reverse() || []) {
-	add_channel(recent_list, c.disp_name, c.channel);
+	add_channel(recent_list, c.disp_name, c.channel, c.profile_image_url);
 }
 
 auth.getToken().then(token => {
