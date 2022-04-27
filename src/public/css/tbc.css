@@ -333,7 +333,7 @@ div#sidebar{
 }
 #channel_list_container{
     gap: 10px;
-    padding: 17px 0px 10px 0px;
+    padding: 17px 17px 10px 0px;
     font-size: 0.9rem;
     flex: 1;
     overflow: auto;
