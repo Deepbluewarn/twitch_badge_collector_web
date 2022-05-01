@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import * as swal_setting from './swal_setting';
 
 import { BroadcastChannel } from 'broadcast-channel';
+import { Etc } from "./utils/etc";
 
 const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 const Toast = Swal.mixin(swal_setting.setting_def);
@@ -594,6 +595,11 @@ searchBadgeBtn.addEventListener('click', async e => {
     const channel = <HTMLInputElement>document.getElementById('search-badge__channel');
     const searchCategory = channel.value === '' ? 'global' : 'channel';
     let req: Promise<any>;
+
+    if(!Etc.checkChannelValid(channel.value)){
+		Toast.fire('채널 오류', '채널은 영문자와 숫자만 입력할 수 있습니다.', 'error');
+        return;
+	}
 
     if(searchCategory === 'global'){
         if(searchedBadgeID === null) return;
