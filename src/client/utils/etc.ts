@@ -13,6 +13,9 @@ class Etc {
     static getRandomString() {
         return Math.random().toString(36).substring(2,12);
     }
+    static checkChannelValid(channel: string){
+        return /^[a-zA-Z0-9]*$/i.test(channel);
+    }
 }
 
 export { Etc };
