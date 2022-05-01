@@ -15,7 +15,8 @@ import { messageList } from './messageList';
 import { BroadcastChannel } from 'broadcast-channel';
 
 const APP_TITLE = 'Twitch Badge Collector';
-const twitch_login_btn_small = document.getElementById('twitch_login_btn_small');
+const twitch_login_btn = document.getElementById('twitch-login__btn');
+const twitch_logout_btn = document.getElementById('login_btn_icon');
 const auth_info = document.getElementById('auth_info');
 const user_setting = document.getElementById('user_setting');
 const setting_btn = document.getElementById('setting_btn');
@@ -24,6 +25,7 @@ const reverse_chat_btn = document.getElementById('reverse_chat_btn');
 
 const sidebar = document.getElementById('sidebar');
 const sidebar_btn = document.getElementById('sidebar_btn');
+const chat_room = document.getElementById('chat_room');
 const flwStrCtl = document.getElementById('flw_str_control');
 const channel_id_input = <HTMLInputElement>document.getElementById('channel_id');
 const channel_connect_btn = <HTMLButtonElement>document.getElementById('connect_channel');
@@ -40,6 +42,8 @@ const online_list = document.getElementsByClassName('channel_list online')[0];
 const setting_container = document.getElementById('setting');
 const font_size_examples = document.getElementById('font_size_examples');
 const handler = document.getElementById('handler');
+const hiddenClassName = 'hidden';
+const hiddenVisibilityClassName = 'hidden_visibility';
 
 // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
 const vh = window.innerHeight * 0.01;
@@ -92,7 +96,16 @@ let tmi_client_obj: Options = {
 	connection: { reconnect: true, secure: true },
 	identity: { username: '', password: '' }
 };
+let player: any = null;
 let client: Client = new Client(tmi_client_obj);
+
+document.addEventListener('DOMContentLoaded', () => {
+	// let Twitch: any;
+	// var player = new (window as any).Twitch.Player('twitch_player', {width: '100%', height: '100%', channel: 'nanayango3o'});
+	
+	// player.setVolume(0.5);
+});
+
 
 function connectChatServer(username: string, password: string) {
 
@@ -109,24 +122,21 @@ function connectChatServer(username: string, password: string) {
 }
 
 function init_user_info(user) {
-	const twitch_login_small_text = document.getElementById('twitch_login_small_text');
-	const login_btn_icon = document.getElementById('login_btn_icon');
-
 	const user_info = document.getElementById('user_info');
 	const user_profile_img = <HTMLImageElement>document.getElementById('user_profile_img');
 	const user_disp_name = document.getElementById('user_disp_name');
 
-	login_btn_icon.textContent = 'logout';
-	twitch_login_small_text.textContent = i18n.t('page:logout');
+	const login_btn_container = document.getElementById('login_btn_container');
+	login_btn_container.classList.add(hiddenClassName);
 
 	user_profile_img.src = user.profile_image_url;
 	user_disp_name.textContent = user.display_name;
-	user_info.classList.remove('hidden');
+	user_info.classList.remove(hiddenClassName);
 }
 
 function updateFollowedStream(user_id: string, after?: string) {
 	return tapi.get_followed_streams(user_id, after).then(fs => {
-		document.getElementById('followed_online-list').classList.remove('hidden');
+		document.getElementById('followed_online-list').classList.remove(hiddenClassName);
 
 		let fs_data = fs.data;
 		const logins = [];
@@ -142,10 +152,14 @@ function updateFollowedStream(user_id: string, after?: string) {
 				userMap.set(u.login, u.profile_image_url);
 			}
 
+			const more_btn = document.getElementById('get_more_flw_str');
+
 			if (Etc.isEmpty(fs.pagination)) {
 				followed_streams_after = null;
+				more_btn.classList.add(hiddenVisibilityClassName);
 			} else {
 				followed_streams_after = fs.pagination.cursor;
+				more_btn.classList.remove(hiddenVisibilityClassName);
 			}
 	
 			const online_list = document.getElementsByClassName('channel_list online')[0];
@@ -229,20 +243,13 @@ function setPageLanguage() {
 	channel_id_input.placeholder = i18n.t('page:channelIdInputPh');
 	document.getElementById('recentChannel').textContent = i18n.t('page:recentConnection');
 	document.getElementById('onlineChannel').textContent = i18n.t('page:onlineFollowed');
-	document.getElementById('get_more_flw_str').textContent = i18n.t('page:getMore');
-	document.getElementById('refresh_flw_str').textContent = i18n.t('page:refresh');
 	document.getElementById('contact-developer__a').textContent = i18n.t('page:contactDeveloper');
 	document.getElementById('setting_btn_text').textContent = i18n.t('page:setting');
 	document.getElementById('filter-setting__link').textContent = i18n.t('page:filterSetting');
 	const theme = localStorage.getItem('theme') === 'light_theme' ? 'darkmode' : 'lightmode';
 	document.getElementById('dark_mode_btn_text').textContent = i18n.t(`page:${theme}`);
-	// document.getElementById('guideTbc_tail').textContent = i18n.t('page:guideTbc');
-
 	document.getElementById('reverse_chat_btn_text').textContent = i18n.t('page:reverseChatOrder');
-	document.getElementById('twitch_login_small_text').textContent = i18n.t('page:loginTwitch');
 	document.getElementById('popup_title').textContent = i18n.t('page:setting');
-	// document.getElementById('filterSetting').textContent = i18n.t('page:filterSetting');
-	// document.getElementById('tbc_file_upload_label').textContent = i18n.t('page:fileUpload');
 	document.getElementById('fontSizeSetting').textContent = i18n.t('page:chatFontSize');
 
 	document.getElementById('fontSmallText').textContent = i18n.t('page:fontSmall');
@@ -254,10 +261,15 @@ function setPageLanguage() {
 }
 
 function toggleSideBar() {
-	sidebar.classList.toggle('hidden');
+	const sidebar_present = sidebar.classList.toggle(hiddenClassName);
+	const cr_clst = chat_room.classList;
+	const hidden = hiddenClassName;
+
+	sidebar_present ? cr_clst.remove(hidden) : cr_clst.add(hidden);
 }
 function closeSideBar() {
-	sidebar.classList.add('hidden');
+	sidebar.classList.add(hiddenClassName);
+	chat_room.classList.remove(hiddenClassName);
 }
 
 function callbackJOIN(channel: string, disp_name: string, profile_image_url: string, badges, cheermotes) {
@@ -317,6 +329,20 @@ async function joinChatRoom(_channel: string) {
 		msgList.addIRCMessage(null, i18n.t('tmi:channelNotFound', { channel: _channel }), true);
 		return;
 	}
+
+	if(player === null){
+		player = new (window as any).Twitch.Player('twitch_player', {
+			width: '100%',
+			height: '100%',
+			channel: _channel
+		});
+	}else{
+		player.setChannel(_channel);
+	}
+
+	const homeScreen =document.getElementById('home-screen');
+	if(homeScreen) homeScreen.remove();
+
 	let badges = await tapi.get_channel_chat_badges(user.data[0].id, true);
 	let cheer = await tapi.get_cheermotes(user.data[0].id);
 
@@ -367,29 +393,6 @@ function change_container_ratio(ratio: number) {
 	chat_list_origin.style.flex = String(orig_size);
 	chat_list_clone.style.flex = String(clone_size);
 }
-
-// function loadTbcFile (e) {
-// 	const file = e.target.files[0];
-// 	if(file){
-// 		let reader = new FileReader();
-
-// 		reader.readAsText(file);
-// 		reader.onload = function(e) {
-// 			const res = reader.result as string;
-// 			const _filter = JSON.parse(res);
-// 			_filter.shift();
-
-// 			// tbc_file_name.textContent = i18n.t('page:currentFile', {filename : file.name});
-// 			// current_tbc_file.classList.remove('hidden');
-
-// 			// localStorage.setItem('tbc_file_name', file.name);
-// 			// localStorage.setItem('tbc_file', JSON.stringify(_filter));
-// 			filter.filter = _filter;
-// 		}
-// 	}
-// }
-
-// en, ko
 function setLanguage(language) {
 	let lang = '';
 
@@ -494,11 +497,6 @@ function toggleTheme() {
 tapi.get_global_chat_badges(true).then(badges => {
 	tapi.global_badges = badges;
 });
-// .catch(err => {
-// 	if(dev) console.log('글로벌 배지 정보를 가져오는데 실패하였습니다.');
-// 	addReqFailedMsg();
-// });
-
 const rc = getRecentChannel();
 
 for (let c of rc.reverse() || []) {
@@ -511,7 +509,7 @@ auth.getToken().then(token => {
 		tapi.access_token = token.access_token;
 		tapi.expire_time = expr_time;
 
-		channel_list_container.classList.remove('hidden');
+		channel_list_container.classList.remove(hiddenClassName);
 
 		tapi.get_users().then(user => {
 			let u = user['data'][0];
@@ -523,10 +521,6 @@ auth.getToken().then(token => {
 			updateFollowedStream(u.id);
 
 		});
-		// .catch(err => {
-		// 	if(dev) console.log('유저 정보를 가져오는데 실패하였습니다.' ,err);
-		// 	addReqFailedMsg();
-		// });
 	}
 });
 
@@ -693,8 +687,13 @@ client.on("emotesets", (sets, obj) => {
 });
 
 channel_connect_btn.addEventListener('click', e => {
+	if(!Etc.checkChannelValid(channel_id_input.value)){
+		Toast.fire('채널 오류', '채널은 영문자와 숫자만 입력할 수 있습니다.', 'error');
+		return;
+	}
 	joinChatRoom(channel_id_input.value);
 	channel_id_input.value = '';
+	toggleSideBar();
 });
 
 chat_text_send_btn.addEventListener('click', e => {
@@ -738,16 +737,20 @@ chat_list_clone.addEventListener("scroll", function () {
 }, false);
 
 auth_info.addEventListener('click', e => {
-	user_setting.classList.toggle('hidden');
+	user_setting.classList.toggle(hiddenClassName);
 });
 
-twitch_login_btn_small.addEventListener('click', e => {
+twitch_login_btn.addEventListener('click', e=> {
+	auth.toggleLoginStatus(tapi, 'main');
+});
+twitch_logout_btn.addEventListener('click', e=>{
 	auth.toggleLoginStatus(tapi, 'main');
 });
 
+
 setting_btn.addEventListener('click', e => {
-	setting_container.classList.remove('hidden');
-	user_setting.classList.add('hidden');
+	setting_container.classList.remove(hiddenClassName);
+	user_setting.classList.add(hiddenClassName);
 });
 
 dark_mode_btn.addEventListener('click', e => {
@@ -783,30 +786,18 @@ reverse_chat_btn.addEventListener('click', e => {
 });
 
 flwStrCtl.addEventListener('click', e => {
-	const target = e.target as HTMLButtonElement;
-	if (target.tagName !== 'BUTTON') return;
-	target.disabled = true;
+	const target = e.target as HTMLSpanElement;
+	const target_id = target.id;
+	if(!['get_more_flw_str', 'refresh_flw_str'].includes(target_id)) return;
 
-	if (target.id === 'get_more_flw_str') {
+	if (target_id === 'get_more_flw_str') {
 		if (followed_streams_after === null) return;
 
-		updateFollowedStream(tapi.user_id, followed_streams_after).then(res => {
-			if (followed_streams_after !== null) {
-				target.disabled = false;
-			}
-		}).catch(err => {
-			target.disabled = false;
-		});
-	} else if (target.id === 'refresh_flw_str') {
-		const get_more_flw_str = <HTMLButtonElement>document.getElementById('get_more_flw_str');
+		updateFollowedStream(tapi.user_id, followed_streams_after);
+	} else if (target_id === 'refresh_flw_str') {
 		Array.from(online_list.childNodes).forEach(o => { o.remove(); });
 
-		updateFollowedStream(tapi.user_id).then(res => {
-			get_more_flw_str.disabled = false;
-			target.disabled = false;
-		}).catch(err => {
-			target.disabled = false;
-		});
+		updateFollowedStream(tapi.user_id);
 	}
 });
 
@@ -824,8 +815,6 @@ channel_list_container.addEventListener('click', e => {
 sidebar_btn.addEventListener('click', e => {
 	toggleSideBar();
 });
-
-// tbc_file_input.addEventListener('change', loadTbcFile, false);
 
 document.getElementById('language-options').addEventListener('click', e => {
 	const target = <HTMLSpanElement>e.target;
@@ -892,13 +881,13 @@ document.addEventListener('click', e => {
 	const target = e.target as HTMLElement;
 
 	if (!target.closest('#user_setting') && !target.closest('#auth_info')) {
-		user_setting.classList.add('hidden');
+		user_setting.classList.add(hiddenClassName);
 	}
 	if (!target.closest('#sidebar') && !target.closest('#sidebar_btn')) {
 		closeSideBar();
 	}
 	if (!target.closest('#setting') && !target.closest('#setting_btn')) {
-		setting_container.classList.add('hidden');
+		setting_container.classList.add(hiddenClassName);
 	}
 
 	e.stopPropagation();
@@ -947,6 +936,3 @@ document.getElementById('debug-1').addEventListener('click', e => {
 document.getElementById('debug-2').addEventListener('click', e => {
 	client.disconnect();
 });
-// (() => {
-
-// })();
