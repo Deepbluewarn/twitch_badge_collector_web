@@ -33,15 +33,16 @@ module.exports = {
     devtool: 'source-map',
     plugins: dev ? [] : [
         new SentryCliPlugin({
-          ignoreFile: '.gitignore',
-          ignore: ['node_modules', 'webpack.config.js'],
-          configFile: 'sentry.properties',
-          dryRun: false,
-          release: '1.4.8',
-          urlPrefix: '~/src/public/js',
-          org: 'tbc-b1',
-          project: 'tbc-web',
-          authToken: process.env.SENTRY_AUTH_TOKEN
+            url: 'https://sentry.bluewarn.dev/',
+            ignoreFile: '.gitignore',
+            ignore: ['node_modules', 'webpack.config.js'],
+            configFile: 'sentry.properties',
+            dryRun: false,
+            release: '1.4.8',
+            urlPrefix: '~/src/public/js',
+            org: 'bluewarn',
+            project: 'twitch-badge-collector',
+            authToken: process.env.SENTRY_AUTH_TOKEN
         }),
-      ],
+    ],
 }
