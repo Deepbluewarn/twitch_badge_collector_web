@@ -22,6 +22,7 @@ module.exports = {
         mini: './src/client/mini.ts',
         filter: './src/client/filterSetting.ts',
         chatsaver: '/src/client/chatSaver.ts',
+        replay: '/src/client/replay.ts',
         sentryInit: '/src/client/sentryInit.ts',
     },
 
