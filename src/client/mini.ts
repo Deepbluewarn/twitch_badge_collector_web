@@ -5,8 +5,8 @@ import { messageList } from "./messageList";
 import { Client, Options } from "tmi.js";
 import { Etc } from './utils/etc';
 import i18n from './i18n/index';
-import { ChatColor } from "./chatColor";
 import { BroadcastChannel } from 'broadcast-channel';
+import * as chatTools from './chat_tools';
 
 const filterChannel = new BroadcastChannel('Filter');
 const chatChannel = new BroadcastChannel('Chat');
@@ -17,7 +17,7 @@ const chat_list_clone = <HTMLDivElement>chat_list_container.getElementsByClassNa
 const urlSearchParams = new URLSearchParams(window.location.search);
 const params = Object.fromEntries(urlSearchParams.entries());
 const channel = params.channel;
-let messageId = '';
+let tbc_messageId = '';
 let displayName = '';
 let theme = 'light';
 
@@ -36,55 +36,6 @@ let tmi_client_obj: Options = {
     identity: { username: `justinfan${random}`, password: '' }
 };
 let client: Client = new Client(tmi_client_obj);
-
-function setTheme(theme: string){
-    let th = '';
-    if(theme === 'dark'){
-        th = 'dark_theme';
-    }else{
-        th = 'light_theme';
-    }
-    document.documentElement.className = th;
-    updateChatColor();
-}
-function updateChatColor(){
-    const chatColor = new ChatColor();
-
-    const chatListContainer = document.getElementById('chat_list_container');
-    const chat = chatListContainer.getElementsByClassName('chat');
-
-    for (let c of chat) {
-        const author = <HTMLSpanElement>c.getElementsByClassName('author')[0];
-        if (!author) continue;
-
-        const username = c.classList.item(1);
-        author.style.color = chatColor.getReadableColor(username, null);
-    }
-}
-
-function setFontSize(id: string){
-    if(!id) id = 'font_default';
-    let cls = '';
-
-    if(id === 'font_small'){
-        cls = 'font_size_0';
-    }else if(id === 'font_big'){
-        cls = 'font_size_2';
-    }else if(id === 'font_bigger'){
-        cls = 'font_size_3';
-    }else{
-        cls = 'font_size_1';
-    }
-    
-    const chat_room = document.getElementById('chat_room');
-
-    for(let cls of chat_room.classList){
-        if(/font_size_[0-9]$/.test(cls)){
-            chat_room.classList.remove(cls);
-        }
-    }
-    chat_room.classList.add(cls);
-}
 
 tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
@@ -196,25 +147,25 @@ chatChannel.onmessage = msg => {
 }
 
 window.addEventListener('message', e=> {
-    const data = e.data;
+    if(e.data.sender !== 'tbc') return;
 
-    for(let d of data){
+    for(let d of e.data.body){
         const msgType = d.type;
         const msgValue = d.value;
 
-        if(msgType === 'messageId'){
-            messageId = msgValue;
+        if(msgType === 'tbc_messageId'){
+            tbc_messageId = msgValue;
         }
-        if(!messageId || messageId === '') return;
-        if(d.messageId !== messageId) return;
+        if(!tbc_messageId || tbc_messageId === '') return;
+        if(d.tbc_messageId !== tbc_messageId) return;
 
         if(msgType === 'language'){
             i18n.changeLanguage(msgValue);
         }else if(msgType === 'font_size'){
-            setFontSize(`font_${msgValue}`);
+            chatTools.setFontSize(`font_${msgValue}`);
         }else if(msgType === 'theme'){
             theme = msgValue;
-            setTheme(msgValue);
+            chatTools.setTheme(msgValue);
         }else if(msgType === 'filter'){
             if(!msgValue){
                 msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
