@@ -100,7 +100,6 @@ const undocApiProxy = createProxyMiddleware({
     onProxyRes: onUndocProxyRes
 });
 
-// getCacheKey pathname : /users, params : {"login":"2chamcham2"}
 function getCacheKey(pathname: string, params: URLSearchParams){
     let keys: any = {};
     const bc_regex = /\/badges\/channels\/[0-9]+\/display/;
@@ -112,6 +111,8 @@ function getCacheKey(pathname: string, params: URLSearchParams){
         q = params.get('broadcaster_id');
     }else if(pathname === '/chat/badges/global'){
         q = '';
+    }else if(pathname === '/videos'){
+        q = params.get('id');
     }else if(bc_regex.test(pathname) || pathname === '/badges/global/display'){
         q = params.get('language');
     }

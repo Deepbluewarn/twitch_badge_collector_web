@@ -46,6 +46,16 @@ router.get('/chat', (req, res) => {
     res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('chatSaver', extVersion, dev)));
 });
 
+router.get('/replay', (req, res) => {
+    const dev = <string>req.query.dev;
+    const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
+    const extVersion = <string>req.query.ext_version;
+
+    logger.info(`${logMsgHeader} extVersion : ${extVersion}`);
+
+    res.cookie('language', getRequestedLang(req), {sameSite : 'strict'});
+    res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('replay', extVersion, dev)));
+});
 router.get('/login', wrapAsync(async(req, res) => {
     const logMsgHeader = `${req.method} ${req.originalUrl} ${req.headers['cf-connecting-ip']}`;
     const client_state = <string>req.query.cstate;
