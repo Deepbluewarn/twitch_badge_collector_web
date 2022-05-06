@@ -13,6 +13,7 @@ import { apiProxy, undocApiProxy, checkCacheAvailable} from './proxy';
 const router = require('./router');
 const app = express();
 
+const port = 4488;
 let RedisStore = require('connect-redis')(session);
 
 
@@ -72,6 +73,6 @@ app.use((err,req,res,next) => {
 	}
 });
 
-app.listen('4488', () => {
-	logger.info('Server listening on port: 4488');
+app.listen(port, () => {
+	logger.info(`Server listening on port: ${port}`);
 });
