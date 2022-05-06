@@ -37,7 +37,6 @@ class messageList{
 	 * @returns 
 	 */
 	private addMessage(channel: string | null, html: HTMLElement, filter_type?: string, isSysMsg?: boolean) {
-		
 		isSysMsg = channel === null ? true : false;
 		if (!isSysMsg && Etc.trim_hash(channel) !== Etc.trim_hash(this.tapi.current_channel)) {
 			return;
@@ -71,8 +70,8 @@ class messageList{
 		}
 	}
 
-	addChatMessage(channel: string, message: string, userstate: CommonUserstate, self: boolean){
-		const chat = new Chat(message, userstate, self, this.tapi, this.filter);
+	addChatMessage(channel: string, message: string, userstate: CommonUserstate, self: boolean, replay_chat_offset?: number, replay?: boolean){
+		const chat = new Chat(message, userstate, self, this.tapi, this.filter, replay_chat_offset, replay);
 		this.addMessage(channel, chat.render_chat(), chat.checkFilter());
 	}
 
@@ -86,7 +85,7 @@ class messageList{
 		let filter_type = '';
 		const sub_container = subs.render_sub_container();
 
-		if (message) {
+		if (message || message === '') {
 			const chat = new Chat(message, userstate, false, this.tapi, this.filter);
 			filter_type = chat.checkFilter();
 			sub_container.appendChild(chat.render_chat());

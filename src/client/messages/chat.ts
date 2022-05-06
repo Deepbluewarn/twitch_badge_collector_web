@@ -22,6 +22,8 @@ class Chat{
     bits: string;
     _cheermotes: Map<string, any>;
     self: boolean;
+    replay: boolean;
+    replay_chat_offset: number;
 
     filter: Filter;
 
@@ -29,7 +31,7 @@ class Chat{
     gb_info?: Map<string, badge_info>; // global badge info.
     emoteset: Map<string, any>;
 
-    constructor(text: string, userstate: Userstate, self: boolean, tapi: Twitch_Api, filter: Filter){
+    constructor(text: string, userstate: Userstate, self: boolean, tapi: Twitch_Api, filter: Filter, replay_chat_offset?: number, replay?: boolean){
         this.badges = userstate.badges;
         this.badges_raw = userstate["badges-raw"];
         this.login_name = userstate.username || userstate.login;
@@ -49,6 +51,8 @@ class Chat{
         this.cb_info = tapi.channel_badges;
         this.gb_info = tapi.global_badges;
         this.emoteset = tapi.emote_sets;
+        this.replay = replay;
+        this.replay_chat_offset = replay_chat_offset;
     }
 
     checkFilter(){
@@ -322,22 +326,28 @@ class Chat{
 
     private render_time(){
         let date: Date;
-        let hours: string ,minutes: string;
+        let hours: string, minutes: string;
         let time_span = document.createElement('span');
         
         if(this.tmi_send_ts){
             date = new Date(parseInt(this.tmi_send_ts));
+        }else if(this.replay){
+            date = new Date(0);
+            date.setSeconds(this.replay_chat_offset);
         }else{
             date = new Date();
         }
 
         hours = ((date.getHours() + 11) % 12 + 1).toString();
         minutes = date.getMinutes().toString();
-
-        // hours = hours.length === 1 ? '0' + hours : hours;
         minutes = minutes.length === 1 ? '0' + minutes : minutes;
 
-        time_span.textContent = hours + ':' + minutes;
+        if(this.replay){
+            time_span.textContent = date.toISOString().substring(11, 19);
+        }else{
+            time_span.textContent = hours + ':' + minutes;
+        }
+        
         time_span.classList.add('chat_sent_ts');
 
         return time_span;

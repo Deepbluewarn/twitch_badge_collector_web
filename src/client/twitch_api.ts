@@ -73,6 +73,18 @@ class Twitch_Api {
         }
         return map ? this.badge_data_to_map(badges) : badges;
     }
+    async get_videos(id: string){
+        let params = new URLSearchParams();
+        params.append('id', id);
+
+        const url = `/api/videos?${params}`;
+        const res = await this.request(url, 'GET');
+
+        if(res.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(res.message), 'error');
+        }
+        return res;
+    }
     async getChannelChatBadges(broadcaster_id: string){
         let params = new URLSearchParams();
         params.append('language', i18n.language);

@@ -374,7 +374,7 @@ async function deleteSelectedFilter(){
     setFilterList(getFilter(), currentFilterPageNum);
     // save filter map object to localstorage
     setFilter();
-    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
+    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini', 'wtbc-replay']);
 }
 async function deleteAllFilter(){
 
@@ -393,7 +393,7 @@ async function deleteAllFilter(){
     setFilterList(getFilter(), currentFilterPageNum);
     // save filter map object to localstorage
     setFilter();
-    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
+    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini', 'wtbc-replay']);
 }
 
 async function loadFilterFromFile(event:ProgressEvent){
@@ -429,7 +429,7 @@ async function loadFilterFromFile(event:ProgressEvent){
     }
     setFilter();
     setFilterList(getFilter(), currentFilterPageNum);
-    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
+    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini', 'wtbc-replay']);
 }
 function backupFilterToFile(){
     let _filter = Array.from(filter.values());
@@ -524,7 +524,7 @@ function addFilter(filterInfo: filterInfo){
     });
 
     setFilter();
-    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
+    sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini', 'wtbc-replay']);
 
     setFilterList(getFilter(), calcPageNum(filter.size, PAGE_LIST_CNT));
 }
@@ -767,7 +767,7 @@ document.getElementById('filter-list__result').addEventListener('click', e=> {
         line.setAttribute('filter_type', newType);
         line.getElementsByClassName('filter-type')[0].textContent = i18n.t(`filter:${newType}`);
         setFilter();
-        sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini']);
+        sendFilter('wtbc-filter', ['tbc', 'wtbc-main', 'wtbc-mini', 'wtbc-replay']);
     }
 });
 
