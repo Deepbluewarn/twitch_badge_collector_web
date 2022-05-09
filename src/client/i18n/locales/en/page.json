@@ -19,6 +19,8 @@
     "setting" : "Setting",
     "filterSetting" : "Filter setting",
     "reverseChatOrder" : "Reverse Chat Position",
+    "hidePlayer" : "Hide Player",
+    "showPlayer" : "Show Player",
     "chatFontSize" : "Chat Font Size",
     "fontSmall" : "Small",
     "fontDefault" : "Default",

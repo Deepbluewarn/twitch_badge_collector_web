@@ -22,6 +22,7 @@ const user_setting = document.getElementById('user_setting');
 const setting_btn = document.getElementById('setting_btn');
 const dark_mode_btn = document.getElementById('dark_mode_btn');
 const reverse_chat_btn = document.getElementById('reverse_chat_btn');
+const hidePlayer_btn = document.getElementById('hidePlayer');
 
 const sidebar = document.getElementById('sidebar');
 const sidebar_btn = document.getElementById('sidebar_btn');
@@ -249,6 +250,7 @@ function setPageLanguage() {
 	const theme = localStorage.getItem('theme') === 'light_theme' ? 'darkmode' : 'lightmode';
 	document.getElementById('dark_mode_btn_text').textContent = i18n.t(`page:${theme}`);
 	document.getElementById('reverse_chat_btn_text').textContent = i18n.t('page:reverseChatOrder');
+	document.getElementById('hidePlayer_text').textContent = i18n.t('page:showPlayer');
 	document.getElementById('popup_title').textContent = i18n.t('page:setting');
 	document.getElementById('fontSizeSetting').textContent = i18n.t('page:chatFontSize');
 
@@ -783,6 +785,22 @@ reverse_chat_btn.addEventListener('click', e => {
 	}
 	document.getElementById('reverse_chat_btn_icon').textContent = icon_text;
 	localStorage.setItem('reversed', JSON.stringify(chat_order_reversed));
+});
+
+hidePlayer_btn.addEventListener('click', e=> {
+	const player_container = document.getElementById('player_container');
+	const chatroom_container = document.getElementById('chatroom_container');
+	const hidePlayer_text = document.getElementById('hidePlayer_text');
+
+	if(player_container.classList.contains('hidden')){
+		player_container.classList.remove('hidden');
+		chatroom_container.style.removeProperty('width');
+		hidePlayer_text.textContent = i18n.t('page:hidePlayer');
+	}else{
+		player_container.classList.add('hidden');
+		chatroom_container.style.width = '100%';
+		hidePlayer_text.textContent = i18n.t('page:showPlayer');
+	}
 });
 
 flwStrCtl.addEventListener('click', e => {

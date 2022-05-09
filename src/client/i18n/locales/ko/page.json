@@ -19,6 +19,8 @@
     "setting" : "설정",
     "filterSetting" : "필터 설정",
     "reverseChatOrder" : "채팅 위치 변경",
+    "hidePlayer" : "플레이어 숨기기",
+    "showPlayer" : "플레이어 보이기",
     "chatFontSize" : "채팅 글자 크기",
     "fontSmall" : "작게",
     "fontDefault" : "기본값",
