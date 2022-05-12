@@ -57,6 +57,10 @@ router.get('/replay', (req, res) => {
     res.sendFile(path.join(__dirname, '../src', 'webpage', getPagePathByVersion('replay', extVersion, dev)));
 });
 
+router.get('/privacy', (req, res) => {
+    res.sendFile(path.join(__dirname, '../src', 'webpage', 'web/privacy.html'));
+});
+
 router.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /mini/\nDisallow: /setting/filter/\nDisallow: /chat/\nDisallow: /replay/\n");
@@ -185,7 +189,7 @@ router.get('/test', (req, res) => {
 function getPagePathByVersion(htmlName: string, version: string, dev?:string){
 
     if(!latestVersion.includes(version)){
-        return `old/${htmlName}.html`;
+        return `unsupported.html`;
     }
     if(version === 'web'){
         return dev ? `dev/${htmlName}.html` : `${htmlName}.html`;
