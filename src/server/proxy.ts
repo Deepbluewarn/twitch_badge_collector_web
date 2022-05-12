@@ -117,7 +117,7 @@ function getCacheKey(pathname: string, params: URLSearchParams){
         q = params.get('language');
     }
 
-    if(!q) return;
+    if(typeof q === 'undefined') return;
     if(Array.isArray(q) && q.length === 0) return;
     if(typeof q === 'string'){
         q = [q];
