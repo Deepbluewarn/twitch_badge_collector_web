@@ -5,43 +5,52 @@ import { Twitch_Api } from "./twitch_api";
 import { BroadcastChannel } from 'broadcast-channel';
 import i18n from './i18n/index';
 import * as chatTools from './chat_tools';
+import { Etc } from "./utils/etc";
 
 const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
 const filter: Filter = new Filter(tapi);
 const msgList: messageList = new messageList(filter, tapi, false);
 const filterChannel = new BroadcastChannel('Filter');
 
-let comments_arr;
+let comments_arr = [];
 let tbc_messageId = '';
-let last_chat_time: number;
-let chatPlayInterval: number;
-
-let theme = 'light';
+let currentPlayId: string;
+let videoType: string;
+let content_offset_seconds: number; // 클립 영상 채팅 시간 보정값.
 
 tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
 });
 
-function cancelReplayChat(){
-    window.clearInterval(chatPlayInterval);
-}
-function playReplayChat(){
-    window.clearInterval(chatPlayInterval);
-    chatPlayInterval = window.setInterval(() => {
-        if(!Array.isArray(comments_arr)) return;
+function updateReplayChat(time: number){
+    let latest_message_id = '';
 
-        last_chat_time = last_chat_time + 1;
-    
-        comments_arr.filter(c=> c.content_offset_seconds <= last_chat_time).forEach(ce=> {
-            addCommentMessage(ce);
-            const idx = comments_arr.indexOf(ce);
-            if(idx !== -1){
-                comments_arr.splice(idx, 1);
+    if(videoType === 'clip'){
+        time = time + content_offset_seconds;
+    }
+
+    for (let cs = 0; cs < comments_arr.length; cs++) {
+        let cmt = comments_arr[cs];
+
+        if (!Array.isArray(cmt)) return;
+
+        let commentFiltered = cmt.filter((c, i) => {
+            if (c.content_offset_seconds <= time) {
+                if (!c.tbc_id || c.tbc_id !== currentPlayId) {
+                    cmt[i].tbc_id = currentPlayId;
+                    return true;
+                }
             }
         });
-    }, 1000);
+
+        commentFiltered.forEach(ce => {
+            if (latest_message_id !== ce._id) {
+                addCommentMessage(ce);
+            }
+            latest_message_id = ce._id;
+        });
+    }
 }
-playReplayChat();
 
 function addCommentMessage(comment){
     const user_state = {};
@@ -108,40 +117,49 @@ async function receiveMessage(event) {
 
         if (msgType === 'wtbc-replay-init') {
             const url = new URL(d.url);
-            const video_id = url.pathname.split('/')[2];
-            const video_info = await tapi.get_videos(video_id);
+            let res, id;
 
-            if (video_info.data.length === 0) return;
+            videoType = msgValue.type;
+            
+            if(videoType === 'clip'){
+                let channel = url.pathname.split('/')[1];
+                res = await tapi.get_users(channel);
+                id = res.data[0].id;
+            }else if(videoType === 'replay'){
+                const video_id = url.pathname.split('/')[2];
+                res = await tapi.get_videos(video_id);
+                id = res.data[0].user_id;
+            }
+            if (res.data.length === 0) return;
+            
+            getChannelInfo(id);
 
-            getChannelInfo(video_info.data[0].user_id);
-
-            tapi.current_channel = video_info.data[0].user_login;
+            tapi.current_channel = res.data[0].user_login;
         }
         if (msgType === 'wtbc-replay') {
-            // wtbc-replay 는 content scripts 가 아닌 
-            // 트위치 사이트에 직접 삽입된 스크립트에서 보내기 때문에 
-            // tbc_messageId 가 없음.
-
             const url = new URL(d.url);
 
-            url.searchParams.get('content_offset_seconds')
-            url.searchParams.get('cursor');
-
             if(url.searchParams.has('cursor')){
+
             }else if(url.searchParams.has('content_offset_seconds')){
                 msgList.clearCopiedChat();
+                
+                if(!content_offset_seconds){
+                    content_offset_seconds = parseInt(url.searchParams.get('content_offset_seconds'));
+                }
+
+                currentPlayId = Etc.getRandomString();
+                comments_arr = [];
             }
-            comments_arr = d.body.comments;
-    
+            comments_arr.push(d.body.comments);
+
+            if(comments_arr.length > 2){
+                comments_arr.shift();
+            }
             return;
         }
-        if(msgType === 'wtbc-player-playing'){
-            last_chat_time = msgValue;
-            playReplayChat();
-        }
-        if(msgType === 'wtbc-player-paused'){
-            last_chat_time = msgValue;
-            cancelReplayChat();
+        if(msgType === 'wtbc-player-time'){
+            updateReplayChat(msgValue.time);
         }
         if(msgType === 'language'){
             i18n.changeLanguage(msgValue);
@@ -150,18 +168,10 @@ async function receiveMessage(event) {
             chatTools.setFontSize(`font_${msgValue}`);
         }
         if(msgType === 'theme'){
-            theme = msgValue;
             chatTools.setTheme(msgValue);
         }
         if(msgType === 'filter'){
             if(!msgValue){
-                msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
-                return;
-            }
-            filter.filter = Object.fromEntries(msgValue);
-        }
-        if (msgType === 'filter') {
-            if (!msgValue) {
                 msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
                 return;
             }
