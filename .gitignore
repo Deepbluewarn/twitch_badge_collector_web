@@ -5,3 +5,4 @@ temp
 stress_test
 journal
 .env
+src/public/js/*.map
