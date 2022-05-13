@@ -96,6 +96,26 @@ function addCommentMessage(comment){
     msgList.addChatMessage(tapi.current_channel, comment.message.body, user_state, false, comment.content_offset_seconds, true);
 }
 
+async function updateChannelInfo(videoType: string, url: string){
+    const urlObj = new URL(url);
+    let res, id;
+
+    if(videoType === 'clip'){
+        let channel = urlObj.pathname.split('/')[1];
+        res = await tapi.get_users(channel);
+        id = res.data[0].id;
+    }else if(videoType === 'replay'){
+        const video_id = urlObj.pathname.split('/')[2];
+        res = await tapi.get_videos(video_id);
+        id = res.data[0].user_id;
+    }
+    if (res.data.length === 0) return;
+    
+    getChannelInfo(id);
+
+    tapi.current_channel = res.data[0].user_login;
+}
+
 async function receiveMessage(event) {
     const data = event.data;
     
@@ -116,25 +136,8 @@ async function receiveMessage(event) {
         }
 
         if (msgType === 'wtbc-replay-init') {
-            const url = new URL(d.url);
-            let res, id;
-
             videoType = msgValue.type;
-            
-            if(videoType === 'clip'){
-                let channel = url.pathname.split('/')[1];
-                res = await tapi.get_users(channel);
-                id = res.data[0].id;
-            }else if(videoType === 'replay'){
-                const video_id = url.pathname.split('/')[2];
-                res = await tapi.get_videos(video_id);
-                id = res.data[0].user_id;
-            }
-            if (res.data.length === 0) return;
-            
-            getChannelInfo(id);
-
-            tapi.current_channel = res.data[0].user_login;
+            updateChannelInfo(videoType, d.url);
         }
         if (msgType === 'wtbc-replay') {
             const url = new URL(d.url);
