@@ -120,7 +120,6 @@ function setPageLanguage(){
     document.getElementById('title-addFilter').textContent = i18n.t('filterPage:addFilter');
     document.getElementById('title-searchBadge').textContent = i18n.t('filterPage:searchBadges');
     document.getElementById('title-filterList').textContent = i18n.t('filterPage:filterList');
-    document.getElementById('title-searchBadge__description').textContent = i18n.t('filterPage:searchBadgeDescription');
     document.getElementById('cat_option_login').textContent = i18n.t('filter:login_name');
     document.getElementById('cat_option_keyword').textContent = i18n.t('filter:keyword');
     document.getElementById('cat_option_badge').textContent = i18n.t('filter:badge_uuid');
@@ -148,6 +147,13 @@ function setPageLanguage(){
 }
 
 setPageLanguage();
+
+getBadges('', 'global').then(badges => {
+    searchedBadgeResult = badgesToArray(badges);
+    badgeUserSearchMode = false;
+    filterUserSearchMode = false;
+    setSearchedBadgeList(getBadge(), searchedBadgeChannel, 1);
+});
 
 function setSearchedBadgeList(badges, channel: string, page: number){
     if(page <= 0) return;
@@ -209,6 +215,30 @@ function setSearchedBadgeList(badges, channel: string, page: number){
     }
 
     searchBadgeContainer.getElementsByClassName('page-current')[0].textContent = currentBadgePageNum.toString();
+}
+
+async function getBadges(channel: string, category: string){
+    let req: Promise<any>;
+
+    if(category === 'global'){
+        if(searchedBadgeID === null) return;
+        req = tapi.getGlobalChatBadges();
+        
+        searchedBadgeChannel = null;
+        searchedBadgeID = null;
+    }else if(category === 'channel'){
+        if(channel === searchedBadgeID) return;
+
+        let user = await tapi.get_users(channel);
+        if(!user || !user.data || user.data.length === 0){
+            return;
+        }
+        searchedBadgeChannel = user.data[0].display_name;
+        searchedBadgeID = user.data[0].login;
+        req = tapi.getChannelChatBadges(user.data[0].id);
+    }
+
+    return req;
 }
 
 function setFilterList(_filter: Map<string, any>, page: number){
@@ -594,38 +624,20 @@ filterAddBtn.addEventListener('click', e => {
 searchBadgeBtn.addEventListener('click', async e => {
     const channel = <HTMLInputElement>document.getElementById('search-badge__channel');
     const searchCategory = channel.value === '' ? 'global' : 'channel';
-    let req: Promise<any>;
+    const value = (document.getElementById('search-badge__badgeName') as HTMLInputElement).value;
 
     if(!Etc.checkChannelValid(channel.value)){
 		Toast.fire('채널 오류', '채널은 영문자와 숫자만 입력할 수 있습니다.', 'error');
         return;
 	}
 
-    if(searchCategory === 'global'){
-        if(searchedBadgeID === null) return;
-        req = tapi.getGlobalChatBadges();
-        
-        searchedBadgeChannel = null;
-        searchedBadgeID = null;
-    }else if(searchCategory === 'channel'){
-        if(channel.value === searchedBadgeID) return;
-
-        let user = await tapi.get_users(channel.value);
-        if(!user || !user.data || user.data.length === 0){
-            return;
-        }
-        searchedBadgeChannel = user.data[0].display_name;
-        searchedBadgeID = user.data[0].login;
-        req = tapi.getChannelChatBadges(user.data[0].id);
-    }
-    req.then(badges => {
+    getBadges(channel.value, searchCategory).then(badges => {
         searchedBadgeResult = badgesToArray(badges);
         badgeUserSearchMode = false;
         filterUserSearchMode = false;
-        setSearchedBadgeList(getBadge(), searchedBadgeChannel, 1);
+
+        setBadgeListByValue(value);
     });
-    channel.value = '';
-    
 });
 
 searchBadgeContainer.getElementsByClassName('page-backward')[0].addEventListener('click', e=> {
@@ -705,16 +717,21 @@ document.getElementById('search-badge__result').addEventListener('click', e =>{
     badgePrev.classList.remove('hidden');
 });
 
+function setBadgeListByValue(value: string){
+
+    badgeUserSearchMode = value === '' ? false : true;
+
+    if(value !== '' && Array.isArray(searchedBadgeResult)){
+        badgeUserSearchedResult = searchedBadgeResult.filter(b => b.title.toLowerCase().includes(value) || b.type.toLowerCase().includes(value));
+    }
+    setSearchedBadgeList(getBadge(), searchedBadgeChannel, 1);
+}
+
 document.getElementById('search-badge__badgeName').addEventListener('input', e=> {
     const target = <HTMLInputElement>e.target;
     const value = target.value.toLowerCase();
 
-    badgeUserSearchMode = value === '' ? false : true;
-
-    if(value !== '' && searchedBadgeResult){
-        badgeUserSearchedResult = searchedBadgeResult.filter(b => b.title.toLowerCase().includes(value) || b.type.toLowerCase().includes(value));
-    }
-    setSearchedBadgeList(getBadge(), searchedBadgeChannel, 1);
+    setBadgeListByValue(value);
 });
 
 document.getElementById('filter-list__filterNote').addEventListener('input', e=> {
