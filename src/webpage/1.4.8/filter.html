@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#ffc40d">
     <meta name="theme-color" content="#ffffff">
 
-    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7521d712ba8adad50f4841c288cad5e702b66dc9/src/public/js/sentryInit.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@f1da7522c35bd51269b187be2f9b867169b18a73/src/public/js/sentryInit.js" defer></script>
 
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -38,10 +38,10 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="preload" as="style">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7521d712ba8adad50f4841c288cad5e702b66dc9/src/public/css/common.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7521d712ba8adad50f4841c288cad5e702b66dc9/src/public/css/filter.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@f1da7522c35bd51269b187be2f9b867169b18a73/src/public/css/common.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@f1da7522c35bd51269b187be2f9b867169b18a73/src/public/css/filter.css">
 
-    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@7521d712ba8adad50f4841c288cad5e702b66dc9/src/public/js/filter.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/Deepbluewarn/twitch_badge_collector_web@f1da7522c35bd51269b187be2f9b867169b18a73/src/public/js/filter.js" defer></script>
 
     <title>Twitch Badge Collector :: Setting</title>
 </head>
@@ -97,17 +97,19 @@
         <div class="container_row" id="torso">
             <div id="search-badge">
                 <span class="container-title" id="title-searchBadge">배지 검색</span>
-                <div class="container-title__note">
+                <!-- <div class="container-title__note">
                     <span id="title-searchBadge__description">채널 이름을 생략하면 트위치 글로벌 배지에서 찾습니다.</span>
-                </div>
+                </div> -->
                 
                 <div id="search-badge__container">
-                    <div class='container container_col' id="search-badge__header">
-                        <div class="container_row" id="search-badge__search">
+                    <div class='container container_row' id="search-badge__header">
+                        <!-- <div class="container_row" id="search-badge__search">
                             <input class='ellipsis' id='search-badge__channel' type="text" placeholder="채널 이름을 입력하세요.">
                             <button id="search-badge__btn"></button>
-                        </div>
+                        </div> -->
+                        <input class='ellipsis' id='search-badge__channel' type="text" placeholder="채널 이름을 입력하세요.">
                         <input class='ellipsis' id='search-badge__badgeName' type="text" placeholder="배지 이름 검색">
+                        <button id="search-badge__btn"></button>
                     </div>
                     <div class='container container_col' id="search-badge__result">
                         
@@ -194,7 +196,6 @@
             <div id="filter-list">
                 <div class="container_col romeoNjuliet">
                     <span class="container-title" id="title-filterList">필터 목록</span>
-                    <br>
                 </div>
                 
                 <div class='container'>
@@ -299,18 +300,17 @@
                 </div>
             </div>
         </div>
-        <div class='ad_container'>
+        <!-- <div class='ad_container'>
             <div class='ad_container'>
                 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6919358765398721"
                     crossorigin="anonymous"></script>
-                <!-- filter_footer -->
                 <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6919358765398721" data-ad-slot="4921177665"
                     data-ad-format="horizontal" data-full-width-responsive="true"></ins>
                 <script>
                     (adsbygoogle = window.adsbygoogle || []).push({});
                 </script>
             </div>
-        </div>
+        </div> -->
     </div>
 </body>
 </html>
