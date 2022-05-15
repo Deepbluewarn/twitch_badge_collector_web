@@ -79,6 +79,7 @@ option{
     display: inline-block;
     margin: 8px 0 8px 20px;
     font-weight: bold;
+    font-size: 1.4rem;
 }
 .container-title__note{
     padding-left: 20px;

@@ -118,8 +118,7 @@ option{
     grid-template-columns: 1fr minmax(0, 1.1fr) minmax(0, 1.6fr) minmax(0, 2fr);
     font-size: 0.9rem;
     border-radius: 2px;
-    padding: 6px 12px 6px 10px;
-    margin: 0 8px 0 8px;
+    padding: 7px 20px 7px 20px;
     gap: 8px;
     cursor: pointer;
 }
@@ -131,8 +130,7 @@ option{
     grid-template-columns: 0.4fr minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 3fr) minmax(0, 1fr);
     border-radius: 2px;
     align-items: center;
-    padding: 6px 12px 6px 10px;
-    margin: 0 8px 0 8px;
+    padding: 7px 20px 7px 20px;
     gap: 8px;
     font-size: 0.9rem;
     cursor: pointer;
@@ -185,6 +183,7 @@ option{
 #torso{
     justify-content: center;
     flex-direction: row;
+    margin-top: 24px;
 }
 #search-badge{
     flex: 1;
@@ -254,13 +253,15 @@ option{
 }
 #badge-info__title{
     font-size: 0.9rem;
-    margin-top: 8px;
-    /* margin-bottom: 8px; */
+    font-weight: bold;
+    padding: 14px 20px 14px 20px;
+    background-color: #262626;
 }
 #filter-list__title{
     font-size: 0.9rem;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    font-weight: bold;
+    padding: 14px 20px 14px 20px;
+    background-color: #262626;
 }
 #user-info__login{
     align-items: center;
@@ -312,11 +313,14 @@ nav {
     justify-content: space-between;
 }
 #filter-control{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    justify-content: space-between;
     margin-right: 20px;
     margin-left: 20px;
     gap: 8px;
+}
+.filter-control__btn{
+    width: 100%;
 }
 #filter-control__rm-sel{
     background-color: #ff574a;
