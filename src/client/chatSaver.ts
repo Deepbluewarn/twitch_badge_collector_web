@@ -70,9 +70,6 @@ chatChannel.onmessage = (msg) => {
 selectChannel.addEventListener('change', e=> {
     const target = <HTMLOptionElement>e.target;
 
-    console.log(e);
-    console.log(`${random}-${channel}`);
-
     chatChannel.postMessage({
         type: 'REQUEST_CHAT_LIST',
         id: target.value

@@ -922,7 +922,6 @@ filterChannel.onmessage = msg => {
 chatChannel.onmessage = msg => {
 	if (msg.type === 'REQUEST_CHATROOM_ID') {
 		if (!tapi.current_channel) {
-			console.log('연결된 채널이 없습니다.');
 			return;
 		}
 		chatChannel.postMessage({
