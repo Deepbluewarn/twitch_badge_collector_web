@@ -343,7 +343,11 @@ class Chat{
         minutes = minutes.length === 1 ? '0' + minutes : minutes;
 
         if(this.replay){
-            time_span.textContent = date.toISOString().substring(11, 19);
+            if(this.replay_chat_offset < 3600){
+                time_span.textContent = date.toISOString().substring(14, 19);
+            }else{
+                time_span.textContent = date.toISOString().substring(11, 19);
+            }
         }else{
             time_span.textContent = hours + ':' + minutes;
         }
