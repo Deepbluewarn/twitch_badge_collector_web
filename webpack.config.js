@@ -38,7 +38,7 @@ module.exports = {
             ignore: ['node_modules', 'webpack.config.js'],
             configFile: 'sentry.properties',
             dryRun: false,
-            release: '1.4.8',
+            release: '1.4.10',
             urlPrefix: '~/src/public/js',
             org: 'bluewarn',
             project: 'twitch-badge-collector',
