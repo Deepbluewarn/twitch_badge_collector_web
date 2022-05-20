@@ -5,7 +5,7 @@ import { Twitch_Api } from './api/twitchApi';
 
 const router = express.Router();
 const tapi = new Twitch_Api();
-const latestVersion = ['1.4.7', '1.4.8', 'web'];
+const latestVersion = ['1.4.7', '1.4.8', '1.4.9', '1.4.10', 'web'];
 
 router.get('/', (req, res) => {
     const dev = <string>req.query.dev;
