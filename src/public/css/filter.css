@@ -15,6 +15,7 @@
     --highlight-msg-bg-color: #ffc107;
     --container-bg-color : var(--bg-color-1);
 
+    --list-title-bg-color : #f3f3f3;
     --chat-sent-ts-color : #ababab;
     --irc-msg-color : #4c4c4c;
     --highlight-msg-color: black;
@@ -50,6 +51,7 @@
     --highlight-msg-bg-color: #ffc107;
     --container-bg-color : var(--bg-color-1);
 
+    --list-title-bg-color : #262626;
     --chat-sent-ts-color : #ababab;
     --irc-msg-color : #8b8b8b;
     --highlight-msg-color: black;
@@ -255,13 +257,13 @@ option{
     font-size: 0.9rem;
     font-weight: bold;
     padding: 14px 20px 14px 20px;
-    background-color: #262626;
+    background-color: var(--list-title-bg-color);
 }
 #filter-list__title{
     font-size: 0.9rem;
     font-weight: bold;
     padding: 14px 20px 14px 20px;
-    background-color: #262626;
+    background-color: var(--list-title-bg-color);
 }
 #user-info__login{
     align-items: center;
