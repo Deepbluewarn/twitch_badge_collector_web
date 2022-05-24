@@ -6,11 +6,13 @@ import { BroadcastChannel } from 'broadcast-channel';
 import i18n from './i18n/index';
 import * as chatTools from './chat_tools';
 import { Etc } from "./utils/etc";
+import * as default_client from './client';
 
-const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
-const filter: Filter = new Filter(tapi);
-const msgList: messageList = new messageList(filter, tapi, false);
 const filterChannel = new BroadcastChannel('Filter');
+
+const tapi: Twitch_Api = default_client.tapi;
+const filter: Filter = default_client.filter;
+const msgList: messageList = default_client.msgList;
 
 let comments_arr = [];
 let tbc_messageId = '';

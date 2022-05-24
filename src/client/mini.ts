@@ -7,6 +7,7 @@ import { Etc } from './utils/etc';
 import i18n from './i18n/index';
 import { BroadcastChannel } from 'broadcast-channel';
 import * as chatTools from './chat_tools';
+import * as default_client from './client';
 
 const filterChannel = new BroadcastChannel('Filter');
 const chatChannel = new BroadcastChannel('Chat');
@@ -21,21 +22,11 @@ let tbc_messageId = '';
 let displayName = '';
 let theme = 'light';
 
-const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
-const filter: Filter = new Filter(tapi);
-const msgList: messageList = new messageList(filter, tapi, false);
-
 const random = Math.floor(1000 + Math.random() * 9000);
-let tmi_client_obj: Options = {
-    options: {
-        clientId: CLIENT_ID,
-        skipUpdatingEmotesets: true,
-        skipMembership: true
-    },
-    connection: { reconnect: true, secure: true },
-    identity: { username: `justinfan${random}`, password: '' }
-};
-let client: Client = new Client(tmi_client_obj);
+const tapi: Twitch_Api = default_client.tapi;
+const filter: Filter = default_client.filter;
+const msgList: messageList = default_client.msgList;
+const client: Client = default_client.client;
 
 tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
@@ -71,40 +62,6 @@ client.on('connected', (address: string, port: number) => {
 client.on("join", (channel, username, self) => {
     if(self){
         msgList.addIRCMessage(null, i18n.t('tmi:chatConnected', {channel : Etc.trim_hash(channel)}), true);
-    }
-});
-
-client.on('message', (channel, userstate, message, self) => {
-    msgList.addChatMessage(channel, message, userstate, self);
-});
-client.on("subscription", (channel, username, method, message, userstate) => {
-    msgList.addUserNoticeMessage(channel, userstate, message);
-});
-client.on("cheer", (channel, userstate, message) => {
-    msgList.addChatMessage(channel, message, userstate, false);
-});
-client.on("giftpaidupgrade", (channel, username, sender, userstate) => {
-    msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-client.on("anongiftpaidupgrade", (channel, username, userstate) => {
-    msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) => {
-    msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-client.on("resub", (channel, username, months, message, userstate, methods) => {
-    msgList.addUserNoticeMessage(channel, userstate, message);
-});
-client.on('primepaidupgrade', (channel, username, methods, userstate) => {
-    msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
-    msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-client.on("emotesets", (sets, obj) => {
-    let sets_arr = sets.split(',');
-    for (let i = 0; i < sets_arr.length; i = i + 25) {
-        tapi.get_emote_sets(sets_arr.splice(0, 25));
     }
 });
 

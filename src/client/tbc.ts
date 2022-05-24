@@ -13,6 +13,7 @@ import { Etc } from './utils/etc';
 import { messageList } from './messageList';
 
 import { BroadcastChannel } from 'broadcast-channel';
+import * as default_client from './client';
 
 const APP_TITLE = 'Twitch Badge Collector';
 const twitch_login_btn = document.getElementById('twitch-login__btn');
@@ -75,7 +76,7 @@ change_container_ratio(parseInt(localStorage.getItem('ratio')) || 30);
 setPageLanguage();
 
 const auth = new Auth();
-const tapi: Twitch_Api = new Twitch_Api(CLIENT_ID);
+const tapi: Twitch_Api = default_client.tapi;
 let localFilter = JSON.parse(localStorage.getItem('filter'));
 
 let filter: Filter;
@@ -98,7 +99,7 @@ let tmi_client_obj: Options = {
 	identity: { username: '', password: '' }
 };
 let player: any = null;
-let client: Client = new Client(tmi_client_obj);
+const client: Client = default_client.client;
 
 document.addEventListener('DOMContentLoaded', () => {
 	// let Twitch: any;
@@ -112,8 +113,8 @@ function connectChatServer(username: string, password: string) {
 
 	const random = Math.floor(1000 + Math.random() * 9000);
 
-	tmi_client_obj.identity.username = password ? username : 'justinfan' + random;
-	tmi_client_obj.identity.password = password ? `oauth:${password}` : '';
+	default_client.tmi_client_obj.identity.username = password ? username : 'justinfan' + random;
+	default_client.tmi_client_obj.identity.password = password ? `oauth:${password}` : '';
 
 	return client.connect().then(() => {
 		return true;
@@ -590,9 +591,6 @@ client.on("slowmode", (channel, enabled, length) => {
 	}
 });
 
-client.on('message', (channel, userstate, message, self) => {
-	msgList.addChatMessage(channel, message, userstate, self);
-});
 client.on('clearchat', (channel) => {
 	// 전체 채팅을 삭제.
 	msgList.clearAllChat(true);
@@ -613,46 +611,6 @@ client.on("timeout", (channel, username, reason, duration) => {
 
 client.on('ban', (channel, username, reason) => {
 	msgList.clearUserChat(username, true);
-});
-
-// client.on("raw_message", (messageCloned, message) => {
-// });
-
-// subscription
-
-// 신규 구독
-client.on("subscription", (channel, username, method, message, userstate) => {
-	msgList.addUserNoticeMessage(channel, userstate, message);
-});
-// 비트 후원
-client.on("cheer", (channel, userstate, message) => {
-	msgList.addChatMessage(channel, message, userstate, false);
-});
-// 선물받은 구독 연장
-// Username is continuing the Gift Sub they got from sender in channel.
-client.on("giftpaidupgrade", (channel, username, sender, userstate) => {
-	msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-// 익명 사용자로부터 선물받은 구독 연장
-// Username is continuing the Gift Sub they got from an anonymous user in channel.
-client.on("anongiftpaidupgrade", (channel, username, userstate) => {
-	msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-// 산타
-// Username is gifting a subscription to someone in a channel.
-client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) => {
-	msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-// 구독 연장
-client.on("resub", (channel, username, months, message, userstate, methods) => {
-	msgList.addUserNoticeMessage(channel, userstate, message);
-});
-client.on('primepaidupgrade', (channel, username, methods, userstate) => {
-	msgList.addUserNoticeMessage(channel, userstate, userstate.message);
-});
-// Username gifted a subscription to recipient in a channel.
-client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
-	msgList.addUserNoticeMessage(channel, userstate, userstate.message);
 });
 
 client.on("raided", (channel, username, viewers) => {
@@ -679,13 +637,6 @@ client.on('hosting', (channel, target, viewers) => {
 
 client.on('notice', (channel, msgid, message) => {
 	msgList.addIRCMessage(channel, message, false);
-});
-
-client.on("emotesets", (sets, obj) => {
-	let sets_arr = sets.split(',');
-	for (let i = 0; i < sets_arr.length; i = i + 25) {
-		tapi.get_emote_sets(sets_arr.splice(0, 25));
-	}
 });
 
 channel_connect_btn.addEventListener('click', e => {
