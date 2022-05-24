@@ -34,6 +34,11 @@ class Chat{
     constructor(text: string, userstate: Userstate, self: boolean, tapi: Twitch_Api, filter: Filter, replay_chat_offset?: number, replay?: boolean){
         this.badges = userstate.badges;
         this.badges_raw = userstate["badges-raw"];
+
+        if(userstate['msg-id'] === 'announcement'){
+            this.badges_raw = (userstate.badges as unknown) as string;
+        }
+        
         this.login_name = userstate.username || userstate.login;
         this.disp_name = userstate["display-name"];
         this.color = userstate.color;

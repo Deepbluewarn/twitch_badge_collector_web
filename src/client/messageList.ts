@@ -81,9 +81,9 @@ class messageList{
 	}
 
 	addUserNoticeMessage(channel: string, userstate: CommonUserstate, message?: string) {
-		let subs = new UserNotice(userstate['message-type'], userstate['system-msg']);
 		let filter_type = '';
-		const sub_container = subs.render_sub_container();
+
+		const sub_container = new UserNotice().renderSubscribeContainer(userstate['message-type'], userstate['system-msg']);
 
 		if (message || message === '') {
 			const chat = new Chat(message, userstate, false, this.tapi, this.filter);
@@ -91,6 +91,19 @@ class messageList{
 			sub_container.appendChild(chat.render_chat());
 		}
 		this.addMessage(channel, sub_container, filter_type);
+	}
+
+	addAnnouncementMessage(channel: string, userstate: CommonUserstate, message?: string){
+		let filter_type = '';
+		const announceContainer = new UserNotice().renderAnnouncementContainer(message, userstate['msg-param-color']);
+
+		if (message || message === '') {
+			const chat = new Chat(message, userstate, false, this.tapi, this.filter);
+			filter_type = chat.checkFilter();
+			announceContainer.appendChild(chat.render_chat());
+		}
+
+		this.addMessage(channel, announceContainer, filter_type);
 	}
 
 	private maintainChatCount(chat_list: HTMLDivElement) {
