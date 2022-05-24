@@ -16,11 +16,10 @@
     font-size: inherit;
 }
 div.chat_line{
-    padding: 4px 8px 4px 8px;
     overflow-wrap: anywhere;
 }
 div.chat{
-    margin: 4px 20px 4px 0px;
+    margin: 8px 28px 8px 8px;
     vertical-align: middle;
 }
 span.badges{
@@ -37,6 +36,14 @@ div.usernotice{
     padding: 4px 10px 4px 10px;
     background-color: var(--usernotice-bg-color);
     border-radius: 10px;
+}
+div.announce_title{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: var(--announcement-title-bg-color);
+    font-weight: bold;
+    padding: 4px 8px 4px 12px;
 }
 img.chat_badge{
     display: inline-block;
@@ -57,7 +64,6 @@ img.chat_badge{
     width: 1.75rem;
     height: 1.75rem;
     vertical-align: inherit;
-    /* margin: -0.8rem 0; */
     align-items: center;
     cursor: pointer;
     font-style: normal;

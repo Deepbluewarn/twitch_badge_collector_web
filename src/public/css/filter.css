@@ -1,74 +1,3 @@
-.light_theme{
-    --text-color-1 : #000000;
-    --text-color-2 : #2e2e2e;
-
-    --input-text-color : #000000;
-    
-    --placeholder-color: rgb(85, 85, 85);
-    --header-padding: 7px 13px 7px 12px;
-
-    --bg-color-1: #ffffff;
-    --bg-color-2: #f7f7f8;
-    --bg-color-3: #e5e5e5;
-
-    --usernotice-bg-color : var(--bg-color-3);
-    --highlight-msg-bg-color: #ffc107;
-    --container-bg-color : var(--bg-color-1);
-
-    --list-title-bg-color : #f3f3f3;
-    --chat-sent-ts-color : #ababab;
-    --irc-msg-color : #4c4c4c;
-    --highlight-msg-color: black;
-    --text-disabled-color : #4c4c4c;
-    --channel_container-hover-bg-color: var(--bg-color-3);
-
-    --button-background-color: #ffe96a;
-    --button-background-color-disabled: #ffe96a82;
-    --button-color: black;
-    --sidebar-btn-color : #525252;
-    --sidebar-btn-hover-color : #3d3d3d;
-
-    --chat-room-divider-color : #d7d7d7;
-    
-    --scrollbar-color: var(--bg-color-3);
-    --anchor-color: #03a9f4;
-}
-.dark_theme{
-    --text-color-1 : #ececec;
-    --text-color-2 : #d3d3d3;
-
-    --input-text-color : #ffffff;
-
-    --placeholder-color: rgb(85, 85, 85);
-    --header-padding: 7px 13px 7px 12px;
-
-    --bg-color-1 : #1e1e1e;
-    --bg-color-2 : #121212;
-    --bg-color-3 : #343434;
-    --bg-color-4 : #3e3e3e;
-
-    --usernotice-bg-color : #2a2a2a;
-    --highlight-msg-bg-color: #ffc107;
-    --container-bg-color : var(--bg-color-1);
-
-    --list-title-bg-color : #262626;
-    --chat-sent-ts-color : #ababab;
-    --irc-msg-color : #8b8b8b;
-    --highlight-msg-color: black;
-    --text-disabled-color : #4c4c4c;
-    --channel_container-hover-bg-color: #333333;
-
-    --button-background-color: #ffe96a;
-    --button-background-color-disabled: #ffe96a82;
-    --button-color: black;
-    --sidebar-btn-color : rgb(187, 187, 187);
-    --sidebar-btn-hover-color : #ececec;
-
-    --chat-room-divider-color : #333333;
-    
-    --scrollbar-color: var(--bg-color-3);
-    --anchor-color: #ffe96a;
-}
 body{
     background-color: var(--bg-color-2);
     color: var(--text-color-1);
@@ -219,7 +148,6 @@ option{
     justify-content: center;
     align-items: center;
     gap: 9px;
-    /* background-color: var(--bg-color-3); */
     border-radius: 4px;
     font-size: 0.9rem;
 }
