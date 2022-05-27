@@ -19,6 +19,9 @@ let tbc_messageId = '';
 let currentPlayId: string;
 let videoType: string;
 let content_offset_seconds: number; // 클립 영상 채팅 시간 보정값.
+let currPlayerTime = 0;
+
+let latest_direction = '';
 
 tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
@@ -147,7 +150,11 @@ async function receiveMessage(event) {
             if(url.searchParams.has('cursor')){
 
             }else if(url.searchParams.has('content_offset_seconds')){
-                msgList.clearCopiedChat();
+
+                if(latest_direction === 'backward'){
+                    latest_direction = '';
+                    msgList.clearCopiedChat();
+                }
                 
                 if(!content_offset_seconds){
                     content_offset_seconds = parseInt(url.searchParams.get('content_offset_seconds'));
@@ -164,7 +171,17 @@ async function receiveMessage(event) {
             return;
         }
         if(msgType === 'wtbc-player-time'){
-            updateReplayChat(msgValue.time);
+            const time = msgValue.time;
+
+            if(Math.abs(time - currPlayerTime) >= 1){
+                if(time - currPlayerTime < 0){
+                    latest_direction = 'backward';
+                }
+            }
+            
+            currPlayerTime = time;
+            
+            updateReplayChat(time);
         }
         if(msgType === 'language'){
             i18n.changeLanguage(msgValue);
