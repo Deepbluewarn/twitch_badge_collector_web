@@ -140,9 +140,6 @@ input#channel_id::placeholder{
         height: 0px;
         width: 100% !important;
     }
-    #chat_room_body{
-        /* height: 100%; */
-    }
 }
 #player_container{
     /* flex: 1; */
