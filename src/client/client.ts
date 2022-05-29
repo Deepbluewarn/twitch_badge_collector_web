@@ -56,15 +56,12 @@ client.on("emotesets", (sets, obj) => {
 });
 
 client.on("raw_message", (messageCloned, message) => {
-    console.log('raw_message : messageCloned : ', messageCloned);
-    console.log('raw_message : message : ', message);
 
     const channel = message.params[0];
     const textMessage = message.params[1];
     const userstate = message.tags;
 
     if(message.tags['msg-id'] === 'announcement'){
-        console.log('announcement 메시지입니다.');
         msgList.addAnnouncementMessage(channel, userstate, textMessage);
     }
 });
