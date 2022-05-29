@@ -4,7 +4,6 @@ html, body {
 body{
     height: 100vh;
     margin: 0;
-    background-color: var(--bg-color-1);
     color: var(--text-color);
 }
 #main{
