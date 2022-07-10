@@ -64,14 +64,14 @@ class Chat{
         return this.filter.checkFilterWithValues(this.badges_raw, this.text, this.login_name, this.disp_name);
     }
 
-    render_chat() {
+    render_chat(chatTime?: 'on' | 'off') {
         let chat_container = document.createElement('div');
 
         let chat_author_html = this.render_author();
         let chat_msg_html = this.render_message();
 
-        chat_container.appendChild(this.render_time());
-
+        chat_container.appendChild(this.render_time(chatTime));
+        
         if (this.badges) {
             chat_container.appendChild(this.render_badges());
         }
@@ -329,7 +329,7 @@ class Chat{
         return this._cheermotes.has(cheer[0]) ? [cheer[0], cheer[1]] : [];
     }
 
-    private render_time(){
+    private render_time(chatTime?: 'on' | 'off'){
         let date: Date;
         let hours: string, minutes: string;
         let time_span = document.createElement('span');
@@ -359,6 +359,9 @@ class Chat{
         
         time_span.classList.add('chat_sent_ts');
 
+        if(chatTime === 'off'){
+            time_span.classList.add('hidden');
+        }
         return time_span;
     }
 }

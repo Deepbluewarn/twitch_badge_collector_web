@@ -21,6 +21,7 @@ const channel = params.channel;
 let tbc_messageId = '';
 let displayName = '';
 let theme = 'light';
+let chatTime: 'on' | 'off' = 'on';
 
 const random = Math.floor(1000 + Math.random() * 9000);
 const tapi: Twitch_Api = default_client.tapi;
@@ -123,6 +124,19 @@ window.addEventListener('message', e=> {
         }else if(msgType === 'theme'){
             theme = msgValue;
             chatTools.setTheme(msgValue);
+        }else if(msgType === 'chatTime'){
+            chatTime = msgValue;
+            msgList.chatTime = chatTime;
+
+            const chatTimeList = chat_list_clone.getElementsByClassName('chat_sent_ts');
+
+            Array.from(chatTimeList).forEach(ct => {
+                if(chatTime === 'on'){
+                    ct.classList.remove('hidden');
+                }else if(chatTime === 'off'){
+                    ct.classList.add('hidden');
+                }
+            });
         }else if(msgType === 'filter'){
             if(!msgValue){
                 msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);

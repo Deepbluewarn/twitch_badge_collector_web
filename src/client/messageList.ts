@@ -22,6 +22,7 @@ class messageList{
 		filter: Filter;
 		tapi: Twitch_Api;
 		origin: boolean;
+		_chatTime: 'on' | 'off';
 
     constructor(filter:Filter, tapi: Twitch_Api, origin: boolean){
 		this.filter = filter;
@@ -72,7 +73,7 @@ class messageList{
 
 	addChatMessage(channel: string, message: string, userstate: CommonUserstate, self: boolean, replay_chat_offset?: number, replay?: boolean){
 		const chat = new Chat(message, userstate, self, this.tapi, this.filter, replay_chat_offset, replay);
-		this.addMessage(channel, chat.render_chat(), chat.checkFilter());
+		this.addMessage(channel, chat.render_chat(this._chatTime), chat.checkFilter());
 	}
 
 	addIRCMessage(channel: string | null, message: string, sysmsg: boolean){
@@ -88,7 +89,7 @@ class messageList{
 		if (message || message === '') {
 			const chat = new Chat(message, userstate, false, this.tapi, this.filter);
 			filter_type = chat.checkFilter();
-			sub_container.appendChild(chat.render_chat());
+			sub_container.appendChild(chat.render_chat(this._chatTime));
 		}
 		this.addMessage(channel, sub_container, filter_type);
 	}
@@ -100,7 +101,7 @@ class messageList{
 		if (message || message === '') {
 			const chat = new Chat(message, userstate, false, this.tapi, this.filter);
 			filter_type = chat.checkFilter();
-			announceContainer.appendChild(chat.render_chat());
+			announceContainer.appendChild(chat.render_chat(this._chatTime));
 		}
 
 		this.addMessage(channel, announceContainer, filter_type);
@@ -161,6 +162,9 @@ class messageList{
 	}
 	set cloneChatIsAtBottom(bottom: boolean){
 		this._cloneChatIsAtBottom = bottom;
+	}
+	set chatTime(chatTime: 'on' | 'off'){
+		this._chatTime = chatTime;
 	}
 }
 
