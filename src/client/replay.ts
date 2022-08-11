@@ -16,10 +16,11 @@ const msgList: messageList = default_client.msgList;
 
 let comments_arr = [];
 let tbc_messageId = '';
-let currentPlayId: string;
+let currentPlayId: string = Etc.getRandomString();
 let videoType: string;
-let content_offset_seconds: number; // 클립 영상 채팅 시간 보정값.
+let clip_offset;
 let currPlayerTime = 0;
+let commentReceived = false;
 
 let latest_direction = '';
 
@@ -27,95 +28,109 @@ tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
 });
 
-function updateReplayChat(time: number){
-    let latest_message_id = '';
+function updateReplayChat(time: number) {
+    comments_arr.forEach(cmt => {
+        const data = cmt.data;
+        const edges = data.video.comments.edges;
+        const commentFiltered = edges.filter((e, i) => {
+            const node = e.node;
+            let contentOffsetSeconds = node.contentOffsetSeconds;
 
-    if(videoType === 'clip'){
-        time = time + content_offset_seconds;
-    }
-
-    for (let cs = 0; cs < comments_arr.length; cs++) {
-        let cmt = comments_arr[cs];
-
-        if (!Array.isArray(cmt)) return;
-
-        let commentFiltered = cmt.filter((c, i) => {
-            if (c.content_offset_seconds <= time) {
-                if (!c.tbc_id || c.tbc_id !== currentPlayId) {
-                    cmt[i].tbc_id = currentPlayId;
+            if (contentOffsetSeconds <= time) {
+                if (!e.tbc_id || e.tbc_id !== currentPlayId) {
+                    e.tbc_id = currentPlayId;
                     return true;
                 }
             }
         });
 
-        commentFiltered.forEach(ce => {
-            if (latest_message_id !== ce._id) {
-                addCommentMessage(ce);
-            }
-            latest_message_id = ce._id;
+        commentFiltered.forEach(e => {
+            addCommentMessage(e);
         });
-    }
+    });
 }
 
-function addCommentMessage(comment){
+function addCommentMessage(edge) {
+    const node = edge.node;
+    const commenter = node.commenter;
+    const commenterId = node.commenter.id;
+    const message = node.message;
+    const userBadges = message.userBadges;
+    const contentOffsetSeconds = node.contentOffsetSeconds;
+    const messageFragments = message.fragments;
+    const userColor = message.userColor;
+    const messageId = node.id;
+    const displayName = commenter.displayName;
+    const login = commenter.login;
     const user_state = {};
-    const badges = {};
-    const badges_raw = [];
+
+    let badges = [];
+    let badgesRaw;
+
+    for (let badge of userBadges) {
+        badges.push(`${badge.setID}/${badge.version}`)
+    }
+
+    badgesRaw = badges.join(',');
+
+    let messages = [];
+    let messageText: string;
     const emotes = {};
 
-    if (Array.isArray(comment.message.user_badges)) {
-        for (let badge of comment.message.user_badges) {
-            badges[badge._id] = badge.version;
-            badges_raw.push(`${badge._id}/${badge.version}`);
-        }
-    }
-    if(Array.isArray(comment.message.emoticons)){
-        for(let emote of comment.message.emoticons){
+    let idx = 0;
 
-            const e = `${emote.begin}-${emote.end}`;
+    for (let msgfrag of messageFragments) {
+        const emote = msgfrag.emote;
+        const text = msgfrag.text;
 
-            if(Array.isArray(emotes[emote._id])){
-                emotes[emote._id].push(e);
-            }else{
-                emotes[emote._id] = [e];
+        idx = idx + text.length;
+
+        if (emote) {
+            if (emotes![emote.emoteID]) {
+                emotes![emote.emoteID].push(`${emote.from}-${idx - 1}`);
+            } else {
+                emotes![emote.emoteID] = [`${emote.from}-${idx - 1}`];
             }
         }
+
+        messages.push(text);
     }
 
-    user_state["badges"] = badges;
-    user_state["badges-raw"] = badges_raw.join();
-    user_state['color'] = comment.message.user_color;
-    user_state['display-name'] = comment.commenter.display_name;
-    user_state['user-id'] = comment.commenter._id;
-    user_state['username'] = comment.commenter.name;
+    messageText = messages.join('');
+
+    user_state["badges-raw"] = badgesRaw;
+    user_state['color'] = userColor;
+    user_state['display-name'] = displayName;
+    user_state['username'] = login;
+    user_state['user-id'] = commenterId;
     user_state['emotes'] = emotes;
 
-    if(comment.message.is_action) {
-        user_state['message-type'] = 'action';
-    }else if(comment.message.user_notice_params['msg-id']){
-        user_state['message-type'] = comment.message.user_notice_params['msg-id'];
-        user_state['system-msg'] = comment.message.body;
-        msgList.addUserNoticeMessage(tapi.current_channel, user_state, '');
-        return;
-    }
-    msgList.addChatMessage(tapi.current_channel, comment.message.body, user_state, false, comment.content_offset_seconds, true);
+    msgList.addChatMessage(tapi.current_channel, messageText, user_state, false, contentOffsetSeconds, true);
 }
 
-async function updateChannelInfo(videoType: string, url: string){
+async function updateChannelInfo(videoType: string, url: string) {
     const urlObj = new URL(url);
     let res, id;
 
-    if(videoType === 'clip'){
+    if (videoType === 'clip') {
         let channel = urlObj.pathname.split('/')[1];
+        let clip_id = urlObj.pathname.split('/')[3];
+
+        const clip_res = await tapi.get_clips(clip_id);
+
+        if(clip_res.data.length > 0){
+            clip_offset = clip_res.data[0].vod_offset;
+        }
+
         res = await tapi.get_users(channel);
         id = res.data[0].id;
-    }else if(videoType === 'replay'){
+    } else if (videoType === 'replay') {
         const video_id = urlObj.pathname.split('/')[2];
         res = await tapi.get_videos(video_id);
         id = res.data[0].user_id;
     }
     if (res.data.length === 0) return;
-    
+
     getChannelInfo(id);
 
     tapi.current_channel = res.data[0].user_login;
@@ -123,8 +138,8 @@ async function updateChannelInfo(videoType: string, url: string){
 
 async function receiveMessage(event) {
     const data = event.data;
-    
-    if(data.sender !== 'tbc') return;
+
+    if (data.sender !== 'tbc') return;
 
     for (let d of data.body) {
         const msgType = d.type;
@@ -133,9 +148,13 @@ async function receiveMessage(event) {
         if (msgType === 'tbc_messageId') {
             tbc_messageId = msgValue;
         }
-        if (!tbc_messageId || tbc_messageId === '') return;
-        if(d.tbc_messageId !== 'omitted'){
-            if((d.tbc_messageId !== tbc_messageId)){
+        if (!tbc_messageId || tbc_messageId === '') {
+            if (d.tbc_messageId !== 'omitted') {
+                return;
+            }
+        }
+        if (d.tbc_messageId !== 'omitted') {
+            if (d.tbc_messageId !== tbc_messageId) {
                 return;
             }
         }
@@ -145,55 +164,52 @@ async function receiveMessage(event) {
             updateChannelInfo(videoType, d.url);
         }
         if (msgType === 'wtbc-replay') {
-            const url = new URL(d.url);
-
-            if(url.searchParams.has('cursor')){
-
-            }else if(url.searchParams.has('content_offset_seconds')){
-
-                if(latest_direction === 'backward'){
-                    latest_direction = '';
-                    msgList.clearCopiedChat();
-                }
-                
-                if(!content_offset_seconds){
-                    content_offset_seconds = parseInt(url.searchParams.get('content_offset_seconds'));
-                }
-
+            if (latest_direction === 'backward') {
+                latest_direction = '';
                 currentPlayId = Etc.getRandomString();
-                comments_arr = [];
+                msgList.clearCopiedChat();
             }
-            comments_arr.push(d.body.comments);
 
-            if(comments_arr.length > 2){
+            if(!commentReceived){
+                const noComments = document.getElementsByClassName('no_comments')[0];
+                noComments.classList.add('hidden_visibility');
+            }
+
+            comments_arr.push(msgValue);
+
+            if (comments_arr.length > 2) {
                 comments_arr.shift();
             }
+
             return;
         }
-        if(msgType === 'wtbc-player-time'){
-            const time = msgValue.time;
+        if (msgType === 'wtbc-player-time') {
+            let time = msgValue.time;
 
-            if(Math.abs(time - currPlayerTime) >= 1){
-                if(time - currPlayerTime < 0){
+            if (Math.abs(time - currPlayerTime) >= 1) {
+                if (time - currPlayerTime < 0) {
                     latest_direction = 'backward';
                 }
             }
-            
+            if(clip_offset){
+                time = time + clip_offset;
+            }
+
             currPlayerTime = time;
-            
+
             updateReplayChat(time);
         }
-        if(msgType === 'language'){
+        if (msgType === 'language') {
             i18n.changeLanguage(msgValue);
         }
-        if(msgType === 'font_size'){
+        if (msgType === 'font_size') {
             chatTools.setFontSize(`font_${msgValue}`);
         }
-        if(msgType === 'theme'){
+        if (msgType === 'theme') {
             chatTools.setTheme(msgValue);
         }
-        if(msgType === 'filter'){
-            if(!msgValue){
+        if (msgType === 'filter') {
+            if (!msgValue) {
                 msgList.addIRCMessage(null, '필터를 적용하지 못했습니다.', true);
                 return;
             }
@@ -209,6 +225,11 @@ chat_list_clone.addEventListener("scroll", function () {
 }, false);
 
 window.addEventListener("message", receiveMessage, false);
+
+parent.postMessage({
+    sender: 'wtbc',
+    body: 'READY'
+}, '*');
 
 async function getChannelInfo(channel_id) {
     let channelBadges = await tapi.get_channel_chat_badges(channel_id, true);
