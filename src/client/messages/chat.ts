@@ -72,7 +72,7 @@ class Chat{
 
         chat_container.appendChild(this.render_time(chatTime));
         
-        if (this.badges) {
+        if (this.badges_raw && this.badges_raw !== '') {
             chat_container.appendChild(this.render_badges());
         }
 
