@@ -113,6 +113,8 @@ function getCacheKey(pathname: string, params: URLSearchParams){
         q = '';
     }else if(pathname === '/videos'){
         q = params.get('id');
+    }else if(pathname === '/clips'){
+        q = params.get('id');
     }else if(bc_regex.test(pathname) || pathname === '/badges/global/display'){
         q = params.get('language');
     }

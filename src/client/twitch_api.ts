@@ -85,6 +85,18 @@ class Twitch_Api {
         }
         return res;
     }
+    async get_clips(clipId: string){
+        let params = new URLSearchParams();
+        params.append('id', clipId);
+
+        const url = `/api/clips?${params}`;
+        const res = await this.request(url, 'GET');
+
+        if(res.error){
+            this.Toast.fire(i18n.t('page:reqFailed'), i18n.t(res.message), 'error');
+        }
+        return res;
+    }
     async getChannelChatBadges(broadcaster_id: string){
         let params = new URLSearchParams();
         params.append('language', i18n.language);
