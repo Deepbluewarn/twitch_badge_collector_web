@@ -231,6 +231,9 @@ parent.postMessage({
     body: 'READY'
 }, '*');
 
+document.getElementById('chatFailed_0').textContent = i18n.t('page:replayChatFailed_0')
+document.getElementById('chatFailed_1').textContent = i18n.t('page:replayChatFailed_1')
+
 async function getChannelInfo(channel_id) {
     let channelBadges = await tapi.get_channel_chat_badges(channel_id, true);
     let cheer = await tapi.get_cheermotes(channel_id);
