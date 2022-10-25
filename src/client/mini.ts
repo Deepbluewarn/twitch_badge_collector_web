@@ -29,6 +29,9 @@ const filter: Filter = default_client.filter;
 const msgList: messageList = default_client.msgList;
 const client: Client = default_client.client;
 
+msgList.addIRCMessage(null, `${i18n.t('page:newVersionAlertMessage')} https://bit.ly/3zevWIi`, true);
+msgList.addIRCMessage(null, i18n.t('page:discontinueWarningMessage'), true);
+
 tapi.get_global_chat_badges(true).then(badges => {
     tapi.global_badges = badges;
 });

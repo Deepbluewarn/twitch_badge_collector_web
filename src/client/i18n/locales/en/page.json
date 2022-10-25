@@ -35,5 +35,7 @@
     "replayChatFailed_1" : "Please refresh pages and try again.",
     "contactDeveloper" : "Contact Developer",
     "advertise" : "Get the web version of Twitch Badge Collector!",
-    "advertiseChat" : "Get the web version of Twitch Badge Collector! https://wtbc.bluewarn.dev"
+    "advertiseChat" : "Get the web version of Twitch Badge Collector! https://wtbc.bluewarn.dev",
+    "newVersionAlertMessage": "Twitch Badge Collector version 2 beta has been released.",
+    "discontinueWarningMessage": " Support and service for the current version will be discontinued after January 31, 2023."
 }

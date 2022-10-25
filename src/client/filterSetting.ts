@@ -144,6 +144,8 @@ function setPageLanguage(){
     document.getElementById('filter-control__rm-all').textContent = i18n.t('filterPage:removeAll');
     document.getElementById('filter-control__backup').textContent = i18n.t('filterPage:backupFile');
     document.getElementById('filter-control__upload').textContent = i18n.t('filterPage:uploadFile');
+    document.getElementById('newVersionAlertMessage').textContent = i18n.t('page:newVersionAlertMessage');
+    document.getElementById('discontinueWarningMessage').textContent = i18n.t('page:discontinueWarningMessage');
 }
 
 setPageLanguage();

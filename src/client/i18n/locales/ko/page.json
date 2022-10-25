@@ -37,5 +37,7 @@
     "replayChatFailed_1" : "새로고침 후 다시 시도하세요.",
     "contactDeveloper" : "개발자에게 문의하기",
     "advertise" : "웹 버전을 사용해보세요!",
-    "advertiseChat" : "Twitch Badge Collector 웹 버전을 사용해보세요! https://wtbc.bluewarn.dev"
+    "advertiseChat" : "Twitch Badge Collector 웹 버전을 사용해보세요! https://wtbc.bluewarn.dev",
+    "newVersionAlertMessage": "Twitch Badge Collector 버전 2 베타가 출시되었습니다.",
+    "discontinueWarningMessage": "현재 버전은 2023년 01월 31일 이후 지원 밎 서비스가 중단될 예정입니다."
 }

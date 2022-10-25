@@ -163,6 +163,8 @@ function setPageLanguage(){
     (document.getElementById('input__filename') as HTMLInputElement).placeholder = i18n.t('chatSaver:InputFilenamePlaceholder');
     document.getElementById('download').textContent = i18n.t('chatSaver:download');
     document.getElementById('select-chat__title').textContent = i18n.t('chatSaver:selectChat');
+    document.getElementById('newVersionAlertMessage').textContent = i18n.t('page:newVersionAlertMessage');
+    document.getElementById('discontinueWarningMessage').textContent = i18n.t('page:discontinueWarningMessage');
 }
 setPageLanguage();
 
